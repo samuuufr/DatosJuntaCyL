@@ -15,6 +15,11 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
+        // Poblar provincias de Castilla y León
+        $this->call([
+            ProvinciaSeeder::class,
+        ]);
+
         // User::factory(10)->create();
 
         User::factory()->create([
