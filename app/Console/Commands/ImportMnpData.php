@@ -166,13 +166,20 @@ class ImportMnpData extends Command
 
             $bar = $this->output->createProgressBar(count($datos));
 $procesados = 0;
+            $guardados = 0;
             $firstFailure = null;
+            $debugKeys = null;
 
             foreach ($datos as $fila) {
                 // Usar el código devuelto por la API para encontrar el municipio
                 $codigoIneApi = $fila['Codigo'] ?? null;
                 $municipioId = null;
                 $apiCodeNormalized = 'N/A';
+
+                // Guardar claves de la primera fila para depuración
+                if ($debugKeys === null) {
+                    $debugKeys = array_keys($fila);
+                }
 
                 // 1. Intentar buscar por CÓDIGO
                 if ($codigoIneApi && is_numeric($codigoIneApi)) {
@@ -205,23 +212,23 @@ $procesados = 0;
 
                 if ($municipioId) {
                     $procesados++;
-                    foreach ($fila as $key => $value) {
-                        if (preg_match('/^\d{4}$/', $key)) {
-                            $ano = (int) $key;
-                            if (in_array($ano, $anos)) {
-                                DatoMnp::updateOrCreate(
-                                    [
-                                        'municipio_id' => $municipioId,
-                                        'anno' => $ano,
-                                        'tipo_evento' => $tipoEvento,
-                                    ],
-                                    [
-                                        'valor' => (int) $value,
-                                        'ultima_actualizacion' => now(),
-                                    ]
-                                );
-                            }
-                        }
+                    // Procesar formato largo: una fila por municipio/año
+                    $ano = (int)($fila['Anno'] ?? 0);
+                    $valor = (int)($fila['Valor'] ?? 0);
+
+                    if ($ano > 0 && in_array($ano, $anos)) {
+                        DatoMnp::updateOrCreate(
+                            [
+                                'municipio_id' => $municipioId,
+                                'anno' => $ano,
+                                'tipo_evento' => $tipoEvento,
+                            ],
+                            [
+                                'valor' => $valor,
+                                'ultima_actualizacion' => now(),
+                            ]
+                        );
+                        $guardados++;
                     }
                 } else {
                     // Guardar primer fallo para depuración
@@ -237,10 +244,18 @@ $procesados = 0;
             }
             $bar->finish();
 
-            $this->info("    ✅ Procesados: {$procesados} / " . count($datos));
+            $this->newLine();
+            $this->info("    ✅ Procesados (Municipios encontrados): {$procesados} / " . count($datos));
+            $this->info("    💾 Registros guardados en BD: {$guardados}");
 
             if ($procesados < count($datos) && $firstFailure) {
                 $this->warn("    ⚠️  Ejemplo de fallo: API Code '{$firstFailure['code']}' -> '{$firstFailure['normalized']}', Name '{$firstFailure['name']}'");
+            }
+
+            if ($procesados > 0 && $guardados === 0) {
+                $this->error("    ❌ ERROR CRÍTICO: Se encontraron municipios pero NO se guardaron datos.");
+                $this->warn("    🔍 Columnas detectadas en los datos: " . implode(', ', $debugKeys ?? []));
+                $this->warn("    (El script espera columnas con formato de año '2020', '2021', etc.)");
             }
 
             if ($procesados === 0) {

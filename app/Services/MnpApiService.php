@@ -172,11 +172,9 @@ class MnpApiService
             $params['SL'][] = "COD_MUNICIPIO:{$codigoMunicipio}";
         }
 
-        // Variables en filas: municipios y código (para matching seguro)
-        $params['D'] = ['NOM_MUNICIPIO', 'COD_MUNICIPIO'];
-
-        // Años en columnas
-        $params['AC'] = 'ANNO';
+        // Variables en filas: municipios, código y AÑO.
+        // Esto devuelve un formato "largo" (una fila por municipio/año), que es más robusto.
+        $params['D'] = ['NOM_MUNICIPIO', 'COD_MUNICIPIO', 'ANNO'];
 
         $url = $this->buildUrl($params);
 
@@ -295,7 +293,7 @@ class MnpApiService
         $headers = array_map('trim', $headers);
 
         // Mapear índices de columnas dinámicamente
-        $indices = ['familia' => -1, 'variable' => -1, 'municipio' => -1, 'codigo' => -1, 'years' => []];
+        $indices = ['familia' => -1, 'variable' => -1, 'municipio' => -1, 'codigo' => -1, 'anno' => -1, 'valor' => -1];
 
         foreach ($headers as $idx => $header) {
             $h = mb_strtolower($header, 'UTF-8');
@@ -303,7 +301,8 @@ class MnpApiService
             elseif (str_contains($h, 'variable')) $indices['variable'] = $idx;
             elseif (str_contains($h, 'municipio') && !str_contains($h, 'cod') && !str_contains($h, 'código')) $indices['municipio'] = $idx;
             elseif ((str_contains($h, 'código') || str_contains($h, 'cod')) && str_contains($h, 'municipio')) $indices['codigo'] = $idx;
-            elseif (preg_match('/^\d{4}$/', $header)) $indices['years'][$header] = $idx;
+            elseif ($h === 'año' || $h === 'anno') $indices['anno'] = $idx;
+            elseif ($h === 'valor_variable' || str_contains($h, 'valor')) $indices['valor'] = $idx;
         }
 
         // Valores para reutilizar cuando hay columnas vacías
@@ -330,20 +329,15 @@ class MnpApiService
             if ($indices['variable'] >= 0) $item['Variable'] = $row[$indices['variable']] ?: $lastVariable;
             if ($indices['municipio'] >= 0) $item['Municipio'] = $row[$indices['municipio']] ?? '';
             if ($indices['codigo'] >= 0) $item['Codigo'] = $row[$indices['codigo']] ?? '';
-
-            // Extraer años dinámicamente
-            $hasData = false;
-            foreach ($indices['years'] as $year => $idx) {
-                if (isset($row[$idx])) {
-                    $val = $row[$idx];
-                    // Convertir a entero, tratando vacíos o puntos como 0
-                    $item[$year] = (is_numeric($val)) ? (int)$val : 0;
-                    $hasData = true;
-                }
+            if ($indices['anno'] >= 0) $item['Anno'] = $row[$indices['anno']] ?? '';
+            if ($indices['valor'] >= 0 && isset($row[$indices['valor']])) {
+                $val = $row[$indices['valor']];
+                // Convertir a entero, tratando vacíos o puntos como 0
+                $item['Valor'] = (is_numeric($val)) ? (int)$val : 0;
             }
 
             // Solo agregar si tiene datos de municipio
-            if (!empty($item['Municipio']) || !empty($item['Codigo'])) {
+            if ((!empty($item['Municipio']) || !empty($item['Codigo'])) && isset($item['Anno'])) {
                 $data[] = $item;
             }
         }
