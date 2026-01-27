@@ -90,10 +90,15 @@ class ImportMnpData extends Command
      */
     private function importarProvincia(string $codigoProvincia, int $anoInicio, int $anoFin, string $tipo)
     {
+        $codigoProvincia = str_pad($codigoProvincia, 2, '0', STR_PAD_LEFT);
+
         $this->info("📍 Importando datos de provincia: " . MnpApiService::PROVINCIAS[$codigoProvincia] ?? $codigoProvincia);
 
+        // Obtener todos los municipios de la provincia
+        // FIX: Buscar por código con y sin ceros (ej: '05' y '5') para asegurar compatibilidad
         $municipios = Municipio::whereHas('provincia', function ($query) use ($codigoProvincia) {
-            $query->where('codigo_ine', $codigoProvincia);
+            $query->where('codigo_ine', $codigoProvincia)
+                  ->orWhere('codigo_ine', (string)(int)$codigoProvincia);
         })->get();
 
         if ($municipios->isEmpty()) {
@@ -101,27 +106,149 @@ class ImportMnpData extends Command
             return;
         }
 
-        $anos = range($anoInicio, $anoFin);
-        $bar = $this->output->createProgressBar($municipios->count());
+        // DEBUG: Mostrar información de lo que se ha cargado de la BD
+        $this->info("   📊 Municipios cargados de BD: " . $municipios->count());
+        $this->info("   🔍 Ejemplo (primeros 3): " .
+            $municipios->take(3)->map(fn($m) => "[{$m->codigo_ine}] {$m->nombre}")->implode(', ')
+        );
 
-        foreach ($municipios as $municipio) {
-            if ($tipo === 'all' || $tipo === 'nacimientos') {
-                $this->importarDatos($municipio, 'nacimiento', $anos, $codigoProvincia);
+        // Construir mapas de búsqueda robustos
+        $municipiosMap = [];
+        $municipiosNameMapNormalized = [];
+
+        foreach ($municipios as $mun) {
+            // 1. Mapa por Código INE tal cual está en BD
+            $municipiosMap[trim($mun->codigo_ine)] = $mun->id;
+
+            // 2. Mapa por Código INE normalizado a 5 dígitos (05001)
+            $cleanCode = (string)$mun->codigo_ine;
+            $fullCode = $cleanCode;
+
+            if (strlen($cleanCode) <= 3) {
+                // Si es código corto (ej: 1), añadir provincia (ej: 05001)
+                $fullCode = $codigoProvincia . str_pad($cleanCode, 3, '0', STR_PAD_LEFT);
+            } else {
+                // Si es largo (ej: 5001), asegurar padding (ej: 05001)
+                $fullCode = str_pad($cleanCode, 5, '0', STR_PAD_LEFT);
             }
+            $municipiosMap[$fullCode] = $mun->id;
 
-            if ($tipo === 'all' || $tipo === 'defunciones') {
-                $this->importarDatos($municipio, 'defuncion', $anos, $codigoProvincia);
-            }
+            // 3. Mapa por entero (5001)
+            $municipiosMap[(int)$fullCode] = $mun->id;
 
-            if ($tipo === 'all' || $tipo === 'matrimonios') {
-                $this->importarDatos($municipio, 'matrimonio', $anos, $codigoProvincia);
-            }
-
-            $bar->advance();
+            // 4. Mapa por nombre normalizado
+            $municipiosNameMapNormalized[$this->normalizeString($mun->nombre)] = $mun->id;
         }
 
-        $bar->finish();
-        $this->newLine();
+        $anos = range($anoInicio, $anoFin);
+
+        // Definir tipos a importar
+        $tipos = [];
+        if ($tipo === 'all' || $tipo === 'nacimientos') $tipos['nacimiento'] = MnpApiService::FAMILIA_NACIMIENTOS;
+        if ($tipo === 'all' || $tipo === 'defunciones') $tipos['defuncion'] = MnpApiService::FAMILIA_DEFUNCIONES;
+        if ($tipo === 'all' || $tipo === 'matrimonios') $tipos['matrimonio'] = MnpApiService::FAMILIA_MATRIMONIOS;
+
+        foreach ($tipos as $tipoEvento => $familiaId) {
+            $this->info("  📥 Descargando {$tipoEvento}s (Carga masiva)...");
+
+            // Descargar datos de TODA la provincia de una vez
+            $datos = $this->mnpService->getDatos(
+                $familiaId,
+                $anos,
+                $codigoProvincia,
+                null // Sin filtro de municipio = todos
+            );
+
+            if (empty($datos)) {
+                $this->warn("  ⚠️ No se obtuvieron datos para {$tipoEvento}");
+                continue;
+            }
+
+            $bar = $this->output->createProgressBar(count($datos));
+$procesados = 0;
+            $firstFailure = null;
+
+            foreach ($datos as $fila) {
+                // Usar el código devuelto por la API para encontrar el municipio
+                $codigoIneApi = $fila['Codigo'] ?? null;
+                $municipioId = null;
+                $apiCodeNormalized = 'N/A';
+
+                // 1. Intentar buscar por CÓDIGO
+                if ($codigoIneApi && is_numeric($codigoIneApi)) {
+                    // Intentar match directo
+                    if (isset($municipiosMap[(string)$codigoIneApi])) {
+                        $municipioId = $municipiosMap[$codigoIneApi];
+                    }
+                    // Intentar match con padding 5 dígitos
+                    else {
+                        $apiCodeNormalized = str_pad($codigoIneApi, 5, '0', STR_PAD_LEFT);
+                        if (isset($municipiosMap[$apiCodeNormalized])) {
+                            $municipioId = $municipiosMap[$apiCodeNormalized];
+                        }
+                        // Intentar match como entero
+                        elseif (isset($municipiosMap[(int)$codigoIneApi])) {
+                            $municipioId = $municipiosMap[(int)$codigoIneApi];
+                        }
+                    }
+                }
+
+                // 2. Fallback: Intentar buscar por NOMBRE si falla el código
+                if (!$municipioId && !empty($fila['Municipio'])) {
+                    // Limpiar nombre: quitar código inicial y separadores (ej: "05001 ADANERO" -> "ADANERO")
+                    $nombreLimpio = preg_replace('/^[\d\s\.\-]+/', '', $fila['Municipio']);
+                    $nombreApi = $this->normalizeString($nombreLimpio);
+                    if (isset($municipiosNameMapNormalized[$nombreApi])) {
+                        $municipioId = $municipiosNameMapNormalized[$nombreApi];
+                    }
+                }
+
+                if ($municipioId) {
+                    $procesados++;
+                    foreach ($fila as $key => $value) {
+                        if (preg_match('/^\d{4}$/', $key)) {
+                            $ano = (int) $key;
+                            if (in_array($ano, $anos)) {
+                                DatoMnp::updateOrCreate(
+                                    [
+                                        'municipio_id' => $municipioId,
+                                        'anno' => $ano,
+                                        'tipo_evento' => $tipoEvento,
+                                    ],
+                                    [
+                                        'valor' => (int) $value,
+                                        'ultima_actualizacion' => now(),
+                                    ]
+                                );
+                            }
+                        }
+                    }
+                } else {
+                    // Guardar primer fallo para depuración
+                    if (!$firstFailure) {
+                        $firstFailure = [
+                            'code' => $fila['Codigo'] ?? 'N/A',
+                            'name' => $fila['Municipio'] ?? 'N/A',
+                            'normalized' => $apiCodeNormalized ?? 'N/A'
+                        ];
+                    }
+                }
+                $bar->advance();
+            }
+            $bar->finish();
+
+            $this->info("    ✅ Procesados: {$procesados} / " . count($datos));
+
+            if ($procesados < count($datos) && $firstFailure) {
+                $this->warn("    ⚠️  Ejemplo de fallo: API Code '{$firstFailure['code']}' -> '{$firstFailure['normalized']}', Name '{$firstFailure['name']}'");
+            }
+
+            if ($procesados === 0) {
+                $this->warn("\n  ⚠️  No se procesó ningún registro. Verifica los códigos INE.");
+            }
+
+            $this->newLine();
+        }
     }
 
     /**
@@ -189,5 +316,17 @@ class ImportMnpData extends Command
             }
         }
     }
-}
 
+    /**
+     * Normalizar cadena para comparación (minúsculas, sin tildes)
+     */
+    private function normalizeString(string $str): string
+    {
+        $str = mb_strtolower(trim($str));
+        return str_replace(
+            ['á', 'é', 'í', 'ó', 'ú', 'ü', 'ñ', 'Á', 'É', 'Í', 'Ó', 'Ú', 'Ü', 'Ñ'],
+            ['a', 'e', 'i', 'o', 'u', 'u', 'n', 'a', 'e', 'i', 'o', 'u', 'u', 'n'],
+            $str
+        );
+    }
+}

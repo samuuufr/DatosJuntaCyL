@@ -172,8 +172,8 @@ class MnpApiService
             $params['SL'][] = "COD_MUNICIPIO:{$codigoMunicipio}";
         }
 
-        // Variables en filas: municipios
-        $params['D'] = 'NOM_MUNICIPIO';
+        // Variables en filas: municipios y código (para matching seguro)
+        $params['D'] = ['NOM_MUNICIPIO', 'COD_MUNICIPIO'];
 
         // Años en columnas
         $params['AC'] = 'ANNO';
@@ -256,6 +256,9 @@ class MnpApiService
      */
     private function parseCsvResponse(string $csvContent): array
     {
+        // Eliminar BOM (Byte Order Mark) si existe, para evitar problemas con el primer encabezado
+        $csvContent = preg_replace('/^\xEF\xBB\xBF/', '', $csvContent);
+
         // Convertir de ISO-8859-1 a UTF-8
         $csvContent = mb_convert_encoding($csvContent, 'UTF-8', 'ISO-8859-1');
 
@@ -266,13 +269,13 @@ class MnpApiService
             return [];
         }
 
-        // Buscar la línea de encabezados (la que NO empieza con comillas y contiene "Familia")
+        // Buscar la línea de encabezados de forma más robusta
         $headerIndex = -1;
-        for ($i = 0; $i < \count($lines); $i++) {
+        // Buscamos solo en las primeras 20 líneas para no perder tiempo
+        for ($i = 0; $i < min(20, \count($lines)); $i++) {
             $trimmed = trim($lines[$i]);
-            if (!empty($trimmed) && $trimmed[0] !== '"' &&
-                strpos($trimmed, 'Familia') !== false &&
-                strpos($trimmed, 'Variable') !== false) {
+            // Buscamos palabras clave sin importar mayúsculas/minúsculas ni comillas iniciales
+            if (stripos($trimmed, 'Municipio') !== false && (stripos($trimmed, 'Familia') !== false || stripos($trimmed, 'Variable') !== false)) {
                 $headerIndex = $i;
                 break;
             }
@@ -283,10 +286,25 @@ class MnpApiService
         }
 
         // Parsear encabezados
-        $headers = str_getcsv($lines[$headerIndex], ',', '"', '');
+        // Detectar delimitador contando ocurrencias en la línea de cabecera
+        $lineaCabecera = $lines[$headerIndex];
+        $delimiter = (substr_count($lineaCabecera, ';') > substr_count($lineaCabecera, ',')) ? ';' : ',';
+
+        $headers = str_getcsv($lineaCabecera, $delimiter, '"', '');
+
         $headers = array_map('trim', $headers);
-        $headers = array_filter($headers);
-        $headers = array_values($headers); // Reindexar
+
+        // Mapear índices de columnas dinámicamente
+        $indices = ['familia' => -1, 'variable' => -1, 'municipio' => -1, 'codigo' => -1, 'years' => []];
+
+        foreach ($headers as $idx => $header) {
+            $h = mb_strtolower($header, 'UTF-8');
+            if (str_contains($h, 'familia')) $indices['familia'] = $idx;
+            elseif (str_contains($h, 'variable')) $indices['variable'] = $idx;
+            elseif (str_contains($h, 'municipio') && !str_contains($h, 'cod') && !str_contains($h, 'código')) $indices['municipio'] = $idx;
+            elseif ((str_contains($h, 'código') || str_contains($h, 'cod')) && str_contains($h, 'municipio')) $indices['codigo'] = $idx;
+            elseif (preg_match('/^\d{4}$/', $header)) $indices['years'][$header] = $idx;
+        }
 
         // Valores para reutilizar cuando hay columnas vacías
         $lastFamilia = '';
@@ -300,37 +318,32 @@ class MnpApiService
                 continue;
             }
 
-            $row = str_getcsv($line, ',', '"', '');
+            $row = str_getcsv($line, $delimiter, '"', '');
             $row = array_map('trim', $row);
 
-            // Debe tener al menos municipio y valor
-            if (\count($row) < 3) {
-                continue;
-            }
-
             // Extraer valores
-            $familia = !empty($row[0]) ? $row[0] : $lastFamilia;
-            $variable = !empty($row[1]) ? $row[1] : $lastVariable;
-            $municipio = $row[2] ?? '';
-            $valor = $row[3] ?? '';
+            if ($indices['familia'] >= 0 && !empty($row[$indices['familia']])) $lastFamilia = $row[$indices['familia']];
+            if ($indices['variable'] >= 0 && !empty($row[$indices['variable']])) $lastVariable = $row[$indices['variable']];
 
-            // Actualizar últimos valores
-            if (!empty($row[0])) {
-                $lastFamilia = $row[0];
+            $item = [];
+            if ($indices['familia'] >= 0) $item['Familia'] = $row[$indices['familia']] ?: $lastFamilia;
+            if ($indices['variable'] >= 0) $item['Variable'] = $row[$indices['variable']] ?: $lastVariable;
+            if ($indices['municipio'] >= 0) $item['Municipio'] = $row[$indices['municipio']] ?? '';
+            if ($indices['codigo'] >= 0) $item['Codigo'] = $row[$indices['codigo']] ?? '';
+
+            // Extraer años dinámicamente
+            $hasData = false;
+            foreach ($indices['years'] as $year => $idx) {
+                if (isset($row[$idx])) {
+                    $val = $row[$idx];
+                    // Convertir a entero, tratando vacíos o puntos como 0
+                    $item[$year] = (is_numeric($val)) ? (int)$val : 0;
+                    $hasData = true;
+                }
             }
-            if (!empty($row[1])) {
-                $lastVariable = $row[1];
-            }
 
-            // Solo agregar si tiene municipio y valor
-            if (!empty($municipio) && $valor !== '') {
-                $item = [
-                    'Familia' => $familia,
-                    'Variable' => $variable,
-                    'Municipio' => $municipio,
-                    'Valor' => is_numeric($valor) ? (int) $valor : $valor,
-                ];
-
+            // Solo agregar si tiene datos de municipio
+            if (!empty($item['Municipio']) || !empty($item['Codigo'])) {
                 $data[] = $item;
             }
         }
