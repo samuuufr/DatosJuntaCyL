@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Facades\DB;
 
 class DatoMnp extends Model
 {
@@ -73,34 +74,33 @@ class DatoMnp extends Model
 
     /**
      * Obtener estadísticas agregadas por provincia para un año
-     * Usa Query Builder sobre PDO
+     * Usa Eloquent ORM
      *
      * @param int $ano Año a consultar
      * @return \Illuminate\Support\Collection
      */
     public static function getEstadisticasPorProvincia(int $ano)
     {
-        return \DB::table('datos_mnp as d')
-            ->join('municipios as m', 'd.municipio_id', '=', 'm.id')
-            ->join('provincias as p', 'm.provincia_id', '=', 'p.id')
-            ->where('d.anno', $ano)
+        return self::join('municipios', 'datos_mnp.municipio_id', '=', 'municipios.id')
+            ->join('provincias', 'municipios.provincia_id', '=', 'provincias.id')
+            ->where('datos_mnp.anno', $ano)
             ->select([
-                'p.codigo_ine',
-                'p.nombre as provincia',
-                'd.tipo_evento',
-                \DB::raw('SUM(d.valor) as total'),
-                \DB::raw('COUNT(DISTINCT m.id) as num_municipios'),
-                \DB::raw('AVG(d.valor) as promedio'),
+                'provincias.codigo_ine',
+                'provincias.nombre as provincia',
+                'datos_mnp.tipo_evento',
+                DB::raw('SUM(datos_mnp.valor) as total'),
+                DB::raw('COUNT(DISTINCT municipios.id) as num_municipios'),
+                DB::raw('AVG(datos_mnp.valor) as promedio'),
             ])
-            ->groupBy('p.id', 'p.codigo_ine', 'p.nombre', 'd.tipo_evento')
-            ->orderBy('p.nombre')
-            ->orderBy('d.tipo_evento')
+            ->groupBy('provincias.id', 'provincias.codigo_ine', 'provincias.nombre', 'datos_mnp.tipo_evento')
+            ->orderBy('provincias.nombre')
+            ->orderBy('datos_mnp.tipo_evento')
             ->get();
     }
 
     /**
      * Obtener evolución temporal de un municipio
-     * Usa Query Builder sobre PDO
+     * Usa Eloquent ORM
      *
      * @param int $municipioId ID del municipio
      * @param int $anoInicio Año inicial
@@ -109,8 +109,7 @@ class DatoMnp extends Model
      */
     public static function getEvolucionMunicipio(int $municipioId, int $anoInicio, int $anoFin)
     {
-        return \DB::table('datos_mnp')
-            ->where('municipio_id', $municipioId)
+        return self::where('municipio_id', $municipioId)
             ->whereBetween('anno', [$anoInicio, $anoFin])
             ->select([
                 'anno',
@@ -125,7 +124,7 @@ class DatoMnp extends Model
 
     /**
      * Calcular crecimiento vegetativo por provincia y año
-     * Usa Query Builder con subconsultas
+     * Usa Eloquent ORM con subconsultas
      *
      * @param string $codigoProvincia Código INE de provincia
      * @param int $ano Año a consultar
@@ -133,18 +132,17 @@ class DatoMnp extends Model
      */
     public static function getCrecimientoVegetativo(string $codigoProvincia, int $ano): ?array
     {
-        $result = \DB::table('datos_mnp as d')
-            ->join('municipios as m', 'd.municipio_id', '=', 'm.id')
-            ->join('provincias as p', 'm.provincia_id', '=', 'p.id')
-            ->where('p.codigo_ine', $codigoProvincia)
-            ->where('d.anno', $ano)
+        $result = self::join('municipios', 'datos_mnp.municipio_id', '=', 'municipios.id')
+            ->join('provincias', 'municipios.provincia_id', '=', 'provincias.id')
+            ->where('provincias.codigo_ine', $codigoProvincia)
+            ->where('datos_mnp.anno', $ano)
             ->select([
-                'p.nombre as provincia',
-                \DB::raw("SUM(CASE WHEN d.tipo_evento = 'nacimiento' THEN d.valor ELSE 0 END) as nacimientos"),
-                \DB::raw("SUM(CASE WHEN d.tipo_evento = 'defuncion' THEN d.valor ELSE 0 END) as defunciones"),
-                \DB::raw("SUM(CASE WHEN d.tipo_evento = 'matrimonio' THEN d.valor ELSE 0 END) as matrimonios"),
+                'provincias.nombre as provincia',
+                DB::raw("SUM(CASE WHEN datos_mnp.tipo_evento = 'nacimiento' THEN datos_mnp.valor ELSE 0 END) as nacimientos"),
+                DB::raw("SUM(CASE WHEN datos_mnp.tipo_evento = 'defuncion' THEN datos_mnp.valor ELSE 0 END) as defunciones"),
+                DB::raw("SUM(CASE WHEN datos_mnp.tipo_evento = 'matrimonio' THEN datos_mnp.valor ELSE 0 END) as matrimonios"),
             ])
-            ->groupBy('p.id', 'p.nombre')
+            ->groupBy('provincias.id', 'provincias.nombre')
             ->first();
 
         if (!$result) {
@@ -166,7 +164,7 @@ class DatoMnp extends Model
 
     /**
      * Obtener ranking de municipios por tipo de evento
-     * Usa Query Builder sobre PDO
+     * Usa Eloquent ORM
      *
      * @param string $tipoEvento nacimiento, defuncion, matrimonio
      * @param int $ano Año a consultar
@@ -175,261 +173,18 @@ class DatoMnp extends Model
      */
     public static function getRankingMunicipios(string $tipoEvento, int $ano, int $limite = 10)
     {
-        return \DB::table('datos_mnp as d')
-            ->join('municipios as m', 'd.municipio_id', '=', 'm.id')
-            ->join('provincias as p', 'm.provincia_id', '=', 'p.id')
-            ->where('d.tipo_evento', $tipoEvento)
-            ->where('d.anno', $ano)
+        return self::join('municipios', 'datos_mnp.municipio_id', '=', 'municipios.id')
+            ->join('provincias', 'municipios.provincia_id', '=', 'provincias.id')
+            ->where('datos_mnp.tipo_evento', $tipoEvento)
+            ->where('datos_mnp.anno', $ano)
             ->select([
-                'm.nombre as municipio',
-                'p.nombre as provincia',
-                'd.valor',
+                'municipios.nombre as municipio',
+                'provincias.nombre as provincia',
+                'datos_mnp.valor',
             ])
-            ->orderBy('d.valor', 'desc')
+            ->orderBy('datos_mnp.valor', 'desc')
             ->limit($limite)
             ->get();
     }
 
-    // ========================================================================
-    // MÉTODOS CON PDO PURO (Acceso directo a PDO)
-    // ========================================================================
-
-    /**
-     * Obtener estadísticas por provincia usando PDO PURO
-     *
-     * @param int $ano Año a consultar
-     * @return array
-     */
-    public static function getEstadisticasPorProvinciaPDO(int $ano): array
-    {
-        $pdo = \DB::connection()->getPdo();
-
-        $sql = "
-            SELECT
-                p.codigo_ine,
-                p.nombre as provincia,
-                d.tipo_evento,
-                SUM(d.valor) as total,
-                COUNT(DISTINCT m.id) as num_municipios,
-                AVG(d.valor) as promedio
-            FROM datos_mnp d
-            INNER JOIN municipios m ON d.municipio_id = m.id
-            INNER JOIN provincias p ON m.provincia_id = p.id
-            WHERE d.anno = :ano
-            GROUP BY p.id, p.codigo_ine, p.nombre, d.tipo_evento
-            ORDER BY p.nombre, d.tipo_evento
-        ";
-
-        $stmt = $pdo->prepare($sql);
-        $stmt->bindParam(':ano', $ano, \PDO::PARAM_INT);
-        $stmt->execute();
-
-        return $stmt->fetchAll(\PDO::FETCH_ASSOC);
-    }
-
-    /**
-     * Obtener evolución temporal usando PDO PURO
-     *
-     * @param int $municipioId ID del municipio
-     * @param int $anoInicio Año inicial
-     * @param int $anoFin Año final
-     * @return array
-     */
-    public static function getEvolucionMunicipioPDO(int $municipioId, int $anoInicio, int $anoFin): array
-    {
-        $pdo = \DB::connection()->getPdo();
-
-        $sql = "
-            SELECT
-                anno,
-                tipo_evento,
-                valor,
-                ultima_actualizacion
-            FROM datos_mnp
-            WHERE municipio_id = :municipio_id
-              AND anno BETWEEN :ano_inicio AND :ano_fin
-            ORDER BY anno, tipo_evento
-        ";
-
-        $stmt = $pdo->prepare($sql);
-        $stmt->bindParam(':municipio_id', $municipioId, \PDO::PARAM_INT);
-        $stmt->bindParam(':ano_inicio', $anoInicio, \PDO::PARAM_INT);
-        $stmt->bindParam(':ano_fin', $anoFin, \PDO::PARAM_INT);
-        $stmt->execute();
-
-        return $stmt->fetchAll(\PDO::FETCH_ASSOC);
-    }
-
-    /**
-     * Calcular crecimiento vegetativo usando PDO PURO
-     *
-     * @param string $codigoProvincia Código INE provincia
-     * @param int $ano Año a consultar
-     * @return array|null
-     */
-    public static function getCrecimientoVegetativoPDO(string $codigoProvincia, int $ano): ?array
-    {
-        $pdo = \DB::connection()->getPdo();
-
-        $sql = "
-            SELECT
-                p.nombre as provincia,
-                SUM(CASE WHEN d.tipo_evento = 'nacimiento' THEN d.valor ELSE 0 END) as nacimientos,
-                SUM(CASE WHEN d.tipo_evento = 'defuncion' THEN d.valor ELSE 0 END) as defunciones,
-                SUM(CASE WHEN d.tipo_evento = 'matrimonio' THEN d.valor ELSE 0 END) as matrimonios
-            FROM datos_mnp d
-            INNER JOIN municipios m ON d.municipio_id = m.id
-            INNER JOIN provincias p ON m.provincia_id = p.id
-            WHERE p.codigo_ine = :codigo_provincia
-              AND d.anno = :ano
-            GROUP BY p.id, p.nombre
-        ";
-
-        $stmt = $pdo->prepare($sql);
-        $stmt->bindParam(':codigo_provincia', $codigoProvincia, \PDO::PARAM_STR);
-        $stmt->bindParam(':ano', $ano, \PDO::PARAM_INT);
-        $stmt->execute();
-
-        $result = $stmt->fetch(\PDO::FETCH_ASSOC);
-
-        if (!$result) {
-            return null;
-        }
-
-        $result['ano'] = $ano;
-        $result['crecimiento_vegetativo'] = $result['nacimientos'] - $result['defunciones'];
-
-        return $result;
-    }
-
-    /**
-     * Obtener ranking de municipios usando PDO PURO
-     *
-     * @param string $tipoEvento nacimiento, defuncion, matrimonio
-     * @param int $ano Año a consultar
-     * @param int $limite Número de resultados
-     * @return array
-     */
-    public static function getRankingMunicipiosPDO(string $tipoEvento, int $ano, int $limite = 10): array
-    {
-        $pdo = \DB::connection()->getPdo();
-
-        $sql = "
-            SELECT
-                m.nombre as municipio,
-                p.nombre as provincia,
-                d.valor
-            FROM datos_mnp d
-            INNER JOIN municipios m ON d.municipio_id = m.id
-            INNER JOIN provincias p ON m.provincia_id = p.id
-            WHERE d.tipo_evento = :tipo_evento
-              AND d.anno = :ano
-            ORDER BY d.valor DESC
-            LIMIT :limite
-        ";
-
-        $stmt = $pdo->prepare($sql);
-        $stmt->bindParam(':tipo_evento', $tipoEvento, \PDO::PARAM_STR);
-        $stmt->bindParam(':ano', $ano, \PDO::PARAM_INT);
-        $stmt->bindParam(':limite', $limite, \PDO::PARAM_INT);
-        $stmt->execute();
-
-        return $stmt->fetchAll(\PDO::FETCH_ASSOC);
-    }
-
-    /**
-     * Comparativa entre provincias usando PDO PURO con transacciones
-     *
-     * @param int $ano Año a consultar
-     * @return array
-     */
-    public static function getComparativaProvinciasPDO(int $ano): array
-    {
-        $pdo = \DB::connection()->getPdo();
-
-        // Iniciar transacción para garantizar consistencia
-        $pdo->beginTransaction();
-
-        try {
-            $sql = "
-                SELECT
-                    p.codigo_ine,
-                    p.nombre as provincia,
-                    SUM(CASE WHEN d.tipo_evento = 'nacimiento' THEN d.valor ELSE 0 END) as nacimientos,
-                    SUM(CASE WHEN d.tipo_evento = 'defuncion' THEN d.valor ELSE 0 END) as defunciones,
-                    SUM(CASE WHEN d.tipo_evento = 'matrimonio' THEN d.valor ELSE 0 END) as matrimonios,
-                    SUM(CASE WHEN d.tipo_evento = 'nacimiento' THEN d.valor ELSE 0 END) -
-                    SUM(CASE WHEN d.tipo_evento = 'defuncion' THEN d.valor ELSE 0 END) as crecimiento_vegetativo,
-                    COUNT(DISTINCT m.id) as num_municipios
-                FROM datos_mnp d
-                INNER JOIN municipios m ON d.municipio_id = m.id
-                INNER JOIN provincias p ON m.provincia_id = p.id
-                WHERE d.anno = :ano
-                GROUP BY p.id, p.codigo_ine, p.nombre
-                ORDER BY nacimientos DESC
-            ";
-
-            $stmt = $pdo->prepare($sql);
-            $stmt->bindParam(':ano', $ano, \PDO::PARAM_INT);
-            $stmt->execute();
-
-            $result = $stmt->fetchAll(\PDO::FETCH_ASSOC);
-
-            // Commit transacción
-            $pdo->commit();
-
-            return $result;
-
-        } catch (\PDOException $e) {
-            // Rollback en caso de error
-            $pdo->rollBack();
-            throw $e;
-        }
-    }
-
-    /**
-     * Inserción masiva usando PDO PURO con transacción
-     *
-     * @param array $datos Array de datos a insertar
-     * @return int Número de registros insertados
-     */
-    public static function insertarMasivoPDO(array $datos): int
-    {
-        $pdo = \DB::connection()->getPdo();
-
-        $pdo->beginTransaction();
-
-        try {
-            $sql = "
-                INSERT INTO datos_mnp (municipio_id, anno, tipo_evento, valor, ultima_actualizacion, created_at, updated_at)
-                VALUES (:municipio_id, :anno, :tipo_evento, :valor, :ultima_actualizacion, NOW(), NOW())
-                ON DUPLICATE KEY UPDATE
-                    valor = VALUES(valor),
-                    ultima_actualizacion = VALUES(ultima_actualizacion),
-                    updated_at = NOW()
-            ";
-
-            $stmt = $pdo->prepare($sql);
-
-            $insertados = 0;
-            foreach ($datos as $dato) {
-                $stmt->bindParam(':municipio_id', $dato['municipio_id'], \PDO::PARAM_INT);
-                $stmt->bindParam(':anno', $dato['anno'], \PDO::PARAM_INT);
-                $stmt->bindParam(':tipo_evento', $dato['tipo_evento'], \PDO::PARAM_STR);
-                $stmt->bindParam(':valor', $dato['valor'], \PDO::PARAM_INT);
-                $stmt->bindValue(':ultima_actualizacion', $dato['ultima_actualizacion'] ?? date('Y-m-d H:i:s'), \PDO::PARAM_STR);
-
-                $stmt->execute();
-                $insertados += $stmt->rowCount();
-            }
-
-            $pdo->commit();
-
-            return $insertados;
-
-        } catch (\PDOException $e) {
-            $pdo->rollBack();
-            throw $e;
-        }
-    }
 }
