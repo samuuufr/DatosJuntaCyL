@@ -2,29 +2,27 @@
 
 namespace Database\Seeders;
 
-use App\Models\User;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
 class DatabaseSeeder extends Seeder
 {
-    use WithoutModelEvents;
 
     /**
      * Seed the application's database.
      */
     public function run(): void
     {
-        // Poblar provincias de Castilla y León
+        // Orden de ejecución respetando dependencias:
+        // 1. Provincias (no tiene dependencias)
+        // 2. Municipios (depende de provincias)
+        // 3. Usuarios (independiente)
+        // 4. Datos MNP (depende de municipios)
+
         $this->call([
             ProvinciaSeeder::class,
-        ]);
-
-        // User::factory(10)->create();
-
-        User::factory()->create([
-            'name' => 'Test User',
-            'email' => 'test@example.com',
+            MunicipioSeeder::class,
+            UsuarioSeeder::class,
+            DatoMnpSeeder::class,
         ]);
     }
 }

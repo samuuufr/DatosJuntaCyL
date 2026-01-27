@@ -2,7 +2,6 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use App\Models\Provincia;
 
@@ -26,7 +25,10 @@ class ProvinciaSeeder extends Seeder
         ];
 
         foreach ($provincias as $provincia) {
-            Provincia::create($provincia);
+            Provincia::updateOrCreate(
+                ['codigo_ine' => $provincia['codigo_ine']],
+                ['nombre' => $provincia['nombre']]
+            );
         }
     }
 }
