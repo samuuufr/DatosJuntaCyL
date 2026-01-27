@@ -3,7 +3,9 @@
     "allow": [
       "Bash(php artisan:*)",
       "Bash(dir:*)",
-      "Bash(ls:*)"
+      "Bash(ls:*)",
+      "Bash(php scripts/verificar-datos.php:*)",
+      "Bash(php:*)"
     ]
   }
 }
