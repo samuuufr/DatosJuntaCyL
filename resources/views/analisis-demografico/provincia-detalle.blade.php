@@ -53,6 +53,29 @@
     </div>
 </div>
 
+<!-- GRÁFICOS INTERACTIVOS -->
+<div class="grid grid-2" style="gap: 1.5rem; margin-bottom: 2rem;">
+    <!-- Gráfico de distribución -->
+    <div class="card">
+        <div class="card-header">
+            <h2 class="card-title">📊 Distribución de Eventos MNP</h2>
+        </div>
+        <div class="card-body">
+            <canvas id="grafico-distribucion" style="max-height: 300px;"></canvas>
+        </div>
+    </div>
+
+    <!-- Gráfico de top municipios -->
+    <div class="card">
+        <div class="card-header">
+            <h2 class="card-title">🏆 Top 5 Municipios por Población</h2>
+        </div>
+        <div class="card-body">
+            <canvas id="grafico-top-municipios" style="max-height: 300px;"></canvas>
+        </div>
+    </div>
+</div>
+
 <!-- LISTADO DE MUNICIPIOS -->
 <div class="card">
     <div class="card-header">
@@ -105,4 +128,113 @@
     </div>
 </div>
 
+@endsection
+
+@section('js_adicional')
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Gráfico de distribución de eventos MNP
+    const ctxDistribucion = document.getElementById('grafico-distribucion').getContext('2d');
+    new Chart(ctxDistribucion, {
+        type: 'pie',
+        data: {
+            labels: ['Nacimientos', 'Defunciones', 'Matrimonios'],
+            datasets: [{
+                data: [
+                    {{ $estadisticas['nacimientos'] }},
+                    {{ $estadisticas['defunciones'] }},
+                    {{ $estadisticas['matrimonios'] }}
+                ],
+                backgroundColor: [
+                    'rgba(16, 185, 129, 0.8)',
+                    'rgba(239, 68, 68, 0.8)',
+                    'rgba(245, 158, 11, 0.8)'
+                ],
+                borderColor: [
+                    'rgba(16, 185, 129, 1)',
+                    'rgba(239, 68, 68, 1)',
+                    'rgba(245, 158, 11, 1)'
+                ],
+                borderWidth: 2
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: true,
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                    labels: {
+                        padding: 15,
+                        font: {
+                            size: 12
+                        }
+                    }
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            const label = context.label || '';
+                            const value = context.parsed;
+                            const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                            const percentage = ((value / total) * 100).toFixed(1);
+                            return label + ': ' + value.toLocaleString() + ' (' + percentage + '%)';
+                        }
+                    }
+                }
+            }
+        }
+    });
+
+    // Cargar datos para top municipios con Fetch API
+    fetch('/api/provincias/{{ $provincia->id }}/datos')
+        .then(response => response.json())
+        .then(data => {
+            const ctxTop = document.getElementById('grafico-top-municipios').getContext('2d');
+            new Chart(ctxTop, {
+                type: 'bar',
+                data: {
+                    labels: data.top_municipios.map(m => m.nombre),
+                    datasets: [{
+                        label: 'Nacimientos',
+                        data: data.top_municipios.map(m => m.total),
+                        backgroundColor: 'rgba(16, 185, 129, 0.8)',
+                        borderColor: 'rgba(16, 185, 129, 1)',
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function(value) {
+                                    return value.toLocaleString();
+                                }
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return 'Nacimientos: ' + context.parsed.y.toLocaleString();
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        })
+        .catch(error => {
+            console.error('Error cargando datos de municipios:', error);
+        });
+});
+</script>
 @endsection

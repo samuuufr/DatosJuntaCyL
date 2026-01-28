@@ -60,6 +60,29 @@
     </div>
 </div>
 
+<!-- GRÁFICOS INTERACTIVOS -->
+<div class="grid grid-2" style="gap: 1.5rem; margin-bottom: 2rem;">
+    <!-- Gráfico de evolución temporal -->
+    <div class="card">
+        <div class="card-header">
+            <h2 class="card-title">📈 Evolución Temporal</h2>
+        </div>
+        <div class="card-body">
+            <canvas id="grafico-evolucion" style="max-height: 300px;"></canvas>
+        </div>
+    </div>
+
+    <!-- Gráfico de distribución -->
+    <div class="card">
+        <div class="card-header">
+            <h2 class="card-title">📊 Distribución Total de Eventos</h2>
+        </div>
+        <div class="card-body">
+            <canvas id="grafico-distribucion" style="max-height: 300px;"></canvas>
+        </div>
+    </div>
+</div>
+
 <!-- EVOLUCIÓN POR AÑOS -->
 <div class="card" style="margin-bottom: 2rem;">
     <div class="card-header">
@@ -171,4 +194,145 @@
     </div>
 </div>
 
+@endsection
+
+@section('js_adicional')
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Preparar datos de evolución
+    const evolucion = @json($evolucion);
+    const anos = evolucion.map(d => d.anno);
+    const nacimientos = evolucion.map(d => d.nacimientos);
+    const defunciones = evolucion.map(d => d.defunciones);
+    const matrimonios = evolucion.map(d => d.matrimonios);
+
+    // Gráfico de evolución temporal
+    const ctxEvolucion = document.getElementById('grafico-evolucion').getContext('2d');
+    new Chart(ctxEvolucion, {
+        type: 'line',
+        data: {
+            labels: anos,
+            datasets: [
+                {
+                    label: 'Nacimientos',
+                    data: nacimientos,
+                    borderColor: 'rgba(16, 185, 129, 1)',
+                    backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                    borderWidth: 2,
+                    fill: true,
+                    tension: 0.4
+                },
+                {
+                    label: 'Defunciones',
+                    data: defunciones,
+                    borderColor: 'rgba(239, 68, 68, 1)',
+                    backgroundColor: 'rgba(239, 68, 68, 0.1)',
+                    borderWidth: 2,
+                    fill: true,
+                    tension: 0.4
+                },
+                {
+                    label: 'Matrimonios',
+                    data: matrimonios,
+                    borderColor: 'rgba(245, 158, 11, 1)',
+                    backgroundColor: 'rgba(245, 158, 11, 0.1)',
+                    borderWidth: 2,
+                    fill: true,
+                    tension: 0.4
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: true,
+            interaction: {
+                mode: 'index',
+                intersect: false
+            },
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                    labels: {
+                        padding: 15,
+                        font: {
+                            size: 11
+                        }
+                    }
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            return context.dataset.label + ': ' + context.parsed.y.toLocaleString();
+                        }
+                    }
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        callback: function(value) {
+                            return value.toLocaleString();
+                        }
+                    }
+                }
+            }
+        }
+    });
+
+    // Gráfico de distribución total
+    const ctxDistribucion = document.getElementById('grafico-distribucion').getContext('2d');
+    new Chart(ctxDistribucion, {
+        type: 'doughnut',
+        data: {
+            labels: ['Nacimientos', 'Defunciones', 'Matrimonios'],
+            datasets: [{
+                data: [
+                    {{ $estadisticas['nacimientos'] }},
+                    {{ $estadisticas['defunciones'] }},
+                    {{ $estadisticas['matrimonios'] }}
+                ],
+                backgroundColor: [
+                    'rgba(16, 185, 129, 0.8)',
+                    'rgba(239, 68, 68, 0.8)',
+                    'rgba(245, 158, 11, 0.8)'
+                ],
+                borderColor: [
+                    'rgba(16, 185, 129, 1)',
+                    'rgba(239, 68, 68, 1)',
+                    'rgba(245, 158, 11, 1)'
+                ],
+                borderWidth: 2
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: true,
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                    labels: {
+                        padding: 15,
+                        font: {
+                            size: 12
+                        }
+                    }
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            const label = context.label || '';
+                            const value = context.parsed;
+                            const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                            const percentage = ((value / total) * 100).toFixed(1);
+                            return label + ': ' + value.toLocaleString() + ' (' + percentage + '%)';
+                        }
+                    }
+                }
+            }
+        }
+    });
+});
+</script>
 @endsection

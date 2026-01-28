@@ -23,12 +23,14 @@
                     </a>
                 </li>
                 <li>
-                    <a href="#" class="navbar-enlace">
+                    <a href="{{ route('provincias.index') }}"
+                       class="navbar-enlace @if(Route::currentRouteName() === 'provincias.index') active @endif">
                         <span>📍</span> Provincias
                     </a>
                 </li>
                 <li>
-                    <a href="#" class="navbar-enlace">
+                    <a href="{{ route('municipios.index') }}"
+                       class="navbar-enlace @if(Route::currentRouteName() === 'municipios.index') active @endif">
                         <span>🏘️</span> Municipios
                     </a>
                 </li>
