@@ -165,12 +165,18 @@ class ImportMnpData extends Command
             }
 
             $bar = $this->output->createProgressBar(count($datos));
-$procesados = 0;
+            $procesados = 0;
             $guardados = 0;
             $firstFailure = null;
             $debugKeys = null;
+            $firstRow = null;
+            $valoresEncontrados = 0;
 
             foreach ($datos as $fila) {
+                // Guardar primera fila para depuración
+                if ($firstRow === null) {
+                    $firstRow = $fila;
+                }
                 // Usar el código devuelto por la API para encontrar el municipio
                 $codigoIneApi = $fila['Codigo'] ?? null;
                 $municipioId = null;
@@ -216,6 +222,10 @@ $procesados = 0;
                     $ano = (int)($fila['Anno'] ?? 0);
                     $valor = (int)($fila['Valor'] ?? 0);
 
+                    if ($valor > 0) {
+                        $valoresEncontrados++;
+                    }
+
                     if ($ano > 0 && in_array($ano, $anos)) {
                         DatoMnp::updateOrCreate(
                             [
@@ -248,6 +258,16 @@ $procesados = 0;
             $this->info("    ✅ Procesados (Municipios encontrados): {$procesados} / " . count($datos));
             $this->info("    💾 Registros guardados en BD: {$guardados}");
 
+            if ($valoresEncontrados > 0) {
+                $this->info("    📊 Valores no-cero encontrados: {$valoresEncontrados}");
+            } else {
+                $this->warn("    ⚠️  ADVERTENCIA: Todos los valores son 0");
+                if ($firstRow) {
+                    $this->warn("    🔍 Primera fila recibida:");
+                    $this->warn("       " . json_encode($firstRow, JSON_UNESCAPED_UNICODE));
+                }
+            }
+
             if ($procesados < count($datos) && $firstFailure) {
                 $this->warn("    ⚠️  Ejemplo de fallo: API Code '{$firstFailure['code']}' -> '{$firstFailure['normalized']}', Name '{$firstFailure['name']}'");
             }
@@ -255,7 +275,6 @@ $procesados = 0;
             if ($procesados > 0 && $guardados === 0) {
                 $this->error("    ❌ ERROR CRÍTICO: Se encontraron municipios pero NO se guardaron datos.");
                 $this->warn("    🔍 Columnas detectadas en los datos: " . implode(', ', $debugKeys ?? []));
-                $this->warn("    (El script espera columnas con formato de año '2020', '2021', etc.)");
             }
 
             if ($procesados === 0) {

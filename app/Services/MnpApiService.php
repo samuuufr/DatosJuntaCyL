@@ -305,6 +305,12 @@ class MnpApiService
             elseif ($h === 'valor_variable' || str_contains($h, 'valor')) $indices['valor'] = $idx;
         }
 
+        // Log de columnas detectadas para depuración
+        Log::debug('API MNP Headers detectados', [
+            'headers' => $headers,
+            'indices' => $indices
+        ]);
+
         // Valores para reutilizar cuando hay columnas vacías
         $lastFamilia = '';
         $lastVariable = '';
@@ -330,11 +336,25 @@ class MnpApiService
             if ($indices['municipio'] >= 0) $item['Municipio'] = $row[$indices['municipio']] ?? '';
             if ($indices['codigo'] >= 0) $item['Codigo'] = $row[$indices['codigo']] ?? '';
             if ($indices['anno'] >= 0) $item['Anno'] = $row[$indices['anno']] ?? '';
+
+            // Siempre intentar extraer el valor
+            $valor = 0;
             if ($indices['valor'] >= 0 && isset($row[$indices['valor']])) {
-                $val = $row[$indices['valor']];
+                $val = trim($row[$indices['valor']]);
                 // Convertir a entero, tratando vacíos o puntos como 0
-                $item['Valor'] = (is_numeric($val)) ? (int)$val : 0;
+                $valor = (is_numeric($val) && $val !== '') ? (int)$val : 0;
+            } elseif ($indices['valor'] === -1) {
+                // Si no se detectó columna de valor, buscar la última columna numérica
+                // (típicamente el último campo después de Anno)
+                for ($j = count($row) - 1; $j >= 0; $j--) {
+                    $val = trim($row[$j]);
+                    if (is_numeric($val) && $val !== '') {
+                        $valor = (int)$val;
+                        break;
+                    }
+                }
             }
+            $item['Valor'] = $valor;
 
             // Solo agregar si tiene datos de municipio
             if ((!empty($item['Municipio']) || !empty($item['Codigo'])) && isset($item['Anno'])) {

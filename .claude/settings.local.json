@@ -5,7 +5,8 @@
       "Bash(dir:*)",
       "Bash(ls:*)",
       "Bash(php scripts/verificar-datos.php:*)",
-      "Bash(php:*)"
+      "Bash(php:*)",
+      "Bash(del:*)"
     ]
   }
 }
