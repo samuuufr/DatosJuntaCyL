@@ -1,14 +1,11 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\TestController;
 use App\Http\Controllers\ControladorAnalisisDemografico;
 
 Route::get('/', function () {
-    return view('welcome');
+    return redirect('/analisis-demografico');
 });
-
-Route::get('/test', [TestController::class, 'index']);
 
 // Rutas de análisis demográfico
 Route::prefix('analisis-demografico')->name('analisis-demografico.')->group(function () {

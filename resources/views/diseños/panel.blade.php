@@ -4,76 +4,84 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>@yield('titulo_pagina', 'Análisis Demográfico') - Portal de Datos</title>
-    <link rel="stylesheet" href="{{ asset('css/tema.css') }}">
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
     @yield('css_adicional')
 </head>
 <body>
 
-<div class="container-dashboard">
-    <!-- SIDEBAR LATERAL -->
-    <aside class="sidebar">
-        <div class="sidebar-header">
-            <div class="sidebar-logo">
-                <span>📊</span>
-                <span>CyL Data</span>
-            </div>
-        </div>
+<!-- BARRA DE NAVEGACIÓN -->
+@include('componentes.barra-navegacion')
 
-        <!-- Sección: Análisis -->
-        <div class="sidebar-section">
-            <h3 class="sidebar-section-title">Análisis</h3>
-            <nav class="sidebar-menu">
-                <a href="{{ route('analisis-demografico.panel') }}" class="sidebar-menu-item @if(Route::currentRouteName() === 'analisis-demografico.panel') active @endif">
-                    <span class="sidebar-icon">📈</span>
-                    <span>Panel</span>
-                </a>
-                <a href="{{ route('analisis-demografico.comparar') }}" class="sidebar-menu-item @if(Route::currentRouteName() === 'analisis-demografico.comparar') active @endif">
-                    <span class="sidebar-icon">⚖️</span>
-                    <span>Comparar</span>
-                </a>
-            </nav>
-        </div>
-
-        <!-- Sección: Datos -->
-        <div class="sidebar-section">
-            <h3 class="sidebar-section-title">Datos</h3>
-            <nav class="sidebar-menu">
-                <a href="#provincias" class="sidebar-menu-item">
-                    <span class="sidebar-icon">📍</span>
-                    <span>Provincias</span>
-                </a>
-                <a href="#municipios" class="sidebar-menu-item">
-                    <span class="sidebar-icon">🏘️</span>
-                    <span>Municipios</span>
-                </a>
-            </nav>
-        </div>
-    </aside>
-
-    <!-- CONTENIDO PRINCIPAL -->
-    <div class="main-content">
-        <!-- ENCABEZADO -->
-        <header class="header">
-            <div class="header-title">
+<!-- CONTENIDO PRINCIPAL -->
+<main class="contenedor-principal">
+    <div class="contenedor-pagina">
+        <!-- ENCABEZADO DE PÁGINA -->
+        <div class="encabezado-pagina">
+            <div>
                 <h1>@yield('titulo_pagina', 'Análisis Demográfico')</h1>
                 <p>@yield('descripcion_pagina', 'Análisis de datos MNP de Castilla y León')</p>
             </div>
-            <div class="header-controls">
-                <button id="boton-toggle-tema" class="theme-toggle" data-alternar-tema title="Cambiar tema">
-                    🌙
-                </button>
-            </div>
-        </header>
+        </div>
 
         <!-- CONTENIDO -->
-        <div class="content">
+        <div class="contenido-pagina">
             @yield('contenido')
         </div>
     </div>
-</div>
+</main>
 
 @yield('js_adicional')
-<script src="{{ asset('js/tema.js') }}"></script>
+
+<!-- Script de respaldo para el gestor de temas -->
+<script>
+// Función de respaldo si el gestor de temas no carga correctamente
+document.addEventListener('DOMContentLoaded', function() {
+    // Si el gestor de temas no está disponible después de 2 segundos, inicializarlo manualmente
+    setTimeout(function() {
+        if (!window.gestorTema) {
+            console.log('🔄 Inicializando gestor de temas como respaldo...');
+            
+            // Función simple de respaldo
+            window.cambiarTemaRespaldo = function() {
+                const html = document.documentElement;
+                const temaActual = html.getAttribute('data-tema') || 'claro';
+                const nuevoTema = temaActual === 'oscuro' ? 'claro' : 'oscuro';
+                
+                html.setAttribute('data-tema', nuevoTema);
+                document.body.setAttribute('data-tema', nuevoTema);
+                localStorage.setItem('app-tema', nuevoTema);
+                
+                // Actualizar icono
+                const boton = document.getElementById('boton-toggle-tema');
+                if (boton) {
+                    boton.textContent = nuevoTema === 'oscuro' ? '☀️' : '🌙';
+                }
+                
+                console.log('🎨 Tema cambiado a:', nuevoTema);
+            };
+            
+            // Adjuntar evento al botón
+            const boton = document.getElementById('boton-toggle-tema');
+            if (boton) {
+                boton.addEventListener('click', window.cambiarTemaRespaldo);
+            }
+            
+            // Cargar tema guardado
+            const temaGuardado = localStorage.getItem('app-tema');
+            if (temaGuardado) {
+                document.documentElement.setAttribute('data-tema', temaGuardado);
+                document.body.setAttribute('data-tema', temaGuardado);
+                
+                // Actualizar icono
+                const boton = document.getElementById('boton-toggle-tema');
+                if (boton) {
+                    boton.textContent = temaGuardado === 'oscuro' ? '☀️' : '🌙';
+                }
+            }
+        }
+    }, 2000);
+});
+</script>
 
 </body>
 </html>

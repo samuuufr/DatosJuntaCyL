@@ -7,6 +7,7 @@ class GestorTema {
   constructor() {
     this.claveAlmacenamiento = 'app-tema';
     this.atributoTema = 'data-tema';
+    this.handleClick = this.handleClick.bind(this);
     console.log('🚀 GestorTema: Inicializando...');
     this.inicializar();
   }
@@ -101,14 +102,14 @@ class GestorTema {
    * Adjunta listeners a botones de toggle
    */
   adjuntarEventos() {
+    // Remover listeners existentes para evitar duplicados
+    this.removerListenersExistentes();
+
     const botonesFijo = document.querySelectorAll('[data-alternar-tema]');
     console.log(`🔍 Encontrados ${botonesFijo.length} botones con [data-alternar-tema]`);
 
     botonesFijo.forEach((boton, index) => {
-      boton.addEventListener('click', () => {
-        console.log(`🖱️ Click en botón #${index + 1}`);
-        this.alternarTema();
-      });
+      boton.addEventListener('click', this.handleClick);
       console.log(`✓ Listener adjuntado a botón #${index + 1}`);
     });
 
@@ -117,12 +118,27 @@ class GestorTema {
     console.log(`🔍 Botón con ID 'boton-toggle-tema':`, botonPrincipal ? 'ENCONTRADO' : 'NO ENCONTRADO');
 
     if (botonPrincipal) {
-      botonPrincipal.addEventListener('click', () => {
-        console.log(`🖱️ Click en boton-toggle-tema`);
-        this.alternarTema();
-      });
+      botonPrincipal.addEventListener('click', this.handleClick);
       console.log(`✓ Listener adjuntado a #boton-toggle-tema`);
     }
+  }
+
+  /**
+   * Remueve listeners existentes para evitar duplicados
+   */
+  removerListenersExistentes() {
+    const botones = document.querySelectorAll('[data-alternar-tema], #boton-toggle-tema');
+    botones.forEach(boton => {
+      boton.removeEventListener('click', this.handleClick);
+    });
+  }
+
+  /**
+   * Manejador de click con el contexto correcto
+   */
+  handleClick = () => {
+    console.log(`🖱️ Click en botón de tema`);
+    this.alternarTema();
   }
 
   /**
@@ -143,12 +159,29 @@ class GestorTema {
   }
 }
 
-// Inicializa inmediatamente si el DOM está listo, o espera si no
-if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', () => {
-    window.gestorTema = new GestorTema();
-  });
-} else {
-  // El script se carga al final del body, así que el DOM ya está listo
+// Función de inicialización segura
+function inicializarGestorTema() {
+  // Evitar inicialización múltiple
+  if (window.gestorTema) {
+    console.log('🔄 GestorTema ya inicializado, reutilizando instancia');
+    return;
+  }
+  
+  console.log('🚀 Inicializando GestorTema...');
   window.gestorTema = new GestorTema();
 }
+
+// Inicializa inmediatamente si el DOM está listo, o espera si no
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', inicializarGestorTema);
+} else {
+  // El script se carga después de que el DOM está listo
+  inicializarGestorTema();
+}
+
+// También inicializa cuando Turbolinks/SPA lo necesite
+document.addEventListener('turbo:load', inicializarGestorTema);
+document.addEventListener('page:load', inicializarGestorTema);
+
+// Exportar para uso en otros módulos
+export default GestorTema;
