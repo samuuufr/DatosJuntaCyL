@@ -7,13 +7,13 @@ use App\Models\Municipio;
 use App\Models\DatoMnp;
 use Illuminate\Http\Request;
 
-class DemographicAnalysisController extends Controller
+class ControladorAnalisisDemografico extends Controller
 {
     /**
      * Vista principal de análisis demográfico
      * Muestra comparativas entre provincias y municipios
      */
-    public function index()
+    public function panel()
     {
         // Obtener todas las provincias con sus municipios
         $provincias = Provincia::with('municipios')->get();
@@ -34,7 +34,7 @@ class DemographicAnalysisController extends Controller
         // Obtener resumen de datos MNP
         $resumenMnp = $this->obtenerResumenMnp();
 
-        return view('demographic.dashboard', [
+        return view('analisis-demografico.panel', [
             'provincias' => $provincias,
             'provinciasDestacadas' => $provinciasDestacadas,
             'municipiosDestacados' => $municipiosDestacados,
@@ -63,7 +63,7 @@ class DemographicAnalysisController extends Controller
             }
         }
 
-        return view('demographic.comparar', [
+        return view('analisis-demografico.comparar', [
             'provincias' => $provincias,
             'provinciaA' => $provinciaA,
             'provinciaB' => $provinciaB,
@@ -84,7 +84,7 @@ class DemographicAnalysisController extends Controller
 
         $estadisticas = $this->obtenerEstadisticasProvincia($provincia);
 
-        return view('demographic.provincia-detalle', [
+        return view('analisis-demografico.provincia-detalle', [
             'provincia' => $provincia,
             'estadisticas' => $estadisticas,
         ]);
@@ -104,7 +104,7 @@ class DemographicAnalysisController extends Controller
         $estadisticas = $this->obtenerEstadisticasMunicipio($municipio);
         $evolucion = $this->obtenerEvolucionMunicipio($municipio);
 
-        return view('demographic.municipio-detalle', [
+        return view('analisis-demografico.municipio-detalle', [
             'municipio' => $municipio,
             'estadisticas' => $estadisticas,
             'evolucion' => $evolucion,

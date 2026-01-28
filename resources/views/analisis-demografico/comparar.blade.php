@@ -1,9 +1,9 @@
-@extends('layouts.dashboard')
+@extends('diseños.panel')
 
-@section('page_title', 'Comparar Provincias')
-@section('page_description', 'Compara datos demográficos entre dos provincias')
+@section('titulo_pagina', 'Comparar Provincias')
+@section('descripcion_pagina', 'Compara datos demográficos entre dos provincias')
 
-@section('content')
+@section('contenido')
 
 <!-- SECCIÓN: SELECTOR DE PROVINCIAS -->
 <div class="card" style="margin-bottom: 2rem;">
@@ -14,7 +14,7 @@
         </div>
     </div>
     <div class="card-body">
-        <form method="GET" action="{{ route('demographic.comparar') }}" style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem; align-items: flex-end;">
+        <form method="GET" action="{{ route('analisis-demografico.comparar') }}" style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem; align-items: flex-end;">
             <div>
                 <label style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: var(--text-primary);">
                     Provincia A

@@ -3,9 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>@yield('page_title', 'Análisis Demográfico') - Portal de Datos</title>
-    @vite(['resources/css/app.css', 'resources/css/theme.css', 'resources/js/app.js', 'resources/js/theme.js'])
-    @yield('extra_css')
+    <title>@yield('titulo_pagina', 'Análisis Demográfico') - Portal de Datos</title>
+    @vite(['resources/css/app.css', 'resources/css/tema.css', 'resources/js/app.js', 'resources/js/tema.js'])
+    @yield('css_adicional')
 </head>
 <body>
 
@@ -23,11 +23,11 @@
         <div class="sidebar-section">
             <h3 class="sidebar-section-title">Análisis</h3>
             <nav class="sidebar-menu">
-                <a href="{{ route('demographic.dashboard') }}" class="sidebar-menu-item @if(Route::currentRouteName() === 'demographic.dashboard') active @endif">
+                <a href="{{ route('analisis-demografico.panel') }}" class="sidebar-menu-item @if(Route::currentRouteName() === 'analisis-demografico.panel') active @endif">
                     <span class="sidebar-icon">📈</span>
-                    <span>Dashboard</span>
+                    <span>Panel</span>
                 </a>
-                <a href="{{ route('demographic.comparar') }}" class="sidebar-menu-item @if(Route::currentRouteName() === 'demographic.comparar') active @endif">
+                <a href="{{ route('analisis-demografico.comparar') }}" class="sidebar-menu-item @if(Route::currentRouteName() === 'analisis-demografico.comparar') active @endif">
                     <span class="sidebar-icon">⚖️</span>
                     <span>Comparar</span>
                 </a>
@@ -52,14 +52,14 @@
 
     <!-- CONTENIDO PRINCIPAL -->
     <div class="main-content">
-        <!-- HEADER -->
+        <!-- ENCABEZADO -->
         <header class="header">
             <div class="header-title">
-                <h1>@yield('page_title', 'Análisis Demográfico')</h1>
-                <p>@yield('page_description', 'Análisis de datos MNP de Castilla y León')</p>
+                <h1>@yield('titulo_pagina', 'Análisis Demográfico')</h1>
+                <p>@yield('descripcion_pagina', 'Análisis de datos MNP de Castilla y León')</p>
             </div>
             <div class="header-controls">
-                <button id="theme-toggle-btn" class="theme-toggle" data-toggle-theme title="Cambiar tema">
+                <button id="boton-toggle-tema" class="theme-toggle" data-alternar-tema title="Cambiar tema">
                     🌙
                 </button>
             </div>
@@ -67,12 +67,12 @@
 
         <!-- CONTENIDO -->
         <div class="content">
-            @yield('content')
+            @yield('contenido')
         </div>
     </div>
 </div>
 
-@yield('extra_js')
+@yield('js_adicional')
 
 </body>
 </html>

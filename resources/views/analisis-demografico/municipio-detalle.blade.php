@@ -1,15 +1,15 @@
-@extends('layouts.dashboard')
+@extends('diseños.panel')
 
-@section('page_title', $municipio->nombre)
-@section('page_description', 'Análisis detallado del municipio')
+@section('titulo_pagina', $municipio->nombre)
+@section('descripcion_pagina', 'Análisis detallado del municipio')
 
-@section('content')
+@section('contenido')
 
 <!-- BREADCRUMB -->
 <div style="margin-bottom: 2rem; display: flex; align-items: center; gap: 0.5rem; font-size: 0.875rem; color: var(--text-secondary);">
-    <a href="{{ route('demographic.dashboard') }}" style="color: var(--primary-color); text-decoration: none;">Dashboard</a>
+    <a href="{{ route('analisis-demografico.panel') }}" style="color: var(--primary-color); text-decoration: none;">Panel</a>
     <span>/</span>
-    <a href="{{ route('demographic.provincia-detalle', $municipio->provincia->id) }}" style="color: var(--primary-color); text-decoration: none;">
+    <a href="{{ route('analisis-demografico.provincia-detalle', $municipio->provincia->id) }}" style="color: var(--primary-color); text-decoration: none;">
         {{ $municipio->provincia->nombre }}
     </a>
     <span>/</span>

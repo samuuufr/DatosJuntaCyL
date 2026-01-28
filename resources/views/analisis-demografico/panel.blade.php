@@ -1,9 +1,9 @@
-@extends('layouts.dashboard')
+@extends('diseños.panel')
 
-@section('page_title', 'Dashboard')
-@section('page_description', 'Resumen de datos demográficos de Castilla y León')
+@section('titulo_pagina', 'Panel de Control')
+@section('descripcion_pagina', 'Resumen de datos demográficos de Castilla y León')
 
-@section('content')
+@section('contenido')
 
 <!-- SECCIÓN: ESTADÍSTICAS GENERALES -->
 <div class="card" style="margin-bottom: 2rem;">
@@ -104,7 +104,7 @@
                                 <strong>{{ $municipio->datos_mnp_count }}</strong>
                             </td>
                             <td>
-                                <a href="{{ route('demographic.municipio-detalle', $municipio->id) }}" class="btn btn-primary btn-small">
+                                <a href="{{ route('analisis-demografico.municipio-detalle', $municipio->id) }}" class="btn btn-primary btn-small">
                                     Ver detalles →
                                 </a>
                             </td>
@@ -134,7 +134,7 @@
         <div class="grid grid-2">
             @forelse($provinciasDestacadas as $provincia)
                 <div style="padding: 1.5rem; background-color: var(--bg-tertiary); border-radius: 0.375rem; cursor: pointer; transition: all 0.3s ease;"
-                     onclick="window.location.href='{{ route('demographic.provincia-detalle', $provincia->id) }}'">
+                     onclick="window.location.href='{{ route('analisis-demografico.provincia-detalle', $provincia->id) }}'">
                     <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1rem;">
                         <h3 style="font-size: 1.125rem; font-weight: 600;">{{ $provincia->nombre }}</h3>
                         <span style="font-size: 2rem;">→</span>

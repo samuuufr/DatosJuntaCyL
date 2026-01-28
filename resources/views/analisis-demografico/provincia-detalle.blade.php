@@ -1,13 +1,13 @@
-@extends('layouts.dashboard')
+@extends('diseños.panel')
 
-@section('page_title', $provincia->nombre)
-@section('page_description', 'Análisis detallado de la provincia')
+@section('titulo_pagina', $provincia->nombre)
+@section('descripcion_pagina', 'Análisis detallado de la provincia')
 
-@section('content')
+@section('contenido')
 
 <!-- BREADCRUMB -->
 <div style="margin-bottom: 2rem; display: flex; align-items: center; gap: 0.5rem; font-size: 0.875rem; color: var(--text-secondary);">
-    <a href="{{ route('demographic.dashboard') }}" style="color: var(--primary-color); text-decoration: none;">Dashboard</a>
+    <a href="{{ route('analisis-demografico.panel') }}" style="color: var(--primary-color); text-decoration: none;">Panel</a>
     <span>/</span>
     <span>{{ $provincia->nombre }}</span>
 </div>
@@ -87,7 +87,7 @@
                                 <span class="badge badge-primary">{{ $municipio->datosMnp->count() }}</span>
                             </td>
                             <td>
-                                <a href="{{ route('demographic.municipio-detalle', $municipio->id) }}" class="btn btn-primary btn-small">
+                                <a href="{{ route('analisis-demografico.municipio-detalle', $municipio->id) }}" class="btn btn-primary btn-small">
                                     Ver detalles →
                                 </a>
                             </td>

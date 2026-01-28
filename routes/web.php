@@ -2,7 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\TestController;
-use App\Http\Controllers\DemographicAnalysisController;
+use App\Http\Controllers\ControladorAnalisisDemografico;
 
 Route::get('/', function () {
     return view('welcome');
@@ -11,9 +11,9 @@ Route::get('/', function () {
 Route::get('/test', [TestController::class, 'index']);
 
 // Rutas de análisis demográfico
-Route::prefix('demographic')->name('demographic.')->group(function () {
-    Route::get('/', [DemographicAnalysisController::class, 'index'])->name('dashboard');
-    Route::get('/comparar', [DemographicAnalysisController::class, 'comparar'])->name('comparar');
-    Route::get('/provincia/{id}', [DemographicAnalysisController::class, 'provinciaDetalle'])->name('provincia-detalle');
-    Route::get('/municipio/{id}', [DemographicAnalysisController::class, 'municipioDetalle'])->name('municipio-detalle');
+Route::prefix('analisis-demografico')->name('analisis-demografico.')->group(function () {
+    Route::get('/', [ControladorAnalisisDemografico::class, 'panel'])->name('panel');
+    Route::get('/comparar', [ControladorAnalisisDemografico::class, 'comparar'])->name('comparar');
+    Route::get('/provincia/{id}', [ControladorAnalisisDemografico::class, 'provinciaDetalle'])->name('provincia-detalle');
+    Route::get('/municipio/{id}', [ControladorAnalisisDemografico::class, 'municipioDetalle'])->name('municipio-detalle');
 });
