@@ -15,7 +15,8 @@
       "Bash(while ps aux)",
       "Bash(do sleep 5)",
       "Bash(do echo \"=== Importando NACIMIENTOS año $year ===\")",
-      "Bash(do echo \"=== Importando MATRIMONIOS año $year ===\")"
+      "Bash(do echo \"=== Importando MATRIMONIOS año $year ===\")",
+      "Bash(grep:*)"
     ]
   }
 }

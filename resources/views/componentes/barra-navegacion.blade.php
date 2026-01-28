@@ -36,7 +36,7 @@
         </div>
 
         <div class="navbar-derecha">
-            <button id="boton-toggle-tema" class="navbar-boton-tema" data-alternar-tema onclick="if (window.cambiarTemaRespaldo) window.cambiarTemaRespaldo();" title="Cambiar tema">
+            <button id="boton-toggle-tema" class="navbar-boton-tema" data-alternar-tema aria-label="Cambiar tema">
                 🌙
             </button>
         </div>

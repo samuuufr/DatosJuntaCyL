@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="es" data-tema="claro">
+<html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -67,12 +67,12 @@
             border: none;
             cursor: pointer;
             font-size: 1rem;
-            box-shadow: 0 4px 15px rgba(139, 26, 63, 0.3);
+            box-shadow: var(--shadow-lg);
         }
 
         .boton-principal:hover {
             transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(139, 26, 63, 0.4);
+            box-shadow: 0 8px 25px var(--shadow);
             background-color: var(--primary-dark);
         }
 
@@ -304,23 +304,22 @@
             }
         }
 
+        /* Sobrescritura del botón de tema para la página de inicio */
         .navbar-boton-tema {
-            background: transparent;
-            border: none;
-        /* Corrección de especificidad para el botón de tema */
-        #boton-toggle-tema {
-            background-color: transparent !important;
-            border: none !important;
+            background-color: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
             font-size: 1.5rem;
             cursor: pointer;
-            color: var(--text-primary);
-            color: var(--text-primary) !important;
             padding: 0.5rem;
-            transition: transform 0.3s ease;
+            transition: all 0.3s ease;
         }
 
-        #boton-toggle-tema:hover {
+        .navbar-boton-tema:hover {
             transform: rotate(20deg);
+            background-color: var(--primary-color);
+            color: #ffffff;
+            border-color: var(--primary-color);
         }
     </style>
 </head>
@@ -434,7 +433,91 @@
     <p>&copy; 2026 Portal de Datos Demográficos de Castilla y León. Todos los derechos reservados.</p>
 </footer>
 
-<script src="{{ asset('js/tema.js') }}"></script>
+<!-- Script de gestor de temas -->
+<script>
+/**
+ * Gestor de temas oscuro/claro para la página de inicio
+ */
+(function() {
+    'use strict';
+
+    const STORAGE_KEY = 'app-tema';
+    const ATTR_NAME = 'data-tema';
+
+    /**
+     * Establece el tema y guarda en localStorage
+     */
+    function establecerTema(tema) {
+        if (tema !== 'claro' && tema !== 'oscuro') {
+            tema = 'claro';
+        }
+
+        document.documentElement.setAttribute(ATTR_NAME, tema);
+        document.body.setAttribute(ATTR_NAME, tema);
+        localStorage.setItem(STORAGE_KEY, tema);
+
+        // Actualizar icono del botón
+        const boton = document.getElementById('boton-toggle-tema');
+        if (boton) {
+            boton.textContent = tema === 'oscuro' ? '☀️' : '🌙';
+            boton.setAttribute('aria-label', tema === 'oscuro' ? 'Cambiar a modo claro' : 'Cambiar a modo oscuro');
+        }
+
+        console.log('✅ Tema establecido a:', tema);
+    }
+
+    /**
+     * Alterna entre tema claro y oscuro
+     */
+    function alternarTema() {
+        const temaActual = document.documentElement.getAttribute(ATTR_NAME) || 'claro';
+        const nuevoTema = temaActual === 'oscuro' ? 'claro' : 'oscuro';
+        establecerTema(nuevoTema);
+    }
+
+    /**
+     * Inicializa el sistema de temas
+     */
+    function inicializar() {
+        console.log('🎨 Inicializando gestor de temas...');
+
+        // Cargar tema guardado o usar preferencia del sistema
+        const temaGuardado = localStorage.getItem(STORAGE_KEY);
+        if (temaGuardado) {
+            establecerTema(temaGuardado);
+        } else {
+            const prefiereDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches;
+            establecerTema(prefiereDarkMode ? 'oscuro' : 'claro');
+        }
+
+        // Adjuntar evento al botón
+        const boton = document.getElementById('boton-toggle-tema');
+        if (boton) {
+            boton.addEventListener('click', alternarTema);
+            console.log('✅ Evento click adjuntado al botón de tema');
+        } else {
+            console.warn('⚠️ No se encontró el botón #boton-toggle-tema');
+        }
+
+        // Observar cambios en la preferencia del sistema
+        const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+        if (mediaQuery.addEventListener) {
+            mediaQuery.addEventListener('change', (e) => {
+                if (!localStorage.getItem(STORAGE_KEY)) {
+                    establecerTema(e.matches ? 'oscuro' : 'claro');
+                }
+            });
+        }
+    }
+
+    // Inicializar cuando el DOM esté listo
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', inicializar);
+    } else {
+        inicializar();
+    }
+})();
+</script>
 
 </body>
 </html>
