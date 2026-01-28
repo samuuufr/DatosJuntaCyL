@@ -21,8 +21,8 @@ class ControladorAnalisisDemografico extends Controller
         // Obtener estadísticas generales
         $estadisticas = $this->obtenerEstadisticas();
 
-        // Obtener comparativa por provincia (últimas 5 provincias)
-        $provinciasDestacadas = $provincias->take(5);
+        // Obtener todas las provincias
+        $provinciasDestacadas = $provincias;
 
         // Obtener municipios más activos (con más datos MNP)
         $municipiosDestacados = Municipio::with('datosMnp')

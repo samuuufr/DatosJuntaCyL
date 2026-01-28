@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ControladorAnalisisDemografico;
 
 Route::get('/', function () {
-    return redirect('/analisis-demografico');
+    return view('inicio');
 });
 
 // Rutas de análisis demográfico

@@ -2,7 +2,7 @@
 <nav class="navbar">
     <div class="navbar-contenedor">
         <div class="navbar-izquierda">
-            <a href="{{ route('analisis-demografico.panel') }}" class="navbar-logo">
+            <a href="{{ url('/') }}" class="navbar-logo">
                 <span class="navbar-logo-icon">📊</span>
                 <span class="navbar-logo-texto">CyL Data</span>
             </a>

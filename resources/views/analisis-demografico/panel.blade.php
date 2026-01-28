@@ -131,7 +131,7 @@
         </div>
     </div>
     <div class="card-body">
-        <div class="grid grid-2">
+        <div class="grid grid-3">
             @forelse($provinciasDestacadas as $provincia)
                 <div style="padding: 1.5rem; background-color: var(--bg-tertiary); border-radius: 0.375rem; cursor: pointer; transition: all 0.3s ease;"
                      onclick="window.location.href='{{ route('analisis-demografico.provincia-detalle', $provincia->id) }}'">
