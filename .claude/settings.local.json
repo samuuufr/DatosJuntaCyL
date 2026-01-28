@@ -6,7 +6,16 @@
       "Bash(ls:*)",
       "Bash(php scripts/verificar-datos.php:*)",
       "Bash(php:*)",
-      "Bash(del:*)"
+      "Bash(del:*)",
+      "Bash(npm install)",
+      "Bash(npm run build:*)",
+      "Bash(for year in 2020 2021 2022 2023)",
+      "Bash(do php artisan mnp:import --tipo=defunciones --ano-inicio=$year --ano-fin=$year)",
+      "Bash(done)",
+      "Bash(while ps aux)",
+      "Bash(do sleep 5)",
+      "Bash(do echo \"=== Importando NACIMIENTOS año $year ===\")",
+      "Bash(do echo \"=== Importando MATRIMONIOS año $year ===\")"
     ]
   }
 }
