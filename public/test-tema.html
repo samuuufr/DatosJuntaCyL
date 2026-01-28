@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Tema</title>
+    <link rel="stylesheet" href="css/tema.css">
+    <style>
+        body {
+            padding: 20px;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            transition: background-color 0.3s, color 0.3s;
+        }
+        .test-container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: var(--bg-secondary);
+            color: var(--text-primary);
+            border: 2px solid var(--border-color);
+            border-radius: 8px;
+            box-shadow: var(--shadow-md);
+            transition: background-color 0.3s, color 0.3s, border-color 0.3s;
+        }
+        h1 {
+            color: #8b1a3f;
+            margin-bottom: 20px;
+        }
+        button {
+            padding: 12px 24px;
+            font-size: 16px;
+            margin: 10px 5px;
+            cursor: pointer;
+            background-color: #8b1a3f;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            background-color: #a8324a;
+        }
+        .info {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: var(--bg-tertiary);
+            border-radius: 4px;
+            border-left: 4px solid #8b1a3f;
+            transition: background-color 0.3s;
+        }
+        .info p {
+            margin: 8px 0;
+            font-family: monospace;
+            font-size: 14px;
+        }
+        .status {
+            padding: 10px;
+            margin-top: 10px;
+            border-radius: 4px;
+            background-color: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+        }
+        .console-output {
+            margin-top: 20px;
+            background-color: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            padding: 15px;
+            max-height: 300px;
+            overflow-y: auto;
+            font-family: monospace;
+            font-size: 12px;
+        }
+        .console-line {
+            margin: 3px 0;
+            padding: 3px 0;
+            border-bottom: 1px solid var(--border-color);
+        }
+        .console-line:last-child {
+            border-bottom: none;
+        }
+    </style>
+</head>
+<body data-tema="claro">
+
+<div class="test-container">
+    <h1>🧪 Test del Sistema de Temas</h1>
+
+    <div style="text-align: center; margin-bottom: 20px;">
+        <button id="boton-toggle-tema" data-alternar-tema title="Cambiar tema" style="font-size: 24px; padding: 15px 30px;">
+            🌙
+        </button>
+    </div>
+
+    <div class="info">
+        <p><strong>📊 Estado Actual:</strong></p>
+        <p>Tema: <span id="tema-actual" style="color: #8b1a3f; font-weight: bold;">cargando...</span></p>
+        <p>localStorage 'app-tema': <span id="local-storage" style="color: #8b1a3f; font-weight: bold;">cargando...</span></p>
+        <p>data-tema en &lt;html&gt;: <span id="data-tema-html" style="color: #8b1a3f; font-weight: bold;">cargando...</span></p>
+        <p>data-tema en &lt;body&gt;: <span id="data-tema-body" style="color: #8b1a3f; font-weight: bold;">cargando...</span></p>
+        <p>GestorTema disponible: <span id="gestor-disponible" style="color: #8b1a3f; font-weight: bold;">cargando...</span></p>
+    </div>
+
+    <div style="text-align: center;">
+        <button id="boton-test" onclick="testearGestor()">Test Manual</button>
+        <button onclick="limpiarConsola()">Limpiar Console</button>
+    </div>
+
+    <div class="console-output" id="console-output">
+        <div class="console-line">🟢 Consola iniciada...</div>
+    </div>
+</div>
+
+<script src="js/tema.js"></script>
+<script>
+// Redirigir console.log a la consola visible
+const consoleOutput = document.getElementById('console-output');
+
+function agregarMensajeConsola(mensaje) {
+    const linea = document.createElement('div');
+    linea.className = 'console-line';
+    linea.textContent = mensaje;
+    consoleOutput.appendChild(linea);
+    consoleOutput.scrollTop = consoleOutput.scrollHeight;
+}
+
+const originalLog = console.log;
+const originalWarn = console.warn;
+
+console.log = function(...args) {
+    originalLog.apply(console, args);
+    agregarMensajeConsola('📝 ' + args.join(' '));
+};
+
+console.warn = function(...args) {
+    originalWarn.apply(console, args);
+    agregarMensajeConsola('⚠️ ' + args.join(' '));
+};
+
+function limpiarConsola() {
+    while (consoleOutput.firstChild) {
+        consoleOutput.removeChild(consoleOutput.firstChild);
+    }
+    agregarMensajeConsola('🟢 Consola limpiada');
+}
+
+function testearGestor() {
+    console.log('🧪 Test manual iniciado');
+    if (typeof window.gestorTema !== 'undefined') {
+        console.log('✓ GestorTema existe');
+        const temaActual = window.gestorTema.obtenerTemaActual();
+        console.log(`Tema actual: ${temaActual}`);
+        console.log('Alternando tema...');
+        window.gestorTema.alternarTema();
+    } else {
+        console.log('❌ GestorTema no está disponible');
+    }
+}
+
+function actualizarInfo() {
+    const temaActual = window.gestorTema ? window.gestorTema.obtenerTemaActual() : 'N/A';
+    const localStorage = localStorage.getItem('app-tema') || 'No establecido';
+    const dataHtml = document.documentElement.getAttribute('data-tema') || 'No establecido';
+    const dataBody = document.body.getAttribute('data-tema') || 'No establecido';
+    const gestorDisponible = typeof window.gestorTema !== 'undefined' ? 'Sí ✓' : 'No ❌';
+
+    document.getElementById('tema-actual').textContent = temaActual;
+    document.getElementById('local-storage').textContent = localStorage;
+    document.getElementById('data-tema-html').textContent = dataHtml;
+    document.getElementById('data-tema-body').textContent = dataBody;
+    document.getElementById('gestor-disponible').textContent = gestorDisponible;
+}
+
+// Actualizar cada 500ms
+setInterval(actualizarInfo, 500);
+
+// Actualizar cuando hay cambios en el tema
+const originalEstablecerTema = GestorTema.prototype.establecerTema;
+GestorTema.prototype.establecerTema = function(tema) {
+    originalEstablecerTema.call(this, tema);
+    actualizarInfo();
+};
+
+// Actualizar al inicio
+setTimeout(actualizarInfo, 100);

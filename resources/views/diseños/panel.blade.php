@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>@yield('titulo_pagina', 'Análisis Demográfico') - Portal de Datos</title>
-    @vite(['resources/css/app.css', 'resources/css/tema.css', 'resources/js/app.js', 'resources/js/tema.js'])
+    <link rel="stylesheet" href="{{ asset('css/tema.css') }}">
     @yield('css_adicional')
 </head>
 <body>
@@ -73,6 +73,7 @@
 </div>
 
 @yield('js_adicional')
+<script src="{{ asset('js/tema.js') }}"></script>
 
 </body>
 </html>
