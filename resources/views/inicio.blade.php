@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Portal de Datos de Castilla y León</title>
-    <link rel="stylesheet" href="{{ asset('css/tema.css') }}">
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
     <style>
         /* Estilos específicos para la página principal */
 
@@ -278,14 +278,6 @@
             color: var(--text-secondary);
         }
 
-        .footer-principal {
-            padding: 2rem;
-            text-align: center;
-            color: var(--text-secondary);
-            border-top: 1px solid var(--border-color);
-            margin-top: 3rem;
-        }
-
         @media (max-width: 768px) {
             .contenido-hero h1 {
                 font-size: 2.5rem;
@@ -519,10 +511,8 @@
     </div>
 </section>
 
-<!-- FOOTER -->
-<footer class="footer-principal">
-    <p>&copy; 2026 Portal de Datos Demográficos de Castilla y León. Todos los derechos reservados.</p>
-</footer>
+<!-- PIE DE PÁGINA -->
+@include('componentes.pie-pagina')
 
 <!-- Script de gestor de temas -->
 <script>

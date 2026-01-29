@@ -1,5 +1,7 @@
 # Demografía CyL - Proyecto DAW
 
+> **🚨 ATENCIÓN:** Después de clonar este proyecto, **DEBES ejecutar `npm install && npm run build`** antes de iniciar el servidor. Sin este paso, la aplicación se verá sin estilos CSS. Ver sección [Compilar Assets Frontend](#11-compilar-assets-frontend--crítico).
+
 Aplicación web Laravel que consume datos del Movimiento Natural de la Población (MNP) de Castilla y León, los almacena en base de datos y los presenta con gráficos interactivos y filtros asíncronos.
 
 ## 📋 Requisitos Previos
@@ -142,7 +144,7 @@ php artisan poblacion:actualizar 47186 295000
 php artisan db:seed --class=PoblacionMunicipiosSeeder
 ```
 
-### 11. Compilar Assets Frontend
+### 11. Compilar Assets Frontend ⚠️ **CRÍTICO**
 
 ```bash
 # Para producción (assets compilados y optimizados)
@@ -151,6 +153,8 @@ npm run build
 # Para desarrollo (servidor con hot-reload)
 npm run dev
 ```
+
+**⚠️ IMPORTANTE:** Si omites este paso, la aplicación se verá sin estilos CSS. Este comando genera los archivos compilados en `public/build/` que NO se incluyen en el repositorio de Git.
 
 ### 12. Iniciar Servidor
 
@@ -174,6 +178,20 @@ php artisan tinker --execute="echo 'Total registros: ' . \App\Models\DatoMnp::co
 - Matrimonios: 2,723 registros (100% con valores reales)
 
 ## ⚠️ Problemas Comunes
+
+### La aplicación se ve sin estilos CSS
+
+**Síntoma:** La página carga pero solo aparece texto sin formato, sin colores ni diseño.
+
+**Causa:** No se ejecutó `npm run build` después de clonar el repositorio.
+
+**Solución:**
+```bash
+npm install
+npm run build
+```
+
+Los archivos compilados en `public/build/` NO se incluyen en Git, por lo que debes generarlos en cada instalación nueva.
 
 ### Error: "Vite manifest not found"
 

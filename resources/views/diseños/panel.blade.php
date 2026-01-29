@@ -35,6 +35,9 @@
     <div class="contenedor-pagina">
         @yield('contenido')
     </div>
+
+    <!-- PIE DE PÁGINA -->
+    @include('componentes.pie-pagina')
 </main>
 
 @yield('js_adicional')
