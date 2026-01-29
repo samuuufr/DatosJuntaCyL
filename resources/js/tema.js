@@ -185,3 +185,47 @@ document.addEventListener('page:load', inicializarGestorTema);
 
 // Exportar para uso en otros módulos
 export default GestorTema;
+
+/**
+ * Gestor de menú desplegable de usuario
+ */
+function inicializarMenuUsuario() {
+  const botonMenu = document.getElementById('boton-menu-usuario');
+  const menuDesplegable = document.getElementById('menu-desplegable-usuario');
+
+  if (!botonMenu || !menuDesplegable) {
+    // El menú no existe (usuario no autenticado)
+    return;
+  }
+
+  // Toggle del menú al hacer click en el botón
+  botonMenu.addEventListener('click', (e) => {
+    e.stopPropagation();
+    menuDesplegable.classList.toggle('hidden');
+  });
+
+  // Cerrar el menú al hacer click fuera de él
+  document.addEventListener('click', (e) => {
+    if (!botonMenu.contains(e.target) && !menuDesplegable.contains(e.target)) {
+      menuDesplegable.classList.add('hidden');
+    }
+  });
+
+  // Cerrar el menú al presionar Escape
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+      menuDesplegable.classList.add('hidden');
+    }
+  });
+}
+
+// Inicializar menú de usuario cuando el DOM esté listo
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', inicializarMenuUsuario);
+} else {
+  inicializarMenuUsuario();
+}
+
+// También inicializar cuando Turbolinks/SPA lo necesite
+document.addEventListener('turbo:load', inicializarMenuUsuario);
+document.addEventListener('page:load', inicializarMenuUsuario);

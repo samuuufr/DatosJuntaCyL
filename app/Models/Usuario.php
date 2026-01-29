@@ -42,4 +42,12 @@ class Usuario extends Authenticatable
     {
         return $this->belongsToMany(Municipio::class, 'favoritos');
     }
+
+    /**
+     * Alias para municipiosFavoritos
+     */
+    public function municipios(): BelongsToMany
+    {
+        return $this->municipiosFavoritos();
+    }
 }

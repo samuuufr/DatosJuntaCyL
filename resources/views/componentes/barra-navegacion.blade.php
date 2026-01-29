@@ -44,6 +44,42 @@
         </div>
 
         <div class="navbar-derecha">
+            @auth
+                <!-- Menú de usuario autenticado -->
+                <div class="navbar-usuario-menu">
+                    <button id="boton-menu-usuario" class="navbar-usuario-boton">
+                        <span>👤</span>
+                        <span class="navbar-usuario-nombre">{{ Auth::user()->nombre }}</span>
+                        <span class="navbar-usuario-flecha">▼</span>
+                    </button>
+                    <div id="menu-desplegable-usuario" class="navbar-dropdown hidden">
+                        <a href="{{ route('perfil.mostrar') }}" class="navbar-dropdown-item">
+                            <span>⚙️</span> Mi Perfil
+                        </a>
+                        <a href="{{ route('perfil.favoritos') }}" class="navbar-dropdown-item">
+                            <span>⭐</span> Mis Favoritos
+                        </a>
+                        <hr class="navbar-dropdown-divider">
+                        <form action="{{ route('logout') }}" method="POST" class="inline">
+                            @csrf
+                            <button type="submit" class="navbar-dropdown-item navbar-dropdown-item-logout">
+                                <span>🚪</span> Cerrar Sesión
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            @else
+                <!-- Botones para usuarios no autenticados -->
+                <div class="navbar-auth-botones">
+                    <a href="{{ route('login') }}" class="navbar-boton-secundario">
+                        Iniciar Sesión
+                    </a>
+                    <a href="{{ route('registro') }}" class="navbar-boton-primario">
+                        Registrarse
+                    </a>
+                </div>
+            @endauth
+
             <button id="boton-toggle-tema" class="navbar-boton-tema" data-alternar-tema aria-label="Cambiar tema">
                 🌙
             </button>

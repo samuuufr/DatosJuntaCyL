@@ -321,6 +321,97 @@
             color: #ffffff;
             border-color: var(--primary-color);
         }
+
+        /* Mejora de botones de autenticación para la página de inicio */
+        .navbar-derecha {
+            display: flex;
+            align-items: center;
+            gap: 1.25rem;
+        }
+
+        .navbar-auth-botones {
+            display: flex;
+            align-items: center;
+            gap: 0.875rem;
+        }
+
+        .navbar-boton-secundario {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0.5rem 1.25rem;
+            background-color: var(--bg-secondary);
+            color: var(--text-primary);
+            border: 2px solid var(--border-color);
+            border-radius: 0.5rem;
+            text-decoration: none;
+            font-size: 0.9rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+            min-height: 42px;
+        }
+
+        .navbar-boton-secundario:hover {
+            background-color: var(--bg-tertiary);
+            border-color: var(--primary-color);
+            color: var(--primary-color);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(59, 130, 246, 0.2);
+        }
+
+        .navbar-boton-primario {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0.5rem 1.5rem;
+            background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+            color: #ffffff;
+            border-radius: 0.5rem;
+            text-decoration: none;
+            font-size: 0.9rem;
+            font-weight: 700;
+            transition: all 0.3s ease;
+            border: 2px solid var(--primary-color);
+            box-shadow: 0 4px 15px rgba(59, 130, 246, 0.35);
+            white-space: nowrap;
+            min-height: 42px;
+        }
+
+        .navbar-boton-primario:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 22px rgba(59, 130, 246, 0.45);
+            background: linear-gradient(135deg, var(--primary-dark), var(--primary-color));
+        }
+
+        .navbar-boton-primario:active {
+            transform: translateY(-1px);
+        }
+
+        /* Ajuste del botón de tema para mejor alineación */
+        .navbar-boton-tema {
+            background-color: var(--bg-secondary);
+            border: 2px solid var(--border-color);
+            color: var(--text-primary);
+            font-size: 1.3rem;
+            cursor: pointer;
+            padding: 0.5rem;
+            transition: all 0.3s ease;
+            border-radius: 0.5rem;
+            min-width: 42px;
+            min-height: 42px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .navbar-boton-tema:hover {
+            transform: rotate(20deg) translateY(-2px);
+            background-color: var(--primary-color);
+            color: #ffffff;
+            border-color: var(--primary-color);
+            box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3);
+        }
     </style>
 </head>
 <body>

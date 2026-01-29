@@ -3,7 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>@yield('titulo_pagina', 'Análisis Demográfico') - Portal de Datos</title>
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+    <meta name="base-url" content="{{ url('/') }}">
+    <title>@yield('titulo', 'Análisis Demográfico') - Portal de Datos CyL</title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     @yield('css_adicional')
 </head>
@@ -14,19 +16,24 @@
 
 <!-- CONTENIDO PRINCIPAL -->
 <main class="contenedor-principal">
-    <div class="contenedor-pagina">
-        <!-- ENCABEZADO DE PÁGINA -->
-        <div class="encabezado-pagina">
-            <div>
-                <h1>@yield('titulo_pagina', 'Análisis Demográfico')</h1>
-                <p>@yield('descripcion_pagina', 'Análisis de datos MNP de Castilla y León')</p>
+    @if(session('success'))
+        <div class="max-w-7xl mx-auto mt-4 px-4">
+            <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative" role="alert">
+                <span class="block sm:inline">{{ session('success') }}</span>
             </div>
         </div>
+    @endif
 
-        <!-- CONTENIDO -->
-        <div class="contenido-pagina">
-            @yield('contenido')
+    @if(session('error'))
+        <div class="max-w-7xl mx-auto mt-4 px-4">
+            <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
+                <span class="block sm:inline">{{ session('error') }}</span>
+            </div>
         </div>
+    @endif
+
+    <div class="contenedor-pagina">
+        @yield('contenido')
     </div>
 </main>
 

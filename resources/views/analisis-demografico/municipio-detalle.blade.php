@@ -19,16 +19,40 @@
 <!-- ENCABEZADO -->
 <div class="card" style="margin-bottom: 2rem; background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%); color: white; border: none;">
     <div class="card-body">
-        <h1 style="font-size: 2.5rem; margin-bottom: 0.5rem;">🏘️ {{ $municipio->nombre }}</h1>
-        <p style="font-size: 1rem; opacity: 0.9;">
-            📍 {{ $municipio->provincia->nombre }}
-            <span style="margin: 0 0.5rem;">•</span>
-            INE: {{ $municipio->codigo_ine }}
-            @if($municipio->poblacion)
-                <span style="margin: 0 0.5rem;">•</span>
-                👥 Población: {{ number_format($municipio->poblacion, 0, ',', '.') }} habitantes
-            @endif
-        </p>
+        <div style="display: flex; justify-content: space-between; align-items: start; gap: 1rem;">
+            <div style="flex: 1;">
+                <h1 style="font-size: 2.5rem; margin-bottom: 0.5rem;">🏘️ {{ $municipio->nombre }}</h1>
+                <p style="font-size: 1rem; opacity: 0.9;">
+                    📍 {{ $municipio->provincia->nombre }}
+                    <span style="margin: 0 0.5rem;">•</span>
+                    INE: {{ $municipio->codigo_ine }}
+                    @if($municipio->poblacion)
+                        <span style="margin: 0 0.5rem;">•</span>
+                        👥 Población: {{ number_format($municipio->poblacion, 0, ',', '.') }} habitantes
+                    @endif
+                </p>
+            </div>
+
+            @auth
+                <!-- Botón de favorito -->
+                <button
+                    data-favorito-municipio="{{ $municipio->id }}"
+                    class="boton-favorito"
+                    style="background-color: rgba(255, 255, 255, 0.2); border-color: rgba(255, 255, 255, 0.3); color: white; flex-shrink: 0;"
+                >
+                    ☆ Añadir a favoritos
+                </button>
+            @else
+                <!-- Mensaje para usuarios no autenticados -->
+                <a
+                    href="{{ route('login') }}"
+                    class="boton-favorito"
+                    style="background-color: rgba(255, 255, 255, 0.2); border-color: rgba(255, 255, 255, 0.3); color: white; flex-shrink: 0;"
+                >
+                    ☆ Iniciar sesión para añadir a favoritos
+                </a>
+            @endauth
+        </div>
     </div>
 </div>
 
