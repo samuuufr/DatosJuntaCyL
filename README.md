@@ -111,6 +111,7 @@ for year in 2020 2021 2022 2023; do php artisan mnp:import --ano-inicio=$year --
 - ~2,723 registros de matrimonios
 - **Total: ~13,462 registros**
 
+<<<<<<< Updated upstream
 ### 10. Importar Población de Municipios
 
 Actualiza la población de todos los municipios desde la API de datos abiertos de la Junta de Castilla y León:
@@ -143,6 +144,9 @@ php artisan db:seed --class=PoblacionMunicipiosSeeder
 ```
 
 ### 11. Compilar Assets Frontend
+=======
+### 10. Compilar Assets Frontend
+>>>>>>> Stashed changes
 
 ```bash
 # Para producción (assets compilados y optimizados)
@@ -152,7 +156,11 @@ npm run build
 npm run dev
 ```
 
+<<<<<<< Updated upstream
 ### 12. Iniciar Servidor
+=======
+### 11. Iniciar Servidor
+>>>>>>> Stashed changes
 
 ```bash
 php artisan serve
