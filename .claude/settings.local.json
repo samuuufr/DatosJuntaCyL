@@ -16,7 +16,10 @@
       "Bash(do sleep 5)",
       "Bash(do echo \"=== Importando NACIMIENTOS año $year ===\")",
       "Bash(do echo \"=== Importando MATRIMONIOS año $year ===\")",
-      "Bash(grep:*)"
+      "Bash(grep:*)",
+      "Bash(curl:*)",
+      "Bash(node -e:*)",
+      "Bash(npx mapshaper:*)"
     ]
   }
 }

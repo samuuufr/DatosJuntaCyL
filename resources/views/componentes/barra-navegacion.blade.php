@@ -34,6 +34,12 @@
                         <span>🏘️</span> Municipios
                     </a>
                 </li>
+                <li>
+                    <a href="{{ route('analisis-demografico.mapa-calor') }}"
+                       class="navbar-enlace @if(Route::currentRouteName() === 'analisis-demografico.mapa-calor') active @endif">
+                        <span>🗺️</span> Mapa de Calor
+                    </a>
+                </li>
             </ul>
         </div>
 

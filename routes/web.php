@@ -15,6 +15,7 @@ Route::prefix('analisis-demografico')->name('analisis-demografico.')->group(func
     Route::get('/comparar', [ControladorAnalisisDemografico::class, 'comparar'])->name('comparar');
     Route::get('/provincia/{id}', [ControladorAnalisisDemografico::class, 'provinciaDetalle'])->name('provincia-detalle');
     Route::get('/municipio/{id}', [ControladorAnalisisDemografico::class, 'municipioDetalle'])->name('municipio-detalle');
+    Route::get('/mapa-calor', [ControladorAnalisisDemografico::class, 'mapaCalor'])->name('mapa-calor');
 });
 
 // Rutas de provincias
@@ -37,4 +38,7 @@ Route::prefix('api')->name('api.')->group(function () {
     Route::get('/municipios/buscar', [MunicipioController::class, 'buscar'])->name('municipios.buscar');
     Route::get('/municipios/{id}/datos', [MunicipioController::class, 'datos'])->name('municipios.datos');
     Route::get('/municipios/provincia/{provinciaId}', [MunicipioController::class, 'porProvincia'])->name('municipios.por-provincia');
+
+    // API de mapa de calor
+    Route::get('/mapa-calor/datos', [ControladorAnalisisDemografico::class, 'datosMapaCalor'])->name('mapa-calor.datos');
 });

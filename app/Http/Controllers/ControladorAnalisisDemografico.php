@@ -6,6 +6,7 @@ use App\Models\Provincia;
 use App\Models\Municipio;
 use App\Models\DatoMnp;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 
 class ControladorAnalisisDemografico extends Controller
 {
@@ -216,5 +217,78 @@ class ControladorAnalisisDemografico extends Controller
         }
 
         return $evolucion;
+    }
+
+    /**
+     * Vista de mapa de calor
+     */
+    public function mapaCalor()
+    {
+        return view('analisis-demografico.mapa-calor');
+    }
+
+    /**
+     * API: Datos agregados para mapa de calor
+     */
+    public function datosMapaCalor(Request $request)
+    {
+        $ano = $request->input('ano', 2023);
+        $tipoEvento = $request->input('tipo_evento', 'nacimiento');
+
+        // Validar parámetros
+        $anosDisponibles = DatoMnp::distinct('anno')->pluck('anno')->sort()->values();
+        if (!$anosDisponibles->contains($ano)) {
+            return response()->json(['error' => 'Año no disponible'], 400);
+        }
+
+        if (!in_array($tipoEvento, ['nacimiento', 'defuncion', 'matrimonio'])) {
+            return response()->json(['error' => 'Tipo de evento inválido'], 400);
+        }
+
+        // Obtener datos con cache
+        $cacheKey = "mapa_calor_{$ano}_{$tipoEvento}";
+
+        $resultado = Cache::remember($cacheKey, 3600, function() use ($ano, $tipoEvento) {
+            // Consulta agregada por municipio
+            $datos = Municipio::join('datos_mnp', 'municipios.id', '=', 'datos_mnp.municipio_id')
+                ->where('datos_mnp.anno', $ano)
+                ->where('datos_mnp.tipo_evento', $tipoEvento)
+                ->select([
+                    'municipios.id',
+                    'municipios.codigo_ine',
+                    'municipios.nombre',
+                    'datos_mnp.valor'
+                ])
+                ->get()
+                ->keyBy('codigo_ine'); // Indexar por código INE para lookup rápido
+
+            // Calcular estadísticas y cuantiles
+            $valores = $datos->pluck('valor')->filter()->sort()->values();
+            $count = $valores->count();
+
+            $estadisticas = [
+                'min' => $valores->min() ?? 0,
+                'max' => $valores->max() ?? 0,
+                'media' => round($valores->avg() ?? 0, 2),
+                'mediana' => $count > 0 ? $valores[(int)($count / 2)] : 0,
+                'quantiles' => [
+                    'q20' => $count > 0 ? $valores[(int)($count * 0.2)] : 0,
+                    'q40' => $count > 0 ? $valores[(int)($count * 0.4)] : 0,
+                    'q60' => $count > 0 ? $valores[(int)($count * 0.6)] : 0,
+                    'q80' => $count > 0 ? $valores[(int)($count * 0.8)] : 0,
+                ]
+            ];
+
+            return compact('datos', 'estadisticas');
+        });
+
+        return response()->json([
+            'ano' => $ano,
+            'tipo_evento' => $tipoEvento,
+            'datos' => $resultado['datos'],
+            'estadisticas' => $resultado['estadisticas'],
+            'anos_disponibles' => $anosDisponibles,
+            'total_municipios' => $resultado['datos']->count(),
+        ]);
     }
 }
