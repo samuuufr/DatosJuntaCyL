@@ -24,6 +24,10 @@
             📍 {{ $municipio->provincia->nombre }}
             <span style="margin: 0 0.5rem;">•</span>
             INE: {{ $municipio->codigo_ine }}
+            @if($municipio->poblacion)
+                <span style="margin: 0 0.5rem;">•</span>
+                👥 Población: {{ number_format($municipio->poblacion, 0, ',', '.') }} habitantes
+            @endif
         </p>
     </div>
 </div>
@@ -34,7 +38,16 @@
         <h2 class="card-title">📊 Estadísticas Principales</h2>
     </div>
     <div class="card-body">
-        <div class="grid grid-3">
+        <div class="grid {{ $municipio->poblacion ? 'grid-4' : 'grid-3' }}">
+            @if($municipio->poblacion)
+            <div class="stat-box">
+                <div class="stat-box-value" style="color: #3b82f6;">
+                    {{ number_format($municipio->poblacion, 0, ',', '.') }}
+                </div>
+                <div class="stat-box-label">Población Total</div>
+                <span class="badge badge-primary">👥 Habitantes</span>
+            </div>
+            @endif
             <div class="stat-box">
                 <div class="stat-box-value" style="color: #10b981;">
                     {{ number_format($estadisticas['nacimientos'], 0, ',', '.') }}

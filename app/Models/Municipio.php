@@ -13,6 +13,7 @@ class Municipio extends Model
         'provincia_id',
         'codigo_ine',
         'nombre',
+        'poblacion',
     ];
 
     /**

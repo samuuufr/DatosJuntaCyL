@@ -19,7 +19,8 @@
       "Bash(grep:*)",
       "Bash(curl:*)",
       "Bash(node -e:*)",
-      "Bash(npx mapshaper:*)"
+      "Bash(npx mapshaper:*)",
+      "WebFetch(domain:datosabiertos.jcyl.es)"
     ]
   }
 }

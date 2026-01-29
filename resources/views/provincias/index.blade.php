@@ -106,7 +106,7 @@
                     <tbody>
                         @foreach($provincias as $provincia)
                             <tr class="provincia-row" data-nombre="{{ strtolower($provincia->nombre) }}">
-                                <td><strong>📍 {{ $provincia->nombre }}</strong></td>
+                                <td style="text-align: center;"><strong>📍 {{ $provincia->nombre }}</strong></td>
                                 <td style="text-align: center;">
                                     <span class="badge badge-primary">{{ $provincia->municipios_count }}</span>
                                 </td>

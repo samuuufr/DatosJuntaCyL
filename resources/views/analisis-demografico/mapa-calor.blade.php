@@ -132,10 +132,81 @@
         -webkit-tap-highlight-color: transparent;
     }
 
+    /* Grid layouts */
+    .grid-4 {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 1rem;
+    }
+
+    /* Buscador de municipios */
+    .search-results {
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        background: var(--bg-secondary);
+        border: 1px solid var(--border-color);
+        border-radius: 0.375rem;
+        max-height: 300px;
+        overflow-y: auto;
+        z-index: 1000;
+        display: none;
+        margin-top: 0.25rem;
+        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+    }
+
+    .search-results.show {
+        display: block;
+    }
+
+    .search-result-item {
+        padding: 0.75rem;
+        cursor: pointer;
+        border-bottom: 1px solid var(--border-color);
+        color: var(--text-primary);
+        transition: background-color 0.15s;
+    }
+
+    .search-result-item:last-child {
+        border-bottom: none;
+    }
+
+    .search-result-item:hover {
+        background: var(--bg-tertiary);
+    }
+
+    .search-result-item .municipio-nombre {
+        font-weight: 600;
+        margin-bottom: 0.25rem;
+    }
+
+    .search-result-item .municipio-provincia {
+        font-size: 0.75rem;
+        color: var(--text-secondary);
+    }
+
+    /* Municipio resaltado en el mapa */
+    .municipio-destacado {
+        stroke: #fbbf24 !important;
+        stroke-width: 4 !important;
+        stroke-dasharray: none !important;
+    }
+
+    @media (max-width: 1024px) {
+        .grid-4 {
+            grid-template-columns: repeat(2, 1fr);
+        }
+    }
+
     @media (max-width: 768px) {
         #mapa-container { height: 50vh; min-height: 400px; }
         .leyenda { font-size: 0.75rem; padding: 0.75rem; }
         .leyenda-color { width: 20px; height: 15px; }
+
+        .grid-4 {
+            grid-template-columns: 1fr;
+        }
     }
 </style>
 @endsection
@@ -145,7 +216,7 @@
 <!-- CONTROLES SUPERIORES -->
 <div class="card" style="margin-bottom: 1.5rem;">
     <div class="card-body">
-        <div class="grid grid-3">
+        <div class="grid grid-4">
             <!-- Selector de Año -->
             <div>
                 <label for="select-ano" style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: var(--text-primary);">
@@ -169,6 +240,20 @@
                     <option value="defuncion">Defunciones</option>
                     <option value="matrimonio">Matrimonios</option>
                 </select>
+            </div>
+
+            <!-- Buscador de Municipios -->
+            <div style="position: relative;">
+                <label for="search-municipio" style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: var(--text-primary);">
+                    Buscar Municipio
+                </label>
+                <input
+                    type="text"
+                    id="search-municipio"
+                    placeholder="Buscar por nombre..."
+                    autocomplete="off"
+                    style="width: 100%; padding: 0.5rem; border-radius: 0.375rem; border: 1px solid var(--border-color); background: var(--bg-tertiary); color: var(--text-primary);">
+                <div id="search-results" class="search-results"></div>
             </div>
 
             <!-- Estadísticas Rápidas -->
@@ -498,6 +583,136 @@
     function capitalize(str) {
         return str.charAt(0).toUpperCase() + str.slice(1);
     }
+
+    // ========== FUNCIONALIDAD DE BÚSQUEDA ==========
+    let municipiosList = [];
+    let highlightedLayer = null;
+
+    // Construir lista de municipios desde el GeoJSON
+    function buildMunicipiosList() {
+        municipiosList = state.geojsonData.features.map(feature => ({
+            nombre: feature.properties.n_mun || '',
+            codigo: feature.properties.c_mun || '',
+            provincia: feature.properties.n_prov || '',
+            bounds: L.geoJSON(feature).getBounds()
+        })).sort((a, b) => a.nombre.localeCompare(b.nombre));
+    }
+
+    // Buscar municipios por nombre
+    function searchMunicipios(query) {
+        if (!query || query.length < 2) {
+            return [];
+        }
+
+        const normalizedQuery = query.toLowerCase().trim();
+        return municipiosList
+            .filter(m => m.nombre.toLowerCase().includes(normalizedQuery))
+            .slice(0, 10); // Limitar a 10 resultados
+    }
+
+    // Mostrar resultados de búsqueda
+    function showSearchResults(results) {
+        const resultsContainer = document.getElementById('search-results');
+
+        if (results.length === 0) {
+            resultsContainer.classList.remove('show');
+            return;
+        }
+
+        resultsContainer.innerHTML = results.map(m => `
+            <div class="search-result-item" data-codigo="${m.codigo}">
+                <div class="municipio-nombre">${m.nombre}</div>
+                <div class="municipio-provincia">${m.provincia}</div>
+            </div>
+        `).join('');
+
+        resultsContainer.classList.add('show');
+
+        // Agregar event listeners a los resultados
+        resultsContainer.querySelectorAll('.search-result-item').forEach(item => {
+            item.addEventListener('click', function() {
+                const codigo = this.dataset.codigo;
+                zoomToMunicipio(codigo);
+                document.getElementById('search-municipio').value = this.querySelector('.municipio-nombre').textContent;
+                resultsContainer.classList.remove('show');
+            });
+        });
+    }
+
+    // Hacer zoom a un municipio
+    function zoomToMunicipio(codigoIne) {
+        // Quitar resaltado anterior
+        if (highlightedLayer) {
+            state.geojsonLayer.resetStyle(highlightedLayer);
+            highlightedLayer = null;
+        }
+
+        // Buscar el municipio en el GeoJSON
+        const municipio = municipiosList.find(m => m.codigo === codigoIne);
+        if (!municipio) return;
+
+        // Hacer zoom al municipio
+        state.map.fitBounds(municipio.bounds, {
+            padding: [50, 50],
+            maxZoom: 12
+        });
+
+        // Resaltar el municipio en el mapa
+        state.geojsonLayer.eachLayer(layer => {
+            if (layer.feature && layer.feature.properties.c_mun === codigoIne) {
+                // Resaltar con estilo especial
+                layer.setStyle({
+                    weight: 4,
+                    color: '#fbbf24',
+                    fillOpacity: 0.9
+                });
+
+                // Abrir popup si existe
+                if (layer.getPopup()) {
+                    layer.openPopup();
+                }
+
+                // Guardar referencia para poder quitar el resaltado después
+                highlightedLayer = layer;
+
+                // Traer al frente
+                if (!L.Browser.ie && !L.Browser.opera && !L.Browser.edge) {
+                    layer.bringToFront();
+                }
+            }
+        });
+    }
+
+    // Event listeners para búsqueda
+    const searchInput = document.getElementById('search-municipio');
+    const searchResults = document.getElementById('search-results');
+
+    searchInput.addEventListener('input', function() {
+        const query = this.value;
+        const results = searchMunicipios(query);
+        showSearchResults(results);
+    });
+
+    searchInput.addEventListener('focus', function() {
+        if (this.value.length >= 2) {
+            const results = searchMunicipios(this.value);
+            showSearchResults(results);
+        }
+    });
+
+    // Cerrar resultados al hacer clic fuera
+    document.addEventListener('click', function(e) {
+        if (!searchInput.contains(e.target) && !searchResults.contains(e.target)) {
+            searchResults.classList.remove('show');
+        }
+    });
+
+    // Construir lista de municipios cuando se carga el GeoJSON
+    const originalLoadGeoJSON = loadGeoJSON;
+    loadGeoJSON = async function() {
+        await originalLoadGeoJSON();
+        buildMunicipiosList();
+    };
 
     // Event listeners
     document.getElementById('select-ano').addEventListener('change', function() {
