@@ -37,8 +37,13 @@ class ImportarPoblacionDesdeApi extends Command
         $municipiosNoEncontrados = [];
 
         try {
+            // Configurar cliente HTTP (deshabilitar SSL en desarrollo si es necesario)
+            $http = config('app.env') === 'local'
+                ? Http::withoutVerifying()->timeout(30)
+                : Http::timeout(30);
+
             // Primera petición para obtener el total
-            $response = Http::timeout(30)->get($baseUrl, [
+            $response = $http->get($baseUrl, [
                 'limit' => 1,
                 'offset' => 0
             ]);
@@ -59,7 +64,7 @@ class ImportarPoblacionDesdeApi extends Command
 
             // Procesar en lotes
             while ($offset < $totalMunicipios) {
-                $response = Http::timeout(30)->get($baseUrl, [
+                $response = $http->get($baseUrl, [
                     'limit' => $limit,
                     'offset' => $offset
                 ]);

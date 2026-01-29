@@ -111,7 +111,38 @@ for year in 2020 2021 2022 2023; do php artisan mnp:import --ano-inicio=$year --
 - ~2,723 registros de matrimonios
 - **Total: ~13,462 registros**
 
-### 10. Compilar Assets Frontend
+### 10. Importar Población de Municipios
+
+Actualiza la población de todos los municipios desde la API de datos abiertos de la Junta de Castilla y León:
+
+```bash
+php artisan poblacion:importar-api
+```
+
+**Características:**
+- 🌐 Conecta con la API oficial de OpenDataSoft de la JCyL
+- 📊 Importa población de ~2,248 municipios
+- ⚡ Procesamiento en lotes con barra de progreso
+- 🔄 Actualiza automáticamente el campo `poblacion` en la tabla `municipios`
+
+**Tiempo estimado:** 1-2 minutos
+
+**API utilizada:**
+```
+https://analisis.datosabiertos.jcyl.es/api/explore/v2.1/catalog/datasets/registro-de-municipios-de-castilla-y-leon/records
+```
+
+**Comandos alternativos:**
+
+```bash
+# Actualizar población de un municipio específico
+php artisan poblacion:actualizar 47186 295000
+
+# Usar el seeder para municipios principales (solo capitales)
+php artisan db:seed --class=PoblacionMunicipiosSeeder
+```
+
+### 11. Compilar Assets Frontend
 
 ```bash
 # Para producción (assets compilados y optimizados)
@@ -121,7 +152,7 @@ npm run build
 npm run dev
 ```
 
-### 11. Iniciar Servidor
+### 12. Iniciar Servidor
 
 ```bash
 php artisan serve
