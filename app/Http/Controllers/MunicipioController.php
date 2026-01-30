@@ -41,14 +41,21 @@ class MunicipioController extends Controller
     public function buscar(Request $request)
     {
         $termino = $request->input('q', '');
+        $provinciaId = $request->input('provincia_id');
 
         if (strlen($termino) < 2) {
             return response()->json([]);
         }
 
-        $municipios = Municipio::with('provincia')
-            ->where('nombre', 'LIKE', "%{$termino}%")
-            ->limit(10)
+        $query = Municipio::with('provincia')
+            ->where('nombre', 'LIKE', "%{$termino}%");
+
+        // Si se proporciona provincia_id, filtrar por esa provincia
+        if ($provinciaId) {
+            $query->where('provincia_id', $provinciaId);
+        }
+
+        $municipios = $query->limit(10)
             ->get()
             ->map(function ($municipio) {
                 return [

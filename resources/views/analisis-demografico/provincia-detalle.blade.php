@@ -83,6 +83,17 @@
             <h2 class="card-title">🏘️ Municipios de {{ $provincia->nombre }}</h2>
             <p class="card-subtitle">{{ $provincia->municipios->count() }} municipios en total</p>
         </div>
+        <div class="municipios-search">
+            <div class="search-container">
+                <input 
+                    type="text" 
+                    id="buscar-municipio" 
+                    placeholder="🔍 Buscar municipio en {{ $provincia->nombre }}..."
+                    class="search-input"
+                >
+                <div id="resultados-busqueda" class="autocomplete-results"></div>
+            </div>
+        </div>
     </div>
     <div class="card-body">
         <div class="table-wrapper">
@@ -129,6 +140,80 @@
 </div>
 
 @endsection
+
+@push('estilos_adicionales')
+<style>
+.municipios-search {
+    margin-top: 1rem;
+}
+
+.search-container {
+    position: relative;
+    max-width: 400px;
+}
+
+.search-input {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    border: 2px solid var(--border-color);
+    border-radius: 0.5rem;
+    font-size: 0.9rem;
+    transition: all 0.3s ease;
+}
+
+.search-input:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.autocomplete-results {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: white;
+    border: 1px solid var(--border-color);
+    border-radius: 0.5rem;
+    margin-top: 0.5rem;
+    max-height: 300px;
+    overflow-y: auto;
+    display: none;
+    z-index: 1000;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.autocomplete-results.show {
+    display: block;
+}
+
+.autocomplete-item {
+    padding: 0.75rem 1rem;
+    cursor: pointer;
+    border-bottom: 1px solid var(--border-color);
+    transition: background-color 0.2s ease;
+}
+
+.autocomplete-item:last-child {
+    border-bottom: none;
+}
+
+.autocomplete-item:hover {
+    background-color: var(--bg-secondary);
+}
+
+.autocomplete-item strong {
+    color: var(--primary-color);
+}
+
+.no-results {
+    padding: 1rem;
+    text-align: center;
+    color: var(--text-secondary);
+    font-style: italic;
+}
+</style>
+@endpush
 
 @section('js_adicional')
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
@@ -235,6 +320,98 @@ document.addEventListener('DOMContentLoaded', function() {
         .catch(error => {
             console.error('Error cargando datos de municipios:', error);
         });
+
+    // Funcionalidad de búsqueda de municipios con autocompletado
+    const buscarInput = document.getElementById('buscar-municipio');
+    const resultadosDiv = document.getElementById('resultados-busqueda');
+    const tbody = document.querySelector('tbody');
+    const todosLosMunicipios = Array.from(tbody.querySelectorAll('tr'));
+    
+    let debounceTimer;
+
+    buscarInput.addEventListener('input', function() {
+        const termino = this.value.trim();
+        
+        clearTimeout(debounceTimer);
+        
+        if (termino.length < 2) {
+            resultadosDiv.classList.remove('show');
+            mostrarTodosMunicipios();
+            return;
+        }
+        
+        debounceTimer = setTimeout(() => {
+            buscarMunicipios(termino);
+        }, 300);
+    });
+
+    function buscarMunicipios(termino) {
+        const url = `/api/municipios/buscar?q=${encodeURIComponent(termino)}&provincia_id={{ $provincia->id }}`;
+        
+        fetch(url)
+            .then(response => response.json())
+            .then(municipios => {
+                mostrarResultados(municipios);
+                filtrarTablaMunicipios(termino);
+            })
+            .catch(error => {
+                console.error('Error buscando municipios:', error);
+            });
+    }
+
+    function mostrarResultados(municipios) {
+        if (municipios.length === 0) {
+            resultadosDiv.innerHTML = '<div class="no-results">No se encontraron municipios</div>';
+        } else {
+            resultadosDiv.innerHTML = municipios.map(municipio => `
+                <div class="autocomplete-item" onclick="window.location.href='${municipio.url}'">
+                    <strong>${municipio.nombre}</strong> (${municipio.codigo_ine})
+                </div>
+            `).join('');
+        }
+        
+        resultadosDiv.classList.add('show');
+    }
+
+    function filtrarTablaMunicipios(termino) {
+        const terminoLower = termino.toLowerCase();
+        
+        todosLosMunicipios.forEach(fila => {
+            const nombreMunicipio = fila.cells[1]?.textContent.toLowerCase() || '';
+            
+            if (nombreMunicipio.includes(terminoLower)) {
+                fila.style.display = '';
+            } else {
+                fila.style.display = 'none';
+            }
+        });
+        
+        // Actualizar contador de municipios visibles
+        const municipiosVisibles = todosLosMunicipios.filter(fila => fila.style.display !== 'none').length;
+        const subtitle = document.querySelector('.card-subtitle');
+        if (subtitle) {
+            subtitle.textContent = `${municipiosVisibles} de {{ $provincia->municipios->count() }} municipios`;
+        }
+    }
+
+    function mostrarTodosMunicipios() {
+        todosLosMunicipios.forEach(fila => {
+            fila.style.display = '';
+        });
+        
+        // Restaurar contador original
+        const subtitle = document.querySelector('.card-subtitle');
+        if (subtitle) {
+            subtitle.textContent = '{{ $provincia->municipios->count() }} municipios en total';
+        }
+    }
+
+    // Cerrar resultados al hacer clic fuera
+    document.addEventListener('click', function(event) {
+        if (!event.target.closest('.search-container')) {
+            resultadosDiv.classList.remove('show');
+        }
+    });
 });
 </script>
 @endsection
