@@ -1,6 +1,6 @@
 # Demografía CyL - Proyecto DAW
 
-> **🚨 ATENCIÓN:** Después de clonar este proyecto, **DEBES ejecutar `npm install && npm run build`** antes de iniciar el servidor. Sin este paso, la aplicación se verá sin estilos CSS. Ver sección [Compilar Assets Frontend](#11-compilar-assets-frontend--crítico).
+> **🚨 ATENCIÓN:** Después de clonar este proyecto, **DEBES ejecutar `npm install && npm run build`** antes de iniciar el servidor. Sin este paso, la aplicación se verá sin estilos CSS.
 
 Aplicación web Laravel que consume datos del Movimiento Natural de la Población (MNP) de Castilla y León, los almacena en base de datos y los presenta con gráficos interactivos y filtros asíncronos.
 
@@ -12,9 +12,7 @@ Aplicación web Laravel que consume datos del Movimiento Natural de la Població
 - MySQL 8.0+ o MariaDB 10.3+
 - Git
 
-## 🚀 Instalación en Nuevo Ordenador
-
-Sigue estos pasos para configurar el proyecto en un nuevo entorno:
+## 🚀 Instalación Paso a Paso
 
 ### 1. Clonar el Repositorio
 
@@ -23,213 +21,193 @@ git clone <URL_DEL_REPOSITORIO>
 cd DatosJuntaCyL
 ```
 
-### 2. Instalar Dependencias PHP
+### 2. Instalar Dependencias
 
 ```bash
+# Dependencias PHP
 composer install
-```
 
-### 3. Instalar Dependencias Node
-
-```bash
+# Dependencias Node
 npm install
 ```
 
-### 4. Configurar Variables de Entorno
+### 3. Configurar Entorno
 
 ```bash
-# Windows (CMD)
+# Windows
 copy .env.example .env
 
 # Linux/Mac
 cp .env.example .env
 ```
 
-**Editar el archivo `.env`** y configurar:
+**Editar `.env`** con tus credenciales de base de datos:
 
 ```env
-APP_NAME="Demografía CyL"
-DB_CONNECTION=mysql
-DB_HOST=127.0.0.1
-DB_PORT=3306
 DB_DATABASE=datosjuntacyl
 DB_USERNAME=root
 DB_PASSWORD=tu_password
 ```
 
-### 5. Generar Clave de Aplicación
+### 4. Generar Clave de Aplicación
 
 ```bash
 php artisan key:generate
 ```
 
-### 6. Crear Base de Datos
-
-Crear la base de datos en MySQL/MariaDB:
+### 5. Crear Base de Datos
 
 ```sql
 CREATE DATABASE datosjuntacyl CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 ```
 
-### 7. Ejecutar Migraciones
+### 6. Crear Tablas
 
 ```bash
 php artisan migrate
 ```
 
-Esto creará las tablas:
-- `provincias`
-- `municipios`
-- `datos_mnp`
-- `usuarios`
-- `sessions`
-- `cache`
-- `jobs`
-
-### 8. Poblar Base de Datos (Seeders)
+### 7. Importar Provincias
 
 ```bash
-php artisan db:seed
+php artisan db:seed --class=ProvinciaSeeder
 ```
 
-Esto cargará:
-- ✅ 9 provincias de Castilla y León
-- ✅ ~2,249 municipios
+**Resultado:** 9 provincias de Castilla y León
 
-### 9. Importar Datos MNP desde la API
-
-**⚠️ IMPORTANTE:** La importación debe hacerse **año por año** debido a limitaciones de la API.
+### 8. Importar TODOS los Municipios desde API
 
 ```bash
-# Importar todos los datos (2020-2023) año por año
+php artisan municipios:import-jcyl
+```
+
+**Resultado:** ~2,249 municipios | **Tiempo:** 1-2 minutos
+
+> **ℹ️ Nota:** El `MunicipioSeeder` está comentado en `DatabaseSeeder.php` porque solo carga 27 municipios principales. Usamos el comando anterior para importar TODOS los municipios desde la API oficial de la JCyL.
+
+### 9. Importar Usuarios de Prueba
+
+```bash
+php artisan db:seed --class=UsuarioSeeder
+```
+
+### 10. Importar Datos MNP (2020-2023)
+
+**⚠️ IMPORTANTE:** Ejecutar año por año debido a limitaciones de la API.
+
+**Windows (CMD):**
+```cmd
+php artisan mnp:import --ano-inicio=2020 --ano-fin=2020
+php artisan mnp:import --ano-inicio=2021 --ano-fin=2021
+php artisan mnp:import --ano-inicio=2022 --ano-fin=2022
+php artisan mnp:import --ano-inicio=2023 --ano-fin=2023
+```
+
+**Windows (PowerShell):**
+```powershell
+2020..2023 | ForEach-Object { php artisan mnp:import --ano-inicio=$_ --ano-fin=$_ }
+```
+
+**Linux/Mac:**
+```bash
 for year in 2020 2021 2022 2023; do php artisan mnp:import --ano-inicio=$year --ano-fin=$year; done
 ```
-
-**Tiempo estimado:** 15-20 minutos para importar todos los datos.
 
 **Resultado esperado:**
 - ~3,976 registros de nacimientos
 - ~6,763 registros de defunciones
 - ~2,723 registros de matrimonios
 - **Total: ~13,462 registros**
+- **Tiempo:** 15-20 minutos
 
-### 10. Importar Población de Municipios
-
-Actualiza la población de todos los municipios desde la API de datos abiertos de la Junta de Castilla y León:
+### 11. Importar Población de Municipios (Opcional)
 
 ```bash
 php artisan poblacion:importar-api
 ```
 
-**Características:**
-- 🌐 Conecta con la API oficial de OpenDataSoft de la JCyL
-- 📊 Importa población de ~2,248 municipios
-- ⚡ Procesamiento en lotes con barra de progreso
-- 🔄 Actualiza automáticamente el campo `poblacion` en la tabla `municipios`
+**Resultado:** Población actualizada de ~2,248 municipios | **Tiempo:** 1-2 minutos
 
-**Tiempo estimado:** 1-2 minutos
-
-**API utilizada:**
-```
-https://analisis.datosabiertos.jcyl.es/api/explore/v2.1/catalog/datasets/registro-de-municipios-de-castilla-y-leon/records
-```
-
-**Comandos alternativos:**
+### 12. Compilar Assets Frontend ⚠️ **CRÍTICO**
 
 ```bash
-# Actualizar población de un municipio específico
-php artisan poblacion:actualizar 47186 295000
-
-# Usar el seeder para municipios principales (solo capitales)
-php artisan db:seed --class=PoblacionMunicipiosSeeder
-```
-
-### 11. Compilar Assets Frontend ⚠️ **CRÍTICO**
-
-```bash
-# Para producción (assets compilados y optimizados)
 npm run build
-
-# Para desarrollo (servidor con hot-reload)
-npm run dev
 ```
 
-**⚠️ IMPORTANTE:** Si omites este paso, la aplicación se verá sin estilos CSS. Este comando genera los archivos compilados en `public/build/` que NO se incluyen en el repositorio de Git.
+**⚠️ IMPORTANTE:** Sin este paso, la aplicación se verá sin estilos CSS.
 
-### 12. Iniciar Servidor
+### 13. Iniciar Servidor
 
 ```bash
 php artisan serve
 ```
 
-La aplicación estará disponible en: **http://localhost:8000**
+**Aplicación disponible en:** http://localhost:8000
 
-## 🔍 Verificación de Datos
-
-Para verificar que los datos se importaron correctamente:
+## 🔍 Verificar Importación
 
 ```bash
-php artisan tinker --execute="echo 'Total registros: ' . \App\Models\DatoMnp::count();"
+# Ver totales
+php artisan tinker --execute="echo 'Provincias: ' . \App\Models\Provincia::count() . PHP_EOL . 'Municipios: ' . \App\Models\Municipio::count() . PHP_EOL . 'Datos MNP: ' . \App\Models\DatoMnp::count();"
 ```
 
 **Resultados esperados:**
-- Nacimientos: 3,976 registros (100% con valores reales)
-- Defunciones: 6,763 registros (100% con valores reales)
-- Matrimonios: 2,723 registros (100% con valores reales)
+- Provincias: 9
+- Municipios: ~2,249
+- Datos MNP: ~13,462
 
 ## ⚠️ Problemas Comunes
 
 ### La aplicación se ve sin estilos CSS
 
-**Síntoma:** La página carga pero solo aparece texto sin formato, sin colores ni diseño.
-
-**Causa:** No se ejecutó `npm run build` después de clonar el repositorio.
-
 **Solución:**
 ```bash
 npm install
 npm run build
 ```
-
-Los archivos compilados en `public/build/` NO se incluyen en Git, por lo que debes generarlos en cada instalación nueva.
 
 ### Error: "Vite manifest not found"
 
 **Solución:**
 ```bash
-npm install
 npm run build
 ```
 
 ### Importación devuelve "No se obtuvieron datos"
 
-**Solución:**
-Importar año por año en lugar de múltiples años simultáneamente:
-```bash
-for year in 2020 2021 2022 2023; do php artisan mnp:import --ano-inicio=$year --ano-fin=$year; done
-```
-
-### Datos importados con valor 0
-
-**Solución:**
-Re-importar los datos año por año:
-```bash
-for year in 2020 2021 2022 2023; do php artisan mnp:import --tipo=defunciones --ano-inicio=$year --ano-fin=$year; done
-```
+**Solución:** Importar año por año (ver paso 10)
 
 ## 📊 Stack Tecnológico
 
-**Backend:** PHP 8.2+, Laravel 11, MariaDB/MySQL, PDO  
-**Frontend:** JavaScript ES6, Chart.js, Tailwind CSS 4.0, Fetch API  
-**Herramientas:** Vite 7.0, Composer, npm
+**Backend:** PHP 8.2+, Laravel 11, MariaDB/MySQL
+**Frontend:** JavaScript ES6, Chart.js, Tailwind CSS 4.0
+**Build:** Vite 7.0, npm
 
 ## 📚 Documentación Adicional
 
-- [CLAUDE.md](CLAUDE.md) - Instrucciones para Claude Code
-- [DATASET-LINKS.md](DATASET-LINKS.md) - Enlaces a APIs y datasets
-- [TECHNICAL-SPECS.md](TECHNICAL-SPECS.md) - Especificaciones técnicas
+- [CLAUDE.md](CLAUDE.md) - Instrucciones para desarrollo
+- [DATASET-LINKS.md](DATASET-LINKS.md) - APIs y datasets utilizados
+- [TECHNICAL-SPECS.md](TECHNICAL-SPECS.md) - Especificaciones técnicas detalladas
 
-## 📅 Entrega
+## 🎯 Comandos Útiles
 
-- **Fecha entrega:** 5 febrero 2026
-- **Fecha defensa:** 6 febrero 2026
+```bash
+# Desarrollo con hot-reload
+npm run dev
+
+# Limpiar caché de Laravel
+php artisan cache:clear
+php artisan config:clear
+php artisan route:clear
+
+# Resetear base de datos completa
+php artisan migrate:fresh
+
+# Ver logs en tiempo real
+tail -f storage/logs/laravel.log
+```
+
+## 📅 Proyecto
+
+- **Entrega:** 5 febrero 2026
+- **Defensa:** 6 febrero 2026
