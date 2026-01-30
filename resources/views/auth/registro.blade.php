@@ -45,7 +45,7 @@
                         Nombre Completo
                     </label>
                     <div class="relative">
-                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <div class="absolute inset-y-0 left-0 pl-2 flex items-center pointer-events-none">
                             <svg class="h-5 w-5 transition-colors" style="color: var(--text-tertiary);" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
                             </svg>
@@ -57,7 +57,7 @@
                             value="{{ old('nombre') }}"
                             required
                             class="w-full pl-12 pr-4 py-3 rounded-lg transition-all duration-200"
-                            style="background-color: var(--bg-tertiary); border: 1px solid var(--border-color); color: var(--text-primary); padding-left: 1.5rem;"
+                            style="background-color: var(--bg-tertiary); border: 1px solid var(--border-color); color: var(--text-primary);"
                             onfocus="this.style.borderColor='var(--primary-color)'; this.style.outline='none';"
                             onblur="this.style.borderColor='var(--border-color)';"
                         >
@@ -70,7 +70,7 @@
                         Correo Electrónico
                     </label>
                     <div class="relative">
-                        <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                             <svg class="h-5 w-5 transition-colors" style="color: var(--text-tertiary);" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 12a4 4 0 10-8 0 4 4 0 008 0zm0 0v1.5a2.5 2.5 0 005 0V12a9 9 0 10-9 9m4.5-1.206a8.959 8.959 0 01-4.5 1.207"></path>
                             </svg>
@@ -81,8 +81,8 @@
                             name="email"
                             value="{{ old('email') }}"
                             required
-                            class="w-full pl-14 pr-4 py-3 rounded-lg transition-all duration-200"
-                            style="background-color: var(--bg-tertiary); border: 1px solid var(--border-color); color: var(--text-primary); padding-left: 1.5rem;"
+                            class="w-full pl-12 pr-4 py-3 rounded-lg transition-all duration-200"
+                            style="background-color: var(--bg-tertiary); border: 1px solid var(--border-color); color: var(--text-primary);"
                             onfocus="this.style.borderColor='var(--primary-color)'; this.style.outline='none';"
                             onblur="this.style.borderColor='var(--border-color)';"
                         >
@@ -95,7 +95,7 @@
                         Contraseña
                     </label>
                     <div class="relative">
-                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <div class="absolute inset-y-0 left-0 pl-2 flex items-center pointer-events-none">
                             <svg class="h-5 w-5 transition-colors" style="color: var(--text-tertiary);" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
                             </svg>
@@ -106,7 +106,7 @@
                             name="password"
                             required
                             class="w-full pl-12 pr-4 py-3 rounded-lg transition-all duration-200"
-                            style="background-color: var(--bg-tertiary); border: 1px solid var(--border-color); color: var(--text-primary); padding-left: 1.5rem;"
+                            style="background-color: var(--bg-tertiary); border: 1px solid var(--border-color); color: var(--text-primary);"
                             onfocus="this.style.borderColor='var(--primary-color)'; this.style.outline='none';"
                             onblur="this.style.borderColor='var(--border-color)';"
                         >
@@ -120,7 +120,7 @@
                         Confirmar Contraseña
                     </label>
                     <div class="relative">
-                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <div class="absolute inset-y-0 left-0 pl-2 flex items-center pointer-events-none">
                             <svg class="h-5 w-5 transition-colors" style="color: var(--text-tertiary);" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                             </svg>
@@ -131,7 +131,7 @@
                             name="password_confirmation"
                             required
                             class="w-full pl-12 pr-4 py-3 rounded-lg transition-all duration-200"
-                            style="background-color: var(--bg-tertiary); border: 1px solid var(--border-color); color: var(--text-primary); padding-left: 1.5rem;"
+                            style="background-color: var(--bg-tertiary); border: 1px solid var(--border-color); color: var(--text-primary);"
                             onfocus="this.style.borderColor='var(--primary-color)'; this.style.outline='none';"
                             onblur="this.style.borderColor='var(--border-color)';"
                         >
