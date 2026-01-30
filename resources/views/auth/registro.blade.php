@@ -57,7 +57,7 @@
                             value="{{ old('nombre') }}"
                             required
                             class="w-full pl-12 pr-4 py-3 rounded-lg transition-all duration-200"
-                            style="background-color: var(--bg-tertiary); border: 1px solid var(--border-color); color: var(--text-primary);"
+                            style="background-color: var(--bg-tertiary); border: 1px solid var(--border-color); color: var(--text-primary);padding-left: 1.5rem;"
                             onfocus="this.style.borderColor='var(--primary-color)'; this.style.outline='none';"
                             onblur="this.style.borderColor='var(--border-color)';"
                         >
@@ -82,7 +82,7 @@
                             value="{{ old('email') }}"
                             required
                             class="w-full pl-12 pr-4 py-3 rounded-lg transition-all duration-200"
-                            style="background-color: var(--bg-tertiary); border: 1px solid var(--border-color); color: var(--text-primary);"
+                            style="background-color: var(--bg-tertiary); border: 1px solid var(--border-color); color: var(--text-primary);padding-left: 1.5rem;"
                             onfocus="this.style.borderColor='var(--primary-color)'; this.style.outline='none';"
                             onblur="this.style.borderColor='var(--border-color)';"
                         >
@@ -106,7 +106,7 @@
                             name="password"
                             required
                             class="w-full pl-12 pr-4 py-3 rounded-lg transition-all duration-200"
-                            style="background-color: var(--bg-tertiary); border: 1px solid var(--border-color); color: var(--text-primary);"
+                            style="background-color: var(--bg-tertiary); border: 1px solid var(--border-color); color: var(--text-primary);padding-left: 1.5rem;"
                             onfocus="this.style.borderColor='var(--primary-color)'; this.style.outline='none';"
                             onblur="this.style.borderColor='var(--border-color)';"
                         >
@@ -131,7 +131,7 @@
                             name="password_confirmation"
                             required
                             class="w-full pl-12 pr-4 py-3 rounded-lg transition-all duration-200"
-                            style="background-color: var(--bg-tertiary); border: 1px solid var(--border-color); color: var(--text-primary);"
+                            style="background-color: var(--bg-tertiary); border: 1px solid var(--border-color); color: var(--text-primary);padding-left: 1.5rem;"
                             onfocus="this.style.borderColor='var(--primary-color)'; this.style.outline='none';"
                             onblur="this.style.borderColor='var(--border-color)';"
                         >
