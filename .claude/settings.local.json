@@ -21,7 +21,9 @@
       "Bash(node -e:*)",
       "Bash(npx mapshaper:*)",
       "WebFetch(domain:datosabiertos.jcyl.es)",
-      "Bash(find:*)"
+      "Bash(find:*)",
+      "Bash(npm run dev:*)",
+      "Bash(findstr:*)"
     ]
   }
 }

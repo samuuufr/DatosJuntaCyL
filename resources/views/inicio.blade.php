@@ -76,59 +76,6 @@
             background-color: var(--primary-dark);
         }
 
-        .seccion-caracteristicas {
-            padding: 4rem 2rem;
-            max-width: 1400px;
-            margin: 0 auto;
-        }
-
-        .seccion-caracteristicas h2 {
-            font-size: 2.5rem;
-            font-weight: 700;
-            margin-bottom: 3rem;
-            text-align: center;
-            color: var(--text-primary);
-        }
-
-        .grid-caracteristicas {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 2rem;
-            margin-bottom: 3rem;
-        }
-
-        .tarjeta-caracteristica {
-            padding: 2rem;
-            background-color: var(--bg-secondary);
-            border-radius: 0.75rem;
-            border: 1px solid var(--border-color);
-            transition: all 0.3s ease;
-            text-align: center;
-        }
-
-        .tarjeta-caracteristica:hover {
-            transform: translateY(-5px);
-            box-shadow: var(--shadow-lg);
-            border-color: var(--primary-color);
-        }
-
-        .icono-caracteristica {
-            font-size: 3rem;
-            margin-bottom: 1rem;
-        }
-
-        .tarjeta-caracteristica h3 {
-            font-size: 1.25rem;
-            font-weight: 600;
-            margin-bottom: 1rem;
-            color: var(--text-primary);
-        }
-
-        .tarjeta-caracteristica p {
-            color: var(--text-secondary);
-            line-height: 1.6;
-        }
-
         .seccion-acceso {
             padding: 4rem 2rem;
             max-width: 1400px;
@@ -145,12 +92,12 @@
 
         .grid-acceso {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
             gap: 2rem;
         }
 
         .tarjeta-acceso {
-            padding: 2.5rem;
+            padding: 2rem;
             background-color: var(--bg-secondary);
             border: 2px solid var(--border-color);
             border-radius: 0.75rem;
@@ -160,6 +107,8 @@
             cursor: pointer;
             display: flex;
             flex-direction: column;
+            min-height: 240px;
+            overflow: hidden;
         }
 
         .tarjeta-acceso:hover {
@@ -177,14 +126,20 @@
         .tarjeta-acceso-titulo {
             font-size: 1.5rem;
             font-weight: 700;
-            margin-bottom: 0.5rem;
+            margin-bottom: 0.75rem;
             color: var(--text-primary);
+            word-wrap: break-word;
+            overflow-wrap: break-word;
         }
 
         .tarjeta-acceso-descripcion {
             color: var(--text-secondary);
             margin-bottom: 1.5rem;
             flex-grow: 1;
+            line-height: 1.6;
+            font-size: 0.95rem;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
         }
 
         .tarjeta-acceso-boton {
@@ -287,12 +242,32 @@
                 font-size: 1rem;
             }
 
+            .grid-acceso {
+                grid-template-columns: 1fr;
+                gap: 1.5rem;
+            }
+
+            .tarjeta-acceso {
+                min-height: auto;
+                padding: 1.5rem;
+            }
+
+            .tarjeta-acceso-titulo {
+                font-size: 1.25rem;
+            }
+
             .seccion-info-contenido {
                 grid-template-columns: 1fr;
             }
 
             .estadisticas-rapidas {
                 grid-template-columns: 1fr;
+            }
+        }
+
+        @media (min-width: 769px) and (max-width: 1024px) {
+            .grid-acceso {
+                grid-template-columns: repeat(2, 1fr);
             }
         }
 
@@ -422,28 +397,6 @@
     </div>
 </section>
 
-<!-- SECCIÓN CARACTERÍSTICAS -->
-<section class="seccion-caracteristicas">
-    <h2>¿Qué puedes hacer aquí?</h2>
-    <div class="grid-caracteristicas">
-        <div class="tarjeta-caracteristica">
-            <div class="icono-caracteristica">📊</div>
-            <h3>Análisis Completo</h3>
-            <p>Accede a datos detallados de nacimientos, matrimonios y defunciones de todas las provincias y municipios de Castilla y León</p>
-        </div>
-        <div class="tarjeta-caracteristica">
-            <div class="icono-caracteristica">⚖️</div>
-            <h3>Comparativas</h3>
-            <p>Compara estadísticas demográficas entre provincias para identificar tendencias y diferencias regionales</p>
-        </div>
-        <div class="tarjeta-caracteristica">
-            <div class="icono-caracteristica">📍</div>
-            <h3>Detalle Territorial</h3>
-            <p>Explora datos municipio por municipio para análisis más granulares de la región</p>
-        </div>
-    </div>
-</section>
-
 <!-- SECCIÓN ACCESO RÁPIDO -->
 <section class="seccion-acceso">
     <h2>Acceso Rápido</h2>
@@ -457,23 +410,61 @@
             <div class="tarjeta-acceso-boton">Ver Panel</div>
         </a>
 
+        <a href="{{ route('provincias.index') }}" class="tarjeta-acceso">
+            <div class="tarjeta-acceso-icono">🗺️</div>
+            <div class="tarjeta-acceso-titulo">Provincias</div>
+            <div class="tarjeta-acceso-descripcion">
+                Explora las 9 provincias de Castilla y León con datos demográficos detallados.
+            </div>
+            <div class="tarjeta-acceso-boton">Ver Provincias</div>
+        </a>
+
+        <a href="{{ route('municipios.index') }}" class="tarjeta-acceso">
+            <div class="tarjeta-acceso-icono">🏘️</div>
+            <div class="tarjeta-acceso-titulo">Municipios</div>
+            <div class="tarjeta-acceso-descripcion">
+                Busca y analiza datos de municipios específicos con información detallada.
+            </div>
+            <div class="tarjeta-acceso-boton">Ver Municipios</div>
+        </a>
+
         <a href="{{ route('analisis-demografico.comparar') }}" class="tarjeta-acceso">
             <div class="tarjeta-acceso-icono">⚖️</div>
             <div class="tarjeta-acceso-titulo">Comparar Provincias</div>
             <div class="tarjeta-acceso-descripcion">
-                Elige dos provincias y compara sus indicadores demográficos lado a lado.
+                Compara dos provincias lado a lado para identificar tendencias y diferencias.
             </div>
             <div class="tarjeta-acceso-boton">Comparar</div>
         </a>
 
-        <a href="{{ route('analisis-demografico.panel') }}#provincias" class="tarjeta-acceso">
-            <div class="tarjeta-acceso-icono">📍</div>
-            <div class="tarjeta-acceso-titulo">Por Provincias</div>
+        <a href="{{ route('analisis-demografico.mapa-calor') }}" class="tarjeta-acceso">
+            <div class="tarjeta-acceso-icono">🔥</div>
+            <div class="tarjeta-acceso-titulo">Mapa de Calor</div>
             <div class="tarjeta-acceso-descripcion">
-                Selecciona una provincia para ver en detalle sus municipios y datos MNP.
+                Visualiza la distribución geográfica de datos demográficos en un mapa interactivo.
             </div>
-            <div class="tarjeta-acceso-boton">Explorar</div>
+            <div class="tarjeta-acceso-boton">Ver Mapa</div>
         </a>
+
+        @auth
+        <a href="{{ route('perfil.mostrar') }}" class="tarjeta-acceso">
+            <div class="tarjeta-acceso-icono">👤</div>
+            <div class="tarjeta-acceso-titulo">Mi Perfil</div>
+            <div class="tarjeta-acceso-descripcion">
+                Gestiona tu información personal y preferencias de la cuenta.
+            </div>
+            <div class="tarjeta-acceso-boton">Ver Perfil</div>
+        </a>
+
+        <a href="{{ route('perfil.favoritos') }}" class="tarjeta-acceso">
+            <div class="tarjeta-acceso-icono">⭐</div>
+            <div class="tarjeta-acceso-titulo">Mis Favoritos</div>
+            <div class="tarjeta-acceso-descripcion">
+                Accede rápidamente a tus municipios favoritos y sigue sus estadísticas.
+            </div>
+            <div class="tarjeta-acceso-boton">Ver Favoritos</div>
+        </a>
+        @endauth
     </div>
 </section>
 
@@ -487,9 +478,9 @@
             </p>
             <ul class="lista-puntos">
                 <li>9 provincias históricas y administrativas</li>
-                <li>Miles de municipios con datos completos</li>
+                <li>2,249 municipios con datos completos</li>
                 <li>Estadísticas demográficas desde años anteriores</li>
-                <li>Datos de Movimiento Natural de la Población (MNP)</li>
+                <li>Más de 14,000 registros del MNP</li>
             </ul>
         </div>
         <div>
@@ -499,11 +490,11 @@
                     <div class="estadistica-rapida-label">Provincias</div>
                 </div>
                 <div class="estadistica-rapida">
-                    <div class="estadistica-rapida-numero">100+</div>
+                    <div class="estadistica-rapida-numero">2,249</div>
                     <div class="estadistica-rapida-label">Municipios</div>
                 </div>
                 <div class="estadistica-rapida">
-                    <div class="estadistica-rapida-numero">∞</div>
+                    <div class="estadistica-rapida-numero">14,000+</div>
                     <div class="estadistica-rapida-label">Datos MNP</div>
                 </div>
             </div>
@@ -513,92 +504,6 @@
 
 <!-- PIE DE PÁGINA -->
 @include('componentes.pie-pagina')
-
-<!-- Script de gestor de temas -->
-<script>
-/**
- * Gestor de temas oscuro/claro para la página de inicio
- */
-(function() {
-    'use strict';
-
-    const STORAGE_KEY = 'app-tema';
-    const ATTR_NAME = 'data-tema';
-
-    /**
-     * Establece el tema y guarda en localStorage
-     */
-    function establecerTema(tema) {
-        if (tema !== 'claro' && tema !== 'oscuro') {
-            tema = 'claro';
-        }
-
-        document.documentElement.setAttribute(ATTR_NAME, tema);
-        document.body.setAttribute(ATTR_NAME, tema);
-        localStorage.setItem(STORAGE_KEY, tema);
-
-        // Actualizar icono del botón
-        const boton = document.getElementById('boton-toggle-tema');
-        if (boton) {
-            boton.textContent = tema === 'oscuro' ? '☀️' : '🌙';
-            boton.setAttribute('aria-label', tema === 'oscuro' ? 'Cambiar a modo claro' : 'Cambiar a modo oscuro');
-        }
-
-        console.log('✅ Tema establecido a:', tema);
-    }
-
-    /**
-     * Alterna entre tema claro y oscuro
-     */
-    function alternarTema() {
-        const temaActual = document.documentElement.getAttribute(ATTR_NAME) || 'claro';
-        const nuevoTema = temaActual === 'oscuro' ? 'claro' : 'oscuro';
-        establecerTema(nuevoTema);
-    }
-
-    /**
-     * Inicializa el sistema de temas
-     */
-    function inicializar() {
-        console.log('🎨 Inicializando gestor de temas...');
-
-        // Cargar tema guardado o usar preferencia del sistema
-        const temaGuardado = localStorage.getItem(STORAGE_KEY);
-        if (temaGuardado) {
-            establecerTema(temaGuardado);
-        } else {
-            const prefiereDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches;
-            establecerTema(prefiereDarkMode ? 'oscuro' : 'claro');
-        }
-
-        // Adjuntar evento al botón
-        const boton = document.getElementById('boton-toggle-tema');
-        if (boton) {
-            boton.addEventListener('click', alternarTema);
-            console.log('✅ Evento click adjuntado al botón de tema');
-        } else {
-            console.warn('⚠️ No se encontró el botón #boton-toggle-tema');
-        }
-
-        // Observar cambios en la preferencia del sistema
-        const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
-        if (mediaQuery.addEventListener) {
-            mediaQuery.addEventListener('change', (e) => {
-                if (!localStorage.getItem(STORAGE_KEY)) {
-                    establecerTema(e.matches ? 'oscuro' : 'claro');
-                }
-            });
-        }
-    }
-
-    // Inicializar cuando el DOM esté listo
-    if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', inicializar);
-    } else {
-        inicializar();
-    }
-})();
-</script>
 
 </body>
 </html>

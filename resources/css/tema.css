@@ -108,10 +108,43 @@ body {
   color: var(--primary-color);
   text-decoration: none;
   transition: opacity 0.2s ease;
+  background: transparent !important;
+  background-color: transparent !important;
+  border: none;
+  padding: 0;
+  box-shadow: none !important;
 }
 
 .navbar-logo:hover {
   opacity: 0.8;
+  background: transparent !important;
+  background-color: transparent !important;
+}
+
+.navbar-logo:focus {
+  outline: none;
+  background: transparent !important;
+  background-color: transparent !important;
+}
+
+.navbar-logo:active {
+  background: transparent !important;
+  background-color: transparent !important;
+}
+
+.navbar-logo img {
+  height: 60px;
+  width: auto;
+  display: block;
+  object-fit: contain;
+  background: transparent !important;
+}
+
+/* Mejorar visualización del logo en modo oscuro */
+[data-tema="oscuro"] .navbar-logo img,
+body[data-tema="oscuro"] .navbar-logo img {
+  mix-blend-mode: screen;
+  opacity: 0.95;
 }
 
 .navbar-logo-icon {
@@ -776,11 +809,39 @@ tbody tr:last-child td {
   text-align: center;
   padding-top: 1rem;
   border-top: 1px solid var(--border-color);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
 }
 
 .pie-pagina-derechos p {
   font-size: 0.8rem;
   color: var(--text-tertiary);
+}
+
+.pie-pagina-logo {
+  height: 100px;
+  width: auto;
+  object-fit: contain;
+  opacity: 0.8;
+  transition: opacity 0.3s ease;
+}
+
+.pie-pagina-logo:hover {
+  opacity: 1;
+}
+
+/* Mejorar visualización del logo en modo oscuro */
+[data-tema="oscuro"] .pie-pagina-logo,
+body[data-tema="oscuro"] .pie-pagina-logo {
+  mix-blend-mode: screen;
+  opacity: 0.75;
+}
+
+[data-tema="oscuro"] .pie-pagina-logo:hover,
+body[data-tema="oscuro"] .pie-pagina-logo:hover {
+  opacity: 0.9;
 }
 
 /* ====================================

@@ -14,6 +14,7 @@
         </div>
         <div class="pie-pagina-derechos">
             <p>&copy; {{ date('Y') }} Demografía CyL - Proyecto DAW</p>
+            <img src="{{ asset('img/LOGOTEXTO.png') }}" alt="Logo Demografía CyL" class="pie-pagina-logo">
         </div>
     </div>
 </footer>

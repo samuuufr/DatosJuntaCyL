@@ -3,8 +3,7 @@
     <div class="navbar-contenedor">
         <div class="navbar-izquierda">
             <a href="{{ url('/') }}" class="navbar-logo">
-                <span class="navbar-logo-icon">📊</span>
-                <span class="navbar-logo-texto">CyL Data</span>
+                <img src="{{ asset('img/LOGOSINTEXTO.png') }}" alt="Demografía CyL">
             </a>
         </div>
 
