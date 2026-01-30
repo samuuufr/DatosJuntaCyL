@@ -20,7 +20,7 @@ class DatabaseSeeder extends Seeder
 
         $this->call([
             ProvinciaSeeder::class,
-            MunicipioSeeder::class,
+            //MunicipioSeeder::class,
             UsuarioSeeder::class,
             DatoMnpSeeder::class,
         ]);
