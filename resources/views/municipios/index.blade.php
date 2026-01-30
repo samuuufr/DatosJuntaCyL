@@ -8,7 +8,7 @@
 <!-- ENCABEZADO -->
 <div class="card" style="margin-bottom: 2rem; background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%); color: white; border: none;">
     <div class="card-body">
-        <h1 style="font-size: 2.5rem; margin-bottom: 0.5rem;">🏘️ Buscador de Municipios</h1>
+        <h1 style="font-size: 2.5rem; margin-bottom: 0.5rem;"> Buscador de Municipios</h1>
         <p style="font-size: 1rem; opacity: 0.9;">Busca municipios por nombre o filtra por provincia</p>
     </div>
 </div>

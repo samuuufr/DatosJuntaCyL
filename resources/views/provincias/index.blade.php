@@ -17,12 +17,12 @@
 <div class="card" style="margin-bottom: 2rem;">
     <div class="card-header" style="display: flex; justify-content: space-between; align-items: center;">
         <div>
-            <h2 class="card-title">🗺️ Selector de Provincia</h2>
+            <h2 class="card-title"> Selector de Provincia</h2>
             <p class="card-subtitle">{{ $provincias->count() }} provincias disponibles</p>
         </div>
         <div style="display: flex; gap: 0.5rem;">
             <button onclick="cambiarVista('grid')" id="btn-grid" class="btn btn-secondary btn-small">
-                📊 Vista Grid
+                📊 Vista cuadricula
             </button>
             <button onclick="cambiarVista('lista')" id="btn-lista" class="btn btn-secondary btn-small">
                 📋 Vista Lista

@@ -9,7 +9,7 @@
 <div class="card" style="margin-bottom: 2rem;">
     <div class="card-header">
         <div>
-            <h2 class="card-title">⚖️ Comparativa de Provincias</h2>
+            <h2 class="card-title"> Comparativa de Provincias</h2>
             <p class="card-subtitle">Selecciona dos provincias para compararlas</p>
         </div>
     </div>
@@ -126,7 +126,7 @@
     <div class="card">
         <div class="card-header">
             <div>
-                <h2 class="card-title">📊 Comparativa Detallada</h2>
+                <h2 class="card-title"> Comparativa Detallada</h2>
                 <p class="card-subtitle">Análisis lado a lado</p>
             </div>
         </div>
@@ -206,7 +206,7 @@
 @else
     <div class="card" style="text-align: center; padding: 3rem;">
         <p style="color: var(--text-secondary); font-size: 1rem;">
-            👉 Selecciona dos provincias arriba para ver la comparativa
+             Selecciona dos provincias arriba para ver la comparativa
         </p>
     </div>
 @endif

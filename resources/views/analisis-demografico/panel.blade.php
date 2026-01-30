@@ -9,7 +9,7 @@
 <div class="card" style="margin-bottom: 2rem;">
     <div class="card-header">
         <div>
-            <h2 class="card-title">📊 Estadísticas Generales</h2>
+            <h2 class="card-title"> Estadísticas Generales</h2>
             <p class="card-subtitle">Resumen de todos los datos disponibles</p>
         </div>
     </div>
@@ -39,7 +39,7 @@
 <div class="card" style="margin-bottom: 2rem;">
     <div class="card-header">
         <div>
-            <h2 class="card-title">👶 Resumen de Eventos MNP</h2>
+            <h2 class="card-title"> Resumen de Eventos MNP</h2>
             <p class="card-subtitle">Nacimientos, Matrimonios y Defunciones</p>
         </div>
     </div>
@@ -74,7 +74,7 @@
 <div class="card" style="margin-bottom: 2rem;">
     <div class="card-header">
         <div>
-            <h2 class="card-title">🏘️ Top 10 Municipios Más Activos</h2>
+            <h2 class="card-title"> Top 10 Municipios Más Activos</h2>
             <p class="card-subtitle">Con más registros de datos MNP</p>
         </div>
     </div>
