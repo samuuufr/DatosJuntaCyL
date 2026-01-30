@@ -20,7 +20,12 @@ class AuthController extends Controller
             return false;
         }
 
-        $response = Http::asForm()->post('https://challenges.cloudflare.com/turnstile/v0/siteverify', [
+        // Desactivar verificación SSL en desarrollo local
+        $http = app()->environment('local')
+            ? Http::withoutVerifying()
+            : Http::asForm();
+
+        $response = $http->asForm()->post('https://challenges.cloudflare.com/turnstile/v0/siteverify', [
             'secret' => env('TURNSTILE_SECRET_KEY'),
             'response' => $token,
         ]);
