@@ -22,3 +22,12 @@
 Homestead.json
 Homestead.yaml
 Thumbs.db
+
+# Office temporary files
+~$*
+*.tmp
+
+# Laravel logs and cache
+/storage/logs/*.log
+/public/css/tema.css
+/public/js/tema.js
