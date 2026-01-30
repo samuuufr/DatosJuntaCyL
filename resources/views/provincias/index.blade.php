@@ -49,8 +49,8 @@
                          onclick="window.location='{{ route('analisis-demografico.provincia-detalle', $provincia->id) }}'"
                          onmouseover="this.style.transform='translateY(-4px)'; this.style.boxShadow='0 8px 16px rgba(0,0,0,0.1)'"
                          onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 2px 4px rgba(0,0,0,0.1)'">
-                        <div class="card-header" style="background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%); color: white;">
-                            <h3 style="font-size: 1.25rem; margin: 0;">{{ $provincia->nombre }}</h3>
+                        <div class="card-header" style="background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%); color: white; display: flex; align-items: center; justify-content: center;">
+                            <h3 style="font-size: 1.25rem; margin: 0; text-align: center;">{{ $provincia->nombre }}</h3>
                         </div>
                         <div class="card-body">
                             <div style="display: flex; flex-direction: column; gap: 0.75rem;">
