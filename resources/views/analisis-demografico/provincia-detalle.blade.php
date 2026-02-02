@@ -85,25 +85,24 @@
                 <p class="card-subtitle" id="contador-municipios">{{ $provincia->municipios->count() }} municipios en total</p>
             </div>
 
-            <!-- Buscador con autocompletado -->
-            <div style="position: relative; min-width: 280px;">
+            <!-- Buscador que filtra la tabla -->
+            <div style="min-width: 280px;">
                 <label for="buscar-municipio" style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: var(--text-primary); font-size: 0.875rem;">
                     Buscar Municipio
                 </label>
                 <input
                     type="text"
                     id="buscar-municipio"
-                    placeholder="Escribe para buscar..."
+                    placeholder="Escribe para filtrar..."
                     autocomplete="off"
                     style="width: 100%; padding: 0.6rem 1rem; border-radius: 0.375rem; border: 1px solid var(--border-color); background: var(--bg-tertiary); color: var(--text-primary); font-size: 0.9rem;"
                 >
-                <div id="search-results" class="search-results"></div>
             </div>
         </div>
     </div>
     <div class="card-body">
         <div class="table-wrapper">
-            <table>
+            <table id="tabla-municipios">
                 <thead>
                     <tr>
                         <th>#</th>
@@ -113,7 +112,7 @@
                         <th>Acción</th>
                     </tr>
                 </thead>
-                <tbody>
+                <tbody id="tbody-municipios">
                     @forelse($provincia->municipios as $index => $municipio)
                         <tr>
                             <td><strong>{{ $index + 1 }}</strong></td>
@@ -149,108 +148,16 @@
 
 @push('estilos_adicionales')
 <style>
-/* Buscador de municipios con autocompletado */
+/* Buscador de municipios */
 #buscar-municipio:focus {
     outline: none;
     border-color: var(--primary-color);
     box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
 }
 
-.search-results {
-    position: absolute;
-    top: 100%;
-    left: 0;
-    right: 0;
-    background: var(--bg-secondary);
-    border: 1px solid var(--border-color);
-    border-radius: 0.5rem;
-    max-height: 280px;
-    overflow-y: auto;
-    z-index: 1000;
-    display: none;
-    margin-top: 4px;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
-}
-
-.search-results.show {
-    display: block;
-}
-
-.search-result-item {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 0.75rem;
-    padding: 0.6rem 0.85rem;
-    cursor: pointer;
-    border-bottom: 1px solid var(--border-color);
-    transition: background-color 0.1s;
-}
-
-.search-result-item:last-child {
-    border-bottom: none;
-}
-
-.search-result-item:hover,
-.search-result-item.selected {
-    background: var(--primary-color);
-}
-
-.search-result-item:hover .municipio-nombre,
-.search-result-item.selected .municipio-nombre {
-    color: white;
-}
-
-.search-result-item:hover .municipio-codigo,
-.search-result-item.selected .municipio-codigo {
-    background: rgba(255, 255, 255, 0.2);
-    color: white;
-}
-
-.municipio-nombre {
-    font-weight: 500;
-    font-size: 0.875rem;
-    color: var(--text-primary);
-    flex: 1;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-
-.municipio-nombre .match {
-    color: var(--primary-color);
-    font-weight: 700;
-}
-
-.search-result-item:hover .municipio-nombre .match,
-.search-result-item.selected .municipio-nombre .match {
-    color: #fbbf24;
-}
-
-.municipio-codigo {
-    font-size: 0.7rem;
-    font-family: monospace;
-    color: var(--text-secondary);
-    background: var(--bg-tertiary);
-    padding: 0.2rem 0.4rem;
-    border-radius: 4px;
-    white-space: nowrap;
-}
-
-.search-no-results {
-    padding: 0.75rem 1rem;
-    text-align: center;
-    color: var(--text-secondary);
-    font-size: 0.8rem;
-}
-
 /* Filas de tabla filtradas */
-tbody tr.oculto {
-    display: none;
-}
-
-tbody tr.resaltado {
-    background: rgba(59, 130, 246, 0.1);
+#tbody-municipios tr.oculto {
+    display: none !important;
 }
 
 @media (max-width: 768px) {
@@ -368,182 +275,55 @@ document.addEventListener('DOMContentLoaded', function() {
         });
 
     // ========================================
-    // BUSCADOR DE MUNICIPIOS CON AUTOCOMPLETADO
+    // BUSCADOR DE MUNICIPIOS - FILTRO DE TABLA
     // ========================================
     const searchInput = document.getElementById('buscar-municipio');
-    const searchResults = document.getElementById('search-results');
-    const tableRows = document.querySelectorAll('tbody tr');
+    const tableRows = document.querySelectorAll('#tbody-municipios tr');
+    const contadorMunicipios = document.getElementById('contador-municipios');
+    const totalMunicipios = tableRows.length;
 
-    // Construir lista de municipios desde la tabla
-    const municipiosList = [];
-    tableRows.forEach(row => {
-        const link = row.querySelector('a.btn-primary');
-        if (link) {
-            municipiosList.push({
-                nombre: row.cells[1]?.textContent.trim() || '',
-                codigo: row.cells[2]?.textContent.trim() || '',
-                registros: row.cells[3]?.textContent.trim() || '0',
-                url: link.href,
-                row: row
-            });
-        }
-    });
+    console.log('Filas encontradas:', totalMunicipios); // Debug
 
-    let selectedIndex = -1;
-
-    // Buscar municipios
-    function searchMunicipios(query) {
-        if (!query || query.length < 1) return [];
-
-        const normalizedQuery = query.toLowerCase().trim();
-        return municipiosList
-            .filter(m =>
-                m.nombre.toLowerCase().includes(normalizedQuery) ||
-                m.codigo.toLowerCase().includes(normalizedQuery)
-            )
-            .slice(0, 10);
-    }
-
-    // Mostrar resultados
-    function showResults(results, query) {
-        if (results.length === 0) {
-            if (query.length >= 1) {
-                searchResults.innerHTML = '<div class="search-no-results">Sin resultados para "' + escapeHtml(query) + '"</div>';
-                searchResults.classList.add('show');
-            } else {
-                searchResults.classList.remove('show');
-            }
-            return;
-        }
-
-        searchResults.innerHTML = results.map((m, index) => `
-            <div class="search-result-item${index === selectedIndex ? ' selected' : ''}" data-index="${index}" data-url="${m.url}">
-                <span class="municipio-nombre">${highlightMatch(m.nombre, query)}</span>
-                <span class="municipio-codigo">${m.codigo}</span>
-            </div>
-        `).join('');
-
-        searchResults.classList.add('show');
-
-        // Event listeners para los resultados
-        searchResults.querySelectorAll('.search-result-item').forEach(item => {
-            item.addEventListener('click', function() {
-                window.location.href = this.dataset.url;
-            });
-
-            item.addEventListener('mouseenter', function() {
-                selectedIndex = parseInt(this.dataset.index);
-                updateSelection();
-            });
-        });
-    }
-
-    // Resaltar coincidencias
-    function highlightMatch(text, query) {
-        if (!query) return escapeHtml(text);
-        const regex = new RegExp(`(${escapeRegex(query)})`, 'gi');
-        return escapeHtml(text).replace(regex, '<span class="match">$1</span>');
-    }
-
-    function escapeHtml(text) {
-        const div = document.createElement('div');
-        div.textContent = text;
-        return div.innerHTML;
-    }
-
-    function escapeRegex(string) {
-        return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-    }
-
-    // Actualizar selección visual
-    function updateSelection() {
-        const items = searchResults.querySelectorAll('.search-result-item');
-        items.forEach((item, index) => {
-            item.classList.toggle('selected', index === selectedIndex);
-        });
-
-        // Scroll al elemento seleccionado
-        if (selectedIndex >= 0 && items[selectedIndex]) {
-            items[selectedIndex].scrollIntoView({ block: 'nearest' });
-        }
-    }
-
-    // Filtrar también la tabla
+    // Filtrar la tabla según la búsqueda
     function filterTable(query) {
         const normalizedQuery = query.toLowerCase().trim();
+        let visibles = 0;
 
-        tableRows.forEach(row => {
+        tableRows.forEach((row, index) => {
             const nombre = row.cells[1]?.textContent.toLowerCase() || '';
             const codigo = row.cells[2]?.textContent.toLowerCase() || '';
 
-            if (!normalizedQuery || nombre.includes(normalizedQuery) || codigo.includes(normalizedQuery)) {
+            const coincide = !normalizedQuery || nombre.includes(normalizedQuery) || codigo.includes(normalizedQuery);
+
+            if (coincide) {
+                row.style.display = ''; // Mostrar
                 row.classList.remove('oculto');
-                row.classList.toggle('resaltado', normalizedQuery.length > 0 && (nombre.includes(normalizedQuery) || codigo.includes(normalizedQuery)));
+                row.cells[0].innerHTML = '<strong>' + (++visibles) + '</strong>';
             } else {
+                row.style.display = 'none'; // Ocultar directamente
                 row.classList.add('oculto');
-                row.classList.remove('resaltado');
             }
         });
+
+        // Actualizar contador
+        if (normalizedQuery) {
+            contadorMunicipios.textContent = visibles + ' de ' + totalMunicipios + ' municipios';
+        } else {
+            contadorMunicipios.textContent = totalMunicipios + ' municipios en total';
+        }
     }
 
     // Event: Input
     searchInput.addEventListener('input', function() {
-        const query = this.value;
-        selectedIndex = -1;
-        const results = searchMunicipios(query);
-        showResults(results, query);
-        filterTable(query);
+        filterTable(this.value);
     });
 
-    // Event: Focus
-    searchInput.addEventListener('focus', function() {
-        if (this.value.length >= 1) {
-            const results = searchMunicipios(this.value);
-            showResults(results, this.value);
-        }
-    });
-
-    // Event: Keyboard navigation
+    // Event: Escape para limpiar
     searchInput.addEventListener('keydown', function(e) {
-        const items = searchResults.querySelectorAll('.search-result-item');
-
-        switch(e.key) {
-            case 'ArrowDown':
-                e.preventDefault();
-                if (items.length > 0) {
-                    selectedIndex = Math.min(selectedIndex + 1, items.length - 1);
-                    updateSelection();
-                }
-                break;
-
-            case 'ArrowUp':
-                e.preventDefault();
-                if (items.length > 0) {
-                    selectedIndex = Math.max(selectedIndex - 1, 0);
-                    updateSelection();
-                }
-                break;
-
-            case 'Enter':
-                e.preventDefault();
-                if (selectedIndex >= 0 && items[selectedIndex]) {
-                    window.location.href = items[selectedIndex].dataset.url;
-                }
-                break;
-
-            case 'Escape':
-                searchResults.classList.remove('show');
-                this.value = '';
-                filterTable('');
-                this.blur();
-                break;
-        }
-    });
-
-    // Event: Click outside
-    document.addEventListener('click', function(e) {
-        if (!searchInput.contains(e.target) && !searchResults.contains(e.target)) {
-            searchResults.classList.remove('show');
+        if (e.key === 'Escape') {
+            this.value = '';
+            filterTable('');
+            this.blur();
         }
     });
 });
