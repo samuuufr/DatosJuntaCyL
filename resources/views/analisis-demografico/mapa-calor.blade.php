@@ -326,6 +326,7 @@
     // Estado de la aplicación
     let state = {
         map: null,
+        tileLayer: null,
         geojsonLayer: null,
         provinciasLayer: null,
         geojsonData: null,
@@ -335,22 +336,65 @@
         currentEvent: 'nacimiento'
     };
 
+    // Actualizar capa de tiles según el tema
+    function actualizarTileLayer() {
+        const isDark = document.documentElement.getAttribute('data-tema') === 'oscuro';
+        const tileUrl = isDark
+            ? 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png'
+            : 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
+
+        // Remover capa anterior si existe
+        if (state.tileLayer) {
+            state.map.removeLayer(state.tileLayer);
+        }
+
+        // Crear nueva capa de tiles
+        state.tileLayer = L.tileLayer(tileUrl, {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        }).addTo(state.map);
+
+        // Asegurar que los tiles estén debajo de las capas de datos
+        state.tileLayer.bringToBack();
+    }
+
+    // Observar cambios en el atributo data-tema
+    function observarCambiosTema() {
+        const observer = new MutationObserver((mutations) => {
+            mutations.forEach((mutation) => {
+                if (mutation.attributeName === 'data-tema' && state.map) {
+                    actualizarTileLayer();
+                }
+            });
+        });
+
+        observer.observe(document.documentElement, {
+            attributes: true,
+            attributeFilter: ['data-tema']
+        });
+    }
+
     // Inicializar mapa
     async function initMap() {
         try {
-            // Crear mapa
-            state.map = L.map('mapa-container').setView(CONFIG.defaultCenter, CONFIG.defaultZoom);
+            // Límites de Castilla y León (con margen)
+            const boundsСyL = L.latLngBounds(
+                [40.0, -7.5],  // Suroeste
+                [43.5, -1.5]   // Noreste
+            );
 
-            // Añadir capa base (cambiar según tema)
-            const isDark = document.documentElement.getAttribute('data-tema') === 'oscuro';
-            const tileUrl = isDark
-                ? 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png'
-                : 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
+            // Crear mapa con restricciones geográficas
+            state.map = L.map('mapa-container', {
+                maxBounds: boundsСyL,           // Limita navegación a CyL
+                maxBoundsViscosity: 1.0,        // Impide salir de los límites
+                minZoom: 7,                     // Evita zoom out excesivo
+                maxZoom: 14                     // Límite de zoom in
+            }).setView(CONFIG.defaultCenter, CONFIG.defaultZoom);
 
-            L.tileLayer(tileUrl, {
-                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
-                maxZoom: 19
-            }).addTo(state.map);
+            // Añadir capa base según tema actual
+            actualizarTileLayer();
+
+            // Observer para cambios de tema
+            observarCambiosTema();
 
             // Listener para inicializar botones de favoritos cuando se abre un popup
             if (USUARIO_AUTENTICADO) {
@@ -397,27 +441,38 @@
         }
     }
 
-    // Cargar datos de la API
-    async function loadData() {
-        try {
-            const url = `${CONFIG.apiUrl}?ano=${state.currentYear}&tipo_evento=${state.currentEvent}`;
-            const response = await fetch(url);
-            if (!response.ok) throw new Error('Error cargando datos');
+    // Cargar datos de la API con reintentos automáticos
+    async function loadData(reintentos = 3, delay = 500) {
+        for (let intento = 1; intento <= reintentos; intento++) {
+            try {
+                const url = `${CONFIG.apiUrl}?ano=${state.currentYear}&tipo_evento=${state.currentEvent}`;
+                const response = await fetch(url);
+                if (!response.ok) throw new Error('Error cargando datos');
 
-            state.currentData = await response.json();
+                state.currentData = await response.json();
 
-            // Actualizar estadística total
-            const total = Object.values(state.currentData.datos).reduce((sum, m) => sum + m.valor, 0);
-            document.getElementById('stat-total').textContent = total.toLocaleString('es-ES');
+                // Actualizar estadística total
+                const total = Object.values(state.currentData.datos).reduce((sum, m) => sum + m.valor, 0);
+                document.getElementById('stat-total').textContent = total.toLocaleString('es-ES');
 
-            // Renderizar mapa
-            renderMap();
+                // Renderizar mapa
+                renderMap();
 
-            // Actualizar leyenda
-            updateLegend();
-        } catch (error) {
-            console.error('Error cargando datos:', error);
-            alert('Error al cargar los datos demográficos');
+                // Actualizar leyenda
+                updateLegend();
+                return; // Éxito, salir de la función
+            } catch (error) {
+                console.warn(`Intento ${intento}/${reintentos} fallido:`, error);
+
+                if (intento < reintentos) {
+                    // Esperar antes del siguiente intento (backoff exponencial)
+                    await new Promise(resolve => setTimeout(resolve, delay * intento));
+                } else {
+                    // Último intento fallido, mostrar error
+                    console.error('Error cargando datos después de todos los reintentos:', error);
+                    alert('Error al cargar los datos demográficos');
+                }
+            }
         }
     }
 
