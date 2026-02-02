@@ -57,7 +57,11 @@
                                 </td>
                                 <td>
                                     <span style="color: var(--text-primary);">
-                                        {{ number_format($municipio->poblacion ?? 0, 0, ',', '.') }} hab.
+                                        @if($municipio->poblacion)
+                                            {{ number_format($municipio->poblacion, 0, ',', '.') }} hab.
+                                        @else
+                                            <span style="color: var(--text-secondary); font-style: italic;">Sin datos</span>
+                                        @endif
                                     </span>
                                 </td>
                                 <td>

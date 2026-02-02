@@ -306,6 +306,9 @@
     // URL base para enlaces
     const BASE_URL = '{{ url('/') }}';
 
+    // Estado de autenticación del usuario
+    const USUARIO_AUTENTICADO = {{ auth()->check() ? 'true' : 'false' }};
+
     // Configuración
     const CONFIG = {
         apiUrl: '{{ url('/api/mapa-calor/datos') }}',
@@ -348,6 +351,11 @@
                 attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
                 maxZoom: 19
             }).addTo(state.map);
+
+            // Listener para inicializar botones de favoritos cuando se abre un popup
+            if (USUARIO_AUTENTICADO) {
+                state.map.on('popupopen', inicializarBotonFavoritoEnPopup);
+            }
 
             // Cargar GeoJSON de municipios
             await loadGeoJSON();
@@ -469,9 +477,21 @@
 
                 if (municipio) {
                     // Popup con información
+                    const botonFavorito = USUARIO_AUTENTICADO
+                        ? `<button
+                             data-favorito-municipio="${municipio.id}"
+                             class="boton-favorito-mapa"
+                             style="display: inline-flex; align-items: center; gap: 0.25rem; padding: 0.25rem 0.5rem; font-size: 0.75rem; border: 1px solid var(--border-color); border-radius: 0.25rem; background: var(--bg-tertiary); color: var(--text-primary); cursor: pointer; margin-top: 0.5rem;"
+                             title="Añadir a favoritos"
+                           >☆</button>`
+                        : '';
+
                     layer.bindPopup(`
                         <div style="min-width: 200px; color: var(--text-primary);">
-                            <h3 style="margin: 0 0 0.5rem 0; font-weight: 600;">${municipio.nombre}</h3>
+                            <div style="display: flex; justify-content: space-between; align-items: start; gap: 0.5rem;">
+                                <h3 style="margin: 0 0 0.5rem 0; font-weight: 600; flex: 1;">${municipio.nombre}</h3>
+                                ${botonFavorito}
+                            </div>
                             <p style="margin: 0; font-size: 0.875rem;">
                                 <strong>${capitalize(state.currentEvent)}s:</strong> ${municipio.valor}
                             </p>
@@ -582,6 +602,70 @@
     // Utilidad: Capitalizar
     function capitalize(str) {
         return str.charAt(0).toUpperCase() + str.slice(1);
+    }
+
+    // ========== FUNCIONALIDAD DE FAVORITOS EN POPUP ==========
+
+    // Inicializar botón de favorito cuando se abre un popup
+    function inicializarBotonFavoritoEnPopup(e) {
+        const popup = e.popup;
+        const contenido = popup.getElement();
+        const boton = contenido.querySelector('[data-favorito-municipio]');
+
+        if (!boton || boton.dataset.inicializado) return;
+
+        const municipioId = parseInt(boton.getAttribute('data-favorito-municipio'));
+        boton.dataset.inicializado = 'true';
+
+        // Verificar si es favorito y actualizar estado visual
+        if (window.gestorFavoritos) {
+            const esFavorito = window.gestorFavoritos.esFavorito(municipioId);
+            actualizarEstadoBotonMapa(boton, esFavorito);
+        }
+
+        // Añadir event listener
+        boton.addEventListener('click', async function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+
+            if (!window.gestorFavoritos) {
+                alert('Error: El sistema de favoritos no está disponible');
+                return;
+            }
+
+            boton.disabled = true;
+            const esFavorito = window.gestorFavoritos.esFavorito(municipioId);
+
+            try {
+                if (esFavorito) {
+                    await window.gestorFavoritos.eliminarFavorito(municipioId);
+                } else {
+                    await window.gestorFavoritos.agregarFavorito(municipioId);
+                }
+                actualizarEstadoBotonMapa(boton, !esFavorito);
+            } catch (error) {
+                alert(error.message || 'Error al actualizar favorito');
+            } finally {
+                boton.disabled = false;
+            }
+        });
+    }
+
+    // Actualizar estado visual del botón de favorito en el mapa
+    function actualizarEstadoBotonMapa(boton, esFavorito) {
+        if (esFavorito) {
+            boton.innerHTML = '⭐';
+            boton.title = 'Eliminar de favoritos';
+            boton.style.background = 'var(--primary-color)';
+            boton.style.color = 'white';
+            boton.style.borderColor = 'var(--primary-color)';
+        } else {
+            boton.innerHTML = '☆';
+            boton.title = 'Añadir a favoritos';
+            boton.style.background = 'var(--bg-tertiary)';
+            boton.style.color = 'var(--text-primary)';
+            boton.style.borderColor = 'var(--border-color)';
+        }
     }
 
     // ========== FUNCIONALIDAD DE BÚSQUEDA ==========
