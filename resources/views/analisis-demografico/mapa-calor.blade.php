@@ -506,16 +506,19 @@
                     layer.on({
                         mouseover: function(e) {
                             const layer = e.target;
+                            // No cambiar estilo si es el municipio resaltado por búsqueda
+                            if (layer === highlightedLayer) return;
+
                             layer.setStyle({
                                 weight: 3,
                                 color: '#666',
                                 fillOpacity: 0.9
                             });
-                            if (!L.Browser.ie && !L.Browser.opera && !L.Browser.edge) {
-                                layer.bringToFront();
-                            }
                         },
                         mouseout: function(e) {
+                            // No resetear si es el municipio resaltado por búsqueda
+                            if (e.target === highlightedLayer) return;
+
                             state.geojsonLayer.resetStyle(e.target);
                         }
                     });
@@ -758,11 +761,6 @@
 
                 // Guardar referencia para poder quitar el resaltado después
                 highlightedLayer = layer;
-
-                // Traer al frente
-                if (!L.Browser.ie && !L.Browser.opera && !L.Browser.edge) {
-                    layer.bringToFront();
-                }
             }
         });
     }

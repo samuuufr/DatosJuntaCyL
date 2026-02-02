@@ -122,6 +122,21 @@
         </div>
     </div>
 
+    <!-- GRÁFICO COMPARATIVO -->
+    <div class="card" style="margin-bottom: 2rem;">
+        <div class="card-header">
+            <div>
+                <h2 class="card-title">Gráfico Comparativo</h2>
+                <p class="card-subtitle">Visualización de datos demográficos</p>
+            </div>
+        </div>
+        <div class="card-body">
+            <div style="position: relative; height: 400px;">
+                <canvas id="graficoComparativa"></canvas>
+            </div>
+        </div>
+    </div>
+
     <!-- TABLA COMPARATIVA DETALLADA -->
     <div class="card">
         <div class="card-header">
@@ -211,4 +226,88 @@
     </div>
 @endif
 
+@endsection
+
+@section('js_adicional')
+@if($comparativa)
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const ctx = document.getElementById('graficoComparativa').getContext('2d');
+
+    new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: ['Nacimientos', 'Matrimonios', 'Defunciones'],
+            datasets: [
+                {
+                    label: '{{ $comparativa["provincia_a"]["nombre"] }}',
+                    data: [
+                        {{ $comparativa['provincia_a']['nacimientos'] }},
+                        {{ $comparativa['provincia_a']['matrimonios'] }},
+                        {{ $comparativa['provincia_a']['defunciones'] }}
+                    ],
+                    backgroundColor: 'rgba(99, 102, 241, 0.8)',
+                    borderColor: 'rgba(99, 102, 241, 1)',
+                    borderWidth: 1
+                },
+                {
+                    label: '{{ $comparativa["provincia_b"]["nombre"] }}',
+                    data: [
+                        {{ $comparativa['provincia_b']['nacimientos'] }},
+                        {{ $comparativa['provincia_b']['matrimonios'] }},
+                        {{ $comparativa['provincia_b']['defunciones'] }}
+                    ],
+                    backgroundColor: 'rgba(236, 72, 153, 0.8)',
+                    borderColor: 'rgba(236, 72, 153, 1)',
+                    borderWidth: 1
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'top',
+                    labels: {
+                        color: getComputedStyle(document.documentElement).getPropertyValue('--text-primary').trim() || '#374151',
+                        font: { size: 12 }
+                    }
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            return context.dataset.label + ': ' + context.raw.toLocaleString('es-ES');
+                        }
+                    }
+                }
+            },
+            scales: {
+                x: {
+                    ticks: {
+                        color: getComputedStyle(document.documentElement).getPropertyValue('--text-secondary').trim() || '#6b7280'
+                    },
+                    grid: {
+                        color: getComputedStyle(document.documentElement).getPropertyValue('--border-color').trim() || '#e5e7eb'
+                    }
+                },
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        color: getComputedStyle(document.documentElement).getPropertyValue('--text-secondary').trim() || '#6b7280',
+                        callback: function(value) {
+                            return value.toLocaleString('es-ES');
+                        }
+                    },
+                    grid: {
+                        color: getComputedStyle(document.documentElement).getPropertyValue('--border-color').trim() || '#e5e7eb'
+                    }
+                }
+            }
+        }
+    });
+});
+</script>
+@endif
 @endsection
