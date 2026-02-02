@@ -120,6 +120,7 @@
                 <button
                     type="submit"
                     class="btn btn-primary w-full"
+                    style="margin-top: 1rem"
                 >
                     Actualizar Información
                 </button>
@@ -181,6 +182,7 @@
                 <button
                     type="submit"
                     class="btn btn-primary w-full"
+                    style="margin-top: 1rem"
                 >
                     Cambiar Contraseña
                 </button>

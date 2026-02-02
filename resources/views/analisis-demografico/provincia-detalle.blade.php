@@ -110,6 +110,9 @@
                         <th>Código INE</th>
                         <th>Registros MNP</th>
                         <th>Acción</th>
+                        @auth
+                            <th style="width: 60px; text-align: center;">Favorito</th>
+                        @endauth
                     </tr>
                 </thead>
                 <tbody id="tbody-municipios">
@@ -130,10 +133,20 @@
                                     Ver detalles →
                                 </a>
                             </td>
+                            @auth
+                                <td style="text-align: center;">
+                                    <button
+                                        data-estrella-municipio="{{ $municipio->id }}"
+                                        class="boton-favorito-estrella"
+                                    >
+                                        ☆
+                                    </button>
+                                </td>
+                            @endauth
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="5" style="text-align: center; padding: 2rem;">
+                            <td colspan="{{ auth()->check() ? 6 : 5 }}" style="text-align: center; padding: 2rem;">
                                 No hay municipios disponibles
                             </td>
                         </tr>
@@ -158,6 +171,45 @@
 /* Filas de tabla filtradas */
 #tbody-municipios tr.oculto {
     display: none !important;
+}
+
+/* Botón de favorito estrella */
+.boton-favorito-estrella {
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    border: 2px solid var(--border-color);
+    background-color: var(--bg-tertiary);
+    color: var(--text-secondary);
+    font-size: 1.5rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+}
+
+.boton-favorito-estrella:hover {
+    border-color: #f59e0b;
+    color: #f59e0b;
+    transform: scale(1.1);
+}
+
+.boton-favorito-estrella:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.boton-favorito-estrella.favorito-activo {
+    background-color: #fbbf24;
+    border-color: #f59e0b;
+    color: #78350f;
+}
+
+.boton-favorito-estrella.favorito-activo:hover {
+    background-color: #f59e0b;
 }
 
 @media (max-width: 768px) {
@@ -326,6 +378,96 @@ document.addEventListener('DOMContentLoaded', function() {
             this.blur();
         }
     });
+
+    // ========================================
+    // BOTONES DE FAVORITO ESTRELLA
+    // ========================================
+    @auth
+    const baseUrl = document.querySelector('meta[name="base-url"]')?.content || '';
+    const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content || '';
+    const botonesEstrella = document.querySelectorAll('[data-estrella-municipio]');
+    let procesando = false;
+
+    // Cargar estado inicial de favoritos
+    async function cargarFavoritosEstrella() {
+        try {
+            const response = await fetch(`${baseUrl}/api/perfil/favoritos/lista`, {
+                headers: {
+                    'Accept': 'application/json',
+                    'X-CSRF-TOKEN': csrfToken
+                }
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                const favoritosIds = new Set(data.favoritos);
+
+                botonesEstrella.forEach(boton => {
+                    const municipioId = parseInt(boton.getAttribute('data-estrella-municipio'));
+                    actualizarBotonEstrella(boton, favoritosIds.has(municipioId));
+                });
+            }
+        } catch (error) {
+            console.log('Error al cargar favoritos:', error);
+        }
+    }
+
+    // Actualizar estado visual del botón
+    function actualizarBotonEstrella(boton, esFavorito) {
+        if (esFavorito) {
+            boton.classList.add('favorito-activo');
+            boton.textContent = '⭐';
+        } else {
+            boton.classList.remove('favorito-activo');
+            boton.textContent = '☆';
+        }
+    }
+
+    // Toggle favorito
+    async function toggleFavoritoEstrella(municipioId, boton) {
+        if (procesando || boton.disabled) return;
+
+        procesando = true;
+        boton.disabled = true;
+
+        const esFavorito = boton.classList.contains('favorito-activo');
+        const endpoint = esFavorito ? 'eliminar' : 'agregar';
+
+        try {
+            const response = await fetch(`${baseUrl}/api/perfil/favoritos/${endpoint}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                    'X-CSRF-TOKEN': csrfToken
+                },
+                body: JSON.stringify({ municipio_id: municipioId })
+            });
+
+            if (response.ok) {
+                actualizarBotonEstrella(boton, !esFavorito);
+            }
+        } catch (error) {
+            console.log('Error al actualizar favorito:', error);
+        } finally {
+            boton.disabled = false;
+            procesando = false;
+        }
+    }
+
+    // Añadir event listeners a los botones
+    botonesEstrella.forEach(boton => {
+        boton.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            const municipioId = parseInt(this.getAttribute('data-estrella-municipio'));
+            toggleFavoritoEstrella(municipioId, this);
+        });
+    });
+
+    // Cargar estado inicial
+    cargarFavoritosEstrella();
+    @endauth
 });
 </script>
 @endsection

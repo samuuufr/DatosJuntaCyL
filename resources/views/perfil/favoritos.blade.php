@@ -28,7 +28,7 @@
             </div>
         </div>
     @else
-        <div class="card" style="padding: 0;">
+        <div class="card" style="padding: 0;margin-top: 2rem;">
             <div class="table-wrapper" style="border: none;">
                 <table>
                     <thead>

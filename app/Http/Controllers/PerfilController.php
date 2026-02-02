@@ -102,26 +102,15 @@ class PerfilController extends Controller
 
         $usuario = Auth::user();
         $municipioId = $request->municipio_id;
+        $municipio = Municipio::find($municipioId);
 
-        // Verificar si ya existe el favorito
-        $existeFavorito = Favorito::where('usuario_id', $usuario->id)
-            ->where('municipio_id', $municipioId)
-            ->exists();
-
-        if ($existeFavorito) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Este municipio ya está en tus favoritos'
-            ], 400);
-        }
-
-        Favorito::create([
+        // Usar firstOrCreate para evitar duplicados (condiciones de carrera)
+        $favorito = Favorito::firstOrCreate([
             'usuario_id' => $usuario->id,
             'municipio_id' => $municipioId,
         ]);
 
-        $municipio = Municipio::find($municipioId);
-
+        // Si fue creado ahora o ya existía, retornar éxito
         return response()->json([
             'success' => true,
             'message' => $municipio->nombre . ' añadido a favoritos'
