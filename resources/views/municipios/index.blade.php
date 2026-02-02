@@ -95,6 +95,9 @@
                             <th>Código INE</th>
                             <th style="text-align: center;">Registros MNP</th>
                             <th style="text-align: center;">Acción</th>
+                            @auth
+                                <th style="width: 80px; text-align: center;">Favorito</th>
+                            @endauth
                         </tr>
                     </thead>
                     <tbody>
@@ -122,6 +125,16 @@
                                         Ver ficha →
                                     </a>
                                 </td>
+                                @auth
+                                    <td style="text-align: center;">
+                                        <button
+                                            data-estrella-municipio="{{ $municipio->id }}"
+                                            class="boton-favorito-estrella"
+                                        >
+                                            ☆
+                                        </button>
+                                    </td>
+                                @endauth
                             </tr>
                         @endforeach
                     </tbody>
@@ -130,8 +143,82 @@
 
             <!-- Paginación -->
             @if($municipios->hasPages())
-                <div style="margin-top: 1.5rem; display: flex; justify-content: center; gap: 0.5rem;">
-                    {{ $municipios->appends(request()->query())->links() }}
+                <div style="margin-top: 1.5rem; display: flex; flex-direction: column; align-items: center; gap: 1rem;">
+                    <p style="color: var(--text-secondary); font-size: 0.875rem;">
+                        Mostrando {{ $municipios->firstItem() }} - {{ $municipios->lastItem() }} de {{ $municipios->total() }} resultados
+                    </p>
+                    <nav style="display: flex; align-items: center; gap: 0.25rem; flex-wrap: wrap; justify-content: center;">
+                        {{-- Botón Anterior --}}
+                        @if($municipios->onFirstPage())
+                            <span style="padding: 0.5rem 0.75rem; color: var(--text-muted); background: var(--bg-tertiary); border-radius: 0.375rem; cursor: not-allowed; font-size: 0.875rem;">
+                                ← Anterior
+                            </span>
+                        @else
+                            <a href="{{ $municipios->appends(request()->query())->previousPageUrl() }}"
+                               style="padding: 0.5rem 0.75rem; color: var(--text-primary); background: var(--bg-secondary); border-radius: 0.375rem; text-decoration: none; font-size: 0.875rem; transition: background 0.2s;"
+                               onmouseover="this.style.background='var(--primary-color)'; this.style.color='white';"
+                               onmouseout="this.style.background='var(--bg-secondary)'; this.style.color='var(--text-primary)';">
+                                ← Anterior
+                            </a>
+                        @endif
+
+                        {{-- Números de página --}}
+                        @php
+                            $currentPage = $municipios->currentPage();
+                            $lastPage = $municipios->lastPage();
+                            $start = max(1, $currentPage - 2);
+                            $end = min($lastPage, $currentPage + 2);
+                        @endphp
+
+                        @if($start > 1)
+                            <a href="{{ $municipios->appends(request()->query())->url(1) }}"
+                               style="padding: 0.5rem 0.75rem; min-width: 2.5rem; text-align: center; color: var(--text-primary); background: var(--bg-secondary); border-radius: 0.375rem; text-decoration: none; font-size: 0.875rem;">
+                                1
+                            </a>
+                            @if($start > 2)
+                                <span style="padding: 0.5rem 0.25rem; color: var(--text-secondary);">...</span>
+                            @endif
+                        @endif
+
+                        @for($page = $start; $page <= $end; $page++)
+                            @if($page == $currentPage)
+                                <span style="padding: 0.5rem 0.75rem; min-width: 2.5rem; text-align: center; color: white; background: var(--primary-color); border-radius: 0.375rem; font-weight: 600; font-size: 0.875rem;">
+                                    {{ $page }}
+                                </span>
+                            @else
+                                <a href="{{ $municipios->appends(request()->query())->url($page) }}"
+                                   style="padding: 0.5rem 0.75rem; min-width: 2.5rem; text-align: center; color: var(--text-primary); background: var(--bg-secondary); border-radius: 0.375rem; text-decoration: none; font-size: 0.875rem; transition: background 0.2s;"
+                                   onmouseover="this.style.background='var(--primary-color)'; this.style.color='white';"
+                                   onmouseout="this.style.background='var(--bg-secondary)'; this.style.color='var(--text-primary)';">
+                                    {{ $page }}
+                                </a>
+                            @endif
+                        @endfor
+
+                        @if($end < $lastPage)
+                            @if($end < $lastPage - 1)
+                                <span style="padding: 0.5rem 0.25rem; color: var(--text-secondary);">...</span>
+                            @endif
+                            <a href="{{ $municipios->appends(request()->query())->url($lastPage) }}"
+                               style="padding: 0.5rem 0.75rem; min-width: 2.5rem; text-align: center; color: var(--text-primary); background: var(--bg-secondary); border-radius: 0.375rem; text-decoration: none; font-size: 0.875rem;">
+                                {{ $lastPage }}
+                            </a>
+                        @endif
+
+                        {{-- Botón Siguiente --}}
+                        @if($municipios->hasMorePages())
+                            <a href="{{ $municipios->appends(request()->query())->nextPageUrl() }}"
+                               style="padding: 0.5rem 0.75rem; color: var(--text-primary); background: var(--bg-secondary); border-radius: 0.375rem; text-decoration: none; font-size: 0.875rem; transition: background 0.2s;"
+                               onmouseover="this.style.background='var(--primary-color)'; this.style.color='white';"
+                               onmouseout="this.style.background='var(--bg-secondary)'; this.style.color='var(--text-primary)';">
+                                Siguiente →
+                            </a>
+                        @else
+                            <span style="padding: 0.5rem 0.75rem; color: var(--text-muted); background: var(--bg-tertiary); border-radius: 0.375rem; cursor: not-allowed; font-size: 0.875rem;">
+                                Siguiente →
+                            </span>
+                        @endif
+                    </nav>
                 </div>
             @endif
         </div>
@@ -237,6 +324,160 @@ document.addEventListener('click', function(e) {
         sugerencias.style.display = 'none';
     }
 });
+
+// ========================================
+// BOTONES DE FAVORITO ESTRELLA
+// ========================================
+@auth
+const baseUrl = document.querySelector('meta[name="base-url"]')?.content || '';
+const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content || '';
+const botonesEstrella = document.querySelectorAll('[data-estrella-municipio]');
+let procesandoFavorito = false;
+
+// Mostrar notificación temporal
+function mostrarNotificacion(mensaje, tipo = 'info') {
+    const notificacion = document.createElement('div');
+    notificacion.className = `notificacion-favorito notificacion-${tipo}`;
+    notificacion.textContent = mensaje;
+
+    document.body.appendChild(notificacion);
+
+    setTimeout(() => notificacion.classList.add('mostrar'), 100);
+
+    setTimeout(() => {
+        notificacion.classList.remove('mostrar');
+        setTimeout(() => notificacion.remove(), 300);
+    }, 3000);
+}
+
+// Cargar estado inicial de favoritos
+async function cargarFavoritosEstrella() {
+    try {
+        const response = await fetch(`${baseUrl}/api/perfil/favoritos/lista`, {
+            headers: {
+                'Accept': 'application/json',
+                'X-CSRF-TOKEN': csrfToken
+            }
+        });
+
+        if (response.ok) {
+            const data = await response.json();
+            const favoritosIds = new Set(data.favoritos);
+
+            botonesEstrella.forEach(boton => {
+                const municipioId = parseInt(boton.getAttribute('data-estrella-municipio'));
+                actualizarBotonEstrella(boton, favoritosIds.has(municipioId));
+            });
+        }
+    } catch (error) {
+        console.log('Error al cargar favoritos:', error);
+    }
+}
+
+// Actualizar estado visual del botón
+function actualizarBotonEstrella(boton, esFavorito) {
+    if (esFavorito) {
+        boton.classList.add('favorito-activo');
+        boton.textContent = '⭐';
+    } else {
+        boton.classList.remove('favorito-activo');
+        boton.textContent = '☆';
+    }
+}
+
+// Toggle favorito
+async function toggleFavoritoEstrella(municipioId, boton) {
+    if (procesandoFavorito || boton.disabled) return;
+
+    procesandoFavorito = true;
+    boton.disabled = true;
+
+    const esFavorito = boton.classList.contains('favorito-activo');
+    const endpoint = esFavorito ? 'eliminar' : 'agregar';
+
+    try {
+        const response = await fetch(`${baseUrl}/api/perfil/favoritos/${endpoint}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json',
+                'X-CSRF-TOKEN': csrfToken
+            },
+            body: JSON.stringify({ municipio_id: municipioId })
+        });
+
+        if (response.ok) {
+            const data = await response.json();
+            actualizarBotonEstrella(boton, !esFavorito);
+            mostrarNotificacion(data.message, esFavorito ? 'info' : 'success');
+        } else {
+            mostrarNotificacion('Error al actualizar favorito', 'error');
+        }
+    } catch (error) {
+        console.log('Error al actualizar favorito:', error);
+        mostrarNotificacion('Error de conexión', 'error');
+    } finally {
+        boton.disabled = false;
+        procesandoFavorito = false;
+    }
+}
+
+// Añadir event listeners a los botones
+botonesEstrella.forEach(boton => {
+    boton.addEventListener('click', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        const municipioId = parseInt(this.getAttribute('data-estrella-municipio'));
+        toggleFavoritoEstrella(municipioId, this);
+    });
+});
+
+// Cargar estado inicial
+cargarFavoritosEstrella();
+@endauth
 </script>
 
 @endsection
+
+@push('estilos_adicionales')
+<style>
+/* Botón de favorito estrella */
+.boton-favorito-estrella {
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    border: 2px solid var(--border-color);
+    background-color: var(--bg-tertiary);
+    color: var(--text-secondary);
+    font-size: 1.5rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+}
+
+.boton-favorito-estrella:hover {
+    border-color: #f59e0b;
+    color: #f59e0b;
+    transform: scale(1.1);
+}
+
+.boton-favorito-estrella:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.boton-favorito-estrella.favorito-activo {
+    background-color: #fbbf24;
+    border-color: #f59e0b;
+    color: #78350f;
+}
+
+.boton-favorito-estrella.favorito-activo:hover {
+    background-color: #f59e0b;
+}
+</style>
+@endpush

@@ -67,8 +67,19 @@
 
     <!-- Gráfico de top municipios -->
     <div class="card">
-        <div class="card-header">
-            <h2 class="card-title">🏆 Top 5 Municipios por Población</h2>
+        <div class="card-header" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+            <h2 class="card-title">🏆 Top 5 Municipios</h2>
+            <div style="display: flex; align-items: center; gap: 1rem; flex-wrap: wrap;">
+                <label style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.875rem; cursor: pointer;">
+                    <input type="checkbox" id="excluir-capital" style="cursor: pointer;">
+                    <span>Excluir capital</span>
+                </label>
+                <select id="selector-tipo-evento" style="padding: 0.5rem 1rem; border-radius: 0.375rem; border: 1px solid var(--border-color); background: var(--bg-tertiary); color: var(--text-primary); font-size: 0.875rem; cursor: pointer;">
+                    <option value="nacimiento">Nacimientos</option>
+                    <option value="defuncion">Defunciones</option>
+                    <option value="matrimonio">Matrimonios</option>
+                </select>
+            </div>
         </div>
         <div class="card-body">
             <canvas id="grafico-top-municipios" style="max-height: 300px;"></canvas>
@@ -277,20 +288,69 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
+    // Configuración de colores por tipo de evento
+    const coloresEvento = {
+        nacimiento: { bg: 'rgba(16, 185, 129, 0.8)', border: 'rgba(16, 185, 129, 1)', label: 'Nacimientos' },
+        defuncion: { bg: 'rgba(239, 68, 68, 0.8)', border: 'rgba(239, 68, 68, 1)', label: 'Defunciones' },
+        matrimonio: { bg: 'rgba(245, 158, 11, 0.8)', border: 'rgba(245, 158, 11, 1)', label: 'Matrimonios' }
+    };
+
+    let chartTopMunicipios = null;
+    let datosTopMunicipios = null;
+    let datosTopMunicipiosSinCapital = null;
+
+    // Función para actualizar el gráfico
+    function actualizarGraficoTop() {
+        const tipoEvento = document.getElementById('selector-tipo-evento').value;
+        const excluirCapital = document.getElementById('excluir-capital').checked;
+
+        const fuente = excluirCapital ? datosTopMunicipiosSinCapital : datosTopMunicipios;
+
+        if (!fuente || !fuente[tipoEvento]) {
+            console.warn('No hay datos para:', tipoEvento);
+            return;
+        }
+
+        const datos = fuente[tipoEvento];
+        const colores = coloresEvento[tipoEvento];
+
+        if (chartTopMunicipios) {
+            chartTopMunicipios.data.labels = datos.map(m => m.nombre);
+            chartTopMunicipios.data.datasets[0].data = datos.map(m => m.total);
+            chartTopMunicipios.data.datasets[0].label = colores.label;
+            chartTopMunicipios.data.datasets[0].backgroundColor = colores.bg;
+            chartTopMunicipios.data.datasets[0].borderColor = colores.border;
+            chartTopMunicipios.options.plugins.tooltip.callbacks.label = function(context) {
+                return colores.label + ': ' + context.parsed.y.toLocaleString();
+            };
+            chartTopMunicipios.update();
+        }
+    }
+
     // Cargar datos para top municipios con Fetch API
-    fetch('/api/provincias/{{ $provincia->id }}/datos')
-        .then(response => response.json())
+    fetch('{{ route("api.provincias.datos", $provincia->id) }}')
+        .then(response => {
+            if (!response.ok) throw new Error('Error en la respuesta: ' + response.status);
+            return response.json();
+        })
         .then(data => {
+            datosTopMunicipios = data.top_municipios;
+            datosTopMunicipiosSinCapital = data.top_municipios_sin_capital;
+
+            const tipoInicial = 'nacimiento';
+            const datosIniciales = datosTopMunicipios[tipoInicial] || [];
+            const coloresIniciales = coloresEvento[tipoInicial];
+
             const ctxTop = document.getElementById('grafico-top-municipios').getContext('2d');
-            new Chart(ctxTop, {
+            chartTopMunicipios = new Chart(ctxTop, {
                 type: 'bar',
                 data: {
-                    labels: data.top_municipios.map(m => m.nombre),
+                    labels: datosIniciales.map(m => m.nombre),
                     datasets: [{
-                        label: 'Nacimientos',
-                        data: data.top_municipios.map(m => m.total),
-                        backgroundColor: 'rgba(16, 185, 129, 0.8)',
-                        borderColor: 'rgba(16, 185, 129, 1)',
+                        label: coloresIniciales.label,
+                        data: datosIniciales.map(m => m.total),
+                        backgroundColor: coloresIniciales.bg,
+                        borderColor: coloresIniciales.border,
                         borderWidth: 2
                     }]
                 },
@@ -314,7 +374,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         tooltip: {
                             callbacks: {
                                 label: function(context) {
-                                    return 'Nacimientos: ' + context.parsed.y.toLocaleString();
+                                    return coloresIniciales.label + ': ' + context.parsed.y.toLocaleString();
                                 }
                             }
                         }
@@ -325,6 +385,10 @@ document.addEventListener('DOMContentLoaded', function() {
         .catch(error => {
             console.error('Error cargando datos de municipios:', error);
         });
+
+    // Event listeners para el selector y checkbox
+    document.getElementById('selector-tipo-evento').addEventListener('change', actualizarGraficoTop);
+    document.getElementById('excluir-capital').addEventListener('change', actualizarGraficoTop);
 
     // ========================================
     // BUSCADOR DE MUNICIPIOS - FILTRO DE TABLA

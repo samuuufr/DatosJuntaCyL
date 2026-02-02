@@ -62,20 +62,35 @@ class ProvinciaController extends Controller
             })
             ->values();
 
-        // Top 5 municipios por nacimientos
-        $topMunicipios = $provincia->municipios()
-            ->withSum(['datosMnp as total_nacimientos' => function ($query) {
-                $query->where('tipo_evento', 'nacimiento');
-            }], 'valor')
-            ->orderByDesc('total_nacimientos')
-            ->limit(5)
-            ->get()
-            ->map(function ($municipio) {
-                return [
-                    'nombre' => $municipio->nombre,
-                    'total' => $municipio->total_nacimientos ?? 0,
-                ];
-            });
+        // Nombre de la capital (generalmente coincide con el nombre de la provincia)
+        $nombreCapital = $provincia->nombre;
+
+        // Función para obtener top municipios por tipo
+        $getTop = function ($relacion, $sumColumn, $excluirCapital = false) use ($provincia, $nombreCapital) {
+            $query = $provincia->municipios()
+                ->withSum($relacion, 'valor')
+                ->orderByDesc($sumColumn);
+
+            if ($excluirCapital) {
+                $query->whereRaw('UPPER(nombre) != ?', [mb_strtoupper($nombreCapital)]);
+            }
+
+            return $query->limit(5)->get()
+                ->map(fn($m) => ['nombre' => $m->nombre, 'total' => (int) ($m->$sumColumn ?? 0)]);
+        };
+
+        // Top 5 municipios por cada tipo de evento (con y sin capital)
+        $topMunicipios = [
+            'nacimiento' => $getTop('nacimientos', 'nacimientos_sum_valor', false),
+            'defuncion' => $getTop('defunciones', 'defunciones_sum_valor', false),
+            'matrimonio' => $getTop('matrimonios', 'matrimonios_sum_valor', false),
+        ];
+
+        $topMunicipiosSinCapital = [
+            'nacimiento' => $getTop('nacimientos', 'nacimientos_sum_valor', true),
+            'defuncion' => $getTop('defunciones', 'defunciones_sum_valor', true),
+            'matrimonio' => $getTop('matrimonios', 'matrimonios_sum_valor', true),
+        ];
 
         return response()->json([
             'provincia' => [
@@ -85,6 +100,7 @@ class ProvinciaController extends Controller
             ],
             'evolucion' => $evolucion,
             'top_municipios' => $topMunicipios,
+            'top_municipios_sin_capital' => $topMunicipiosSinCapital,
         ]);
     }
 
