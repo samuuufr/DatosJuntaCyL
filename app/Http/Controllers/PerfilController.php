@@ -180,4 +180,29 @@ class PerfilController extends Controller
             'favoritos' => $favoritosIds
         ]);
     }
+
+    /**
+     * Obtiene la lista completa de municipios favoritos con datos (API)
+     */
+    public function listaFavoritosCompleta()
+    {
+        $usuario = Auth::user();
+
+        $favoritos = $usuario->municipios()
+            ->with('provincia')
+            ->orderBy('nombre')
+            ->get()
+            ->map(function ($municipio) {
+                return [
+                    'id' => $municipio->id,
+                    'nombre' => $municipio->nombre,
+                    'codigo_ine' => $municipio->codigo_ine,
+                    'provincia' => $municipio->provincia->nombre ?? ''
+                ];
+            });
+
+        return response()->json([
+            'favoritos' => $favoritos
+        ]);
+    }
 }

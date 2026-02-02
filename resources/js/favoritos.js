@@ -123,6 +123,11 @@ class GestorFavoritos {
 
     this.favoritosIds.add(municipioId);
     this.mostrarNotificacion(data.message, 'success');
+
+    // Disparar evento para notificar a otros componentes
+    document.dispatchEvent(new CustomEvent('favoritosActualizados', {
+      detail: { accion: 'agregar', municipioId }
+    }));
   }
 
   /**
@@ -153,6 +158,11 @@ class GestorFavoritos {
 
     this.favoritosIds.delete(municipioId);
     this.mostrarNotificacion(data.message, 'info');
+
+    // Disparar evento para notificar a otros componentes
+    document.dispatchEvent(new CustomEvent('favoritosActualizados', {
+      detail: { accion: 'eliminar', municipioId }
+    }));
   }
 
   /**

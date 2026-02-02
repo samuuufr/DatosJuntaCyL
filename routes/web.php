@@ -71,5 +71,6 @@ Route::prefix('api')->name('api.')->group(function () {
         Route::post('/favoritos/eliminar', [PerfilController::class, 'eliminarFavorito'])->name('favoritos.eliminar');
         Route::get('/favoritos/{municipioId}/es-favorito', [PerfilController::class, 'esFavorito'])->name('favoritos.es-favorito');
         Route::get('/favoritos/lista', [PerfilController::class, 'listaFavoritosIds'])->name('favoritos.lista');
+        Route::get('/favoritos/lista-completa', [PerfilController::class, 'listaFavoritosCompleta'])->name('favoritos.lista-completa');
     });
 });

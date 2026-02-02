@@ -139,6 +139,12 @@
         gap: 1rem;
     }
 
+    .grid-5 {
+        display: grid;
+        grid-template-columns: repeat(5, 1fr);
+        gap: 1rem;
+    }
+
     /* Buscador de municipios */
     .search-results {
         position: absolute;
@@ -193,8 +199,17 @@
         stroke-dasharray: none !important;
     }
 
+    @media (max-width: 1280px) {
+        .grid-5 {
+            grid-template-columns: repeat(3, 1fr);
+        }
+    }
+
     @media (max-width: 1024px) {
         .grid-4 {
+            grid-template-columns: repeat(2, 1fr);
+        }
+        .grid-5 {
             grid-template-columns: repeat(2, 1fr);
         }
     }
@@ -204,7 +219,8 @@
         .leyenda { font-size: 0.75rem; padding: 0.75rem; }
         .leyenda-color { width: 20px; height: 15px; }
 
-        .grid-4 {
+        .grid-4,
+        .grid-5 {
             grid-template-columns: 1fr;
         }
     }
@@ -216,7 +232,7 @@
 <!-- CONTROLES SUPERIORES -->
 <div class="card" style="margin-bottom: 1.5rem;">
     <div class="card-body">
-        <div class="grid grid-4">
+        <div class="grid @auth grid-5 @else grid-4 @endauth">
             <!-- Selector de Año -->
             <div>
                 <label for="select-ano" style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: var(--text-primary);">
@@ -255,6 +271,18 @@
                     style="width: 100%; padding: 0.5rem; border-radius: 0.375rem; border: 1px solid var(--border-color); background: var(--bg-tertiary); color: var(--text-primary);">
                 <div id="search-results" class="search-results"></div>
             </div>
+
+            <!-- Selector de Favoritos (solo si está autenticado) -->
+            @auth
+            <div>
+                <label for="select-favorito" style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: var(--text-primary);">
+                    Mis Favoritos
+                </label>
+                <select id="select-favorito" style="width: 100%; padding: 0.5rem; border-radius: 0.375rem; border: 1px solid var(--border-color); background: var(--bg-tertiary); color: var(--text-primary);">
+                    <option value="">-- Seleccionar favorito --</option>
+                </select>
+            </div>
+            @endauth
 
             <!-- Estadísticas Rápidas -->
             <div style="display: flex; flex-direction: column; justify-content: center; background: var(--bg-tertiary); padding: 1rem; border-radius: 0.375rem;">
@@ -861,6 +889,103 @@
         state.currentEvent = this.value;
         loadData();
     });
+
+    // ========== FUNCIONALIDAD DE SELECTOR DE FAVORITOS ==========
+    @auth
+    const selectFavorito = document.getElementById('select-favorito');
+    let favoritosData = [];
+
+    // Cargar favoritos del usuario
+    async function cargarFavoritos() {
+        try {
+            const response = await fetch('{{ url('/api/perfil/favoritos/lista-completa') }}');
+            if (!response.ok) throw new Error('Error cargando favoritos');
+
+            const data = await response.json();
+            favoritosData = data.favoritos || [];
+
+            // Poblar el select
+            selectFavorito.innerHTML = '<option value="">-- Seleccionar favorito --</option>';
+
+            if (favoritosData.length === 0) {
+                selectFavorito.innerHTML += '<option value="" disabled>No tienes favoritos guardados</option>';
+            } else {
+                favoritosData.forEach(fav => {
+                    const option = document.createElement('option');
+                    option.value = fav.codigo_ine;
+                    option.textContent = `${fav.nombre} (${fav.provincia})`;
+                    option.dataset.municipioId = fav.id;
+                    selectFavorito.appendChild(option);
+                });
+            }
+        } catch (error) {
+            console.error('Error cargando favoritos:', error);
+            selectFavorito.innerHTML = '<option value="">Error al cargar favoritos</option>';
+        }
+    }
+
+    // Hacer zoom a favorito seleccionado con resaltado amarillo
+    function zoomToFavorito(codigoIne) {
+        if (!codigoIne) return;
+
+        // Quitar resaltado anterior
+        if (highlightedLayer) {
+            state.geojsonLayer.resetStyle(highlightedLayer);
+            highlightedLayer = null;
+        }
+
+        // Buscar el municipio en la lista
+        const municipio = municipiosList.find(m => m.codigo === codigoIne);
+        if (!municipio) {
+            console.warn('Municipio no encontrado en el mapa:', codigoIne);
+            return;
+        }
+
+        // Hacer zoom al municipio
+        state.map.fitBounds(municipio.bounds, {
+            padding: [50, 50],
+            maxZoom: 12
+        });
+
+        // Resaltar el municipio en amarillo
+        state.geojsonLayer.eachLayer(layer => {
+            if (layer.feature && layer.feature.properties.c_mun === codigoIne) {
+                layer.setStyle({
+                    weight: 5,
+                    color: '#fbbf24',      // Amarillo
+                    fillColor: '#fef08a',  // Amarillo claro de relleno
+                    fillOpacity: 0.9
+                });
+
+                // Abrir popup si existe
+                if (layer.getPopup()) {
+                    layer.openPopup();
+                }
+
+                // Guardar referencia para poder quitar el resaltado después
+                highlightedLayer = layer;
+            }
+        });
+    }
+
+    // Event listener para el selector de favoritos
+    selectFavorito.addEventListener('change', function() {
+        const codigoIne = this.value;
+        if (codigoIne) {
+            zoomToFavorito(codigoIne);
+        }
+    });
+
+    // Cargar favoritos después de que el mapa esté listo
+    const originalInitMap = initMap;
+    initMap = async function() {
+        await originalInitMap();
+        await cargarFavoritos();
+    };
+
+    // Recargar favoritos cuando cambie la lista (escuchar evento personalizado)
+    document.addEventListener('favoritosActualizados', cargarFavoritos);
+    @endauth
 
     // Inicializar cuando el DOM esté listo
     if (document.readyState === 'loading') {
