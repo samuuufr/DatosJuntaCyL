@@ -78,20 +78,26 @@
 
 <!-- LISTADO DE MUNICIPIOS -->
 <div class="card">
-    <div class="card-header">
-        <div>
-            <h2 class="card-title">🏘️ Municipios de {{ $provincia->nombre }}</h2>
-            <p class="card-subtitle">{{ $provincia->municipios->count() }} municipios en total</p>
-        </div>
-        <div class="municipios-search">
-            <div class="search-container">
-                <input 
-                    type="text" 
-                    id="buscar-municipio" 
-                    placeholder="🔍 Buscar municipio en {{ $provincia->nombre }}..."
-                    class="search-input"
+    <div class="card-header" style="flex-direction: column; align-items: stretch;">
+        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+            <div>
+                <h2 class="card-title">🏘️ Municipios de {{ $provincia->nombre }}</h2>
+                <p class="card-subtitle" id="contador-municipios">{{ $provincia->municipios->count() }} municipios en total</p>
+            </div>
+
+            <!-- Buscador con autocompletado -->
+            <div style="position: relative; min-width: 280px;">
+                <label for="buscar-municipio" style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: var(--text-primary); font-size: 0.875rem;">
+                    Buscar Municipio
+                </label>
+                <input
+                    type="text"
+                    id="buscar-municipio"
+                    placeholder="Escribe para buscar..."
+                    autocomplete="off"
+                    style="width: 100%; padding: 0.6rem 1rem; border-radius: 0.375rem; border: 1px solid var(--border-color); background: var(--bg-tertiary); color: var(--text-primary); font-size: 0.9rem;"
                 >
-                <div id="resultados-busqueda" class="autocomplete-results"></div>
+                <div id="search-results" class="search-results"></div>
             </div>
         </div>
     </div>
@@ -143,74 +149,114 @@
 
 @push('estilos_adicionales')
 <style>
-.municipios-search {
-    margin-top: 1rem;
-}
-
-.search-container {
-    position: relative;
-    max-width: 400px;
-}
-
-.search-input {
-    width: 100%;
-    padding: 0.75rem 1rem;
-    border: 2px solid var(--border-color);
-    border-radius: 0.5rem;
-    font-size: 0.9rem;
-    transition: all 0.3s ease;
-}
-
-.search-input:focus {
+/* Buscador de municipios con autocompletado */
+#buscar-municipio:focus {
     outline: none;
     border-color: var(--primary-color);
-    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
 }
 
-.autocomplete-results {
+.search-results {
     position: absolute;
     top: 100%;
     left: 0;
     right: 0;
-    background: white;
+    background: var(--bg-secondary);
     border: 1px solid var(--border-color);
     border-radius: 0.5rem;
-    margin-top: 0.5rem;
-    max-height: 300px;
+    max-height: 280px;
     overflow-y: auto;
-    display: none;
     z-index: 1000;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    display: none;
+    margin-top: 4px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
 }
 
-.autocomplete-results.show {
+.search-results.show {
     display: block;
 }
 
-.autocomplete-item {
-    padding: 0.75rem 1rem;
+.search-result-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    padding: 0.6rem 0.85rem;
     cursor: pointer;
     border-bottom: 1px solid var(--border-color);
-    transition: background-color 0.2s ease;
+    transition: background-color 0.1s;
 }
 
-.autocomplete-item:last-child {
+.search-result-item:last-child {
     border-bottom: none;
 }
 
-.autocomplete-item:hover {
-    background-color: var(--bg-secondary);
+.search-result-item:hover,
+.search-result-item.selected {
+    background: var(--primary-color);
 }
 
-.autocomplete-item strong {
+.search-result-item:hover .municipio-nombre,
+.search-result-item.selected .municipio-nombre {
+    color: white;
+}
+
+.search-result-item:hover .municipio-codigo,
+.search-result-item.selected .municipio-codigo {
+    background: rgba(255, 255, 255, 0.2);
+    color: white;
+}
+
+.municipio-nombre {
+    font-weight: 500;
+    font-size: 0.875rem;
+    color: var(--text-primary);
+    flex: 1;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.municipio-nombre .match {
     color: var(--primary-color);
+    font-weight: 700;
 }
 
-.no-results {
-    padding: 1rem;
+.search-result-item:hover .municipio-nombre .match,
+.search-result-item.selected .municipio-nombre .match {
+    color: #fbbf24;
+}
+
+.municipio-codigo {
+    font-size: 0.7rem;
+    font-family: monospace;
+    color: var(--text-secondary);
+    background: var(--bg-tertiary);
+    padding: 0.2rem 0.4rem;
+    border-radius: 4px;
+    white-space: nowrap;
+}
+
+.search-no-results {
+    padding: 0.75rem 1rem;
     text-align: center;
     color: var(--text-secondary);
-    font-style: italic;
+    font-size: 0.8rem;
+}
+
+/* Filas de tabla filtradas */
+tbody tr.oculto {
+    display: none;
+}
+
+tbody tr.resaltado {
+    background: rgba(59, 130, 246, 0.1);
+}
+
+@media (max-width: 768px) {
+    #buscar-municipio {
+        width: 100% !important;
+    }
 }
 </style>
 @endpush
@@ -321,95 +367,183 @@ document.addEventListener('DOMContentLoaded', function() {
             console.error('Error cargando datos de municipios:', error);
         });
 
-    // Funcionalidad de búsqueda de municipios con autocompletado
-    const buscarInput = document.getElementById('buscar-municipio');
-    const resultadosDiv = document.getElementById('resultados-busqueda');
-    const tbody = document.querySelector('tbody');
-    const todosLosMunicipios = Array.from(tbody.querySelectorAll('tr'));
-    
-    let debounceTimer;
+    // ========================================
+    // BUSCADOR DE MUNICIPIOS CON AUTOCOMPLETADO
+    // ========================================
+    const searchInput = document.getElementById('buscar-municipio');
+    const searchResults = document.getElementById('search-results');
+    const tableRows = document.querySelectorAll('tbody tr');
 
-    buscarInput.addEventListener('input', function() {
-        const termino = this.value.trim();
-        
-        clearTimeout(debounceTimer);
-        
-        if (termino.length < 2) {
-            resultadosDiv.classList.remove('show');
-            mostrarTodosMunicipios();
-            return;
+    // Construir lista de municipios desde la tabla
+    const municipiosList = [];
+    tableRows.forEach(row => {
+        const link = row.querySelector('a.btn-primary');
+        if (link) {
+            municipiosList.push({
+                nombre: row.cells[1]?.textContent.trim() || '',
+                codigo: row.cells[2]?.textContent.trim() || '',
+                registros: row.cells[3]?.textContent.trim() || '0',
+                url: link.href,
+                row: row
+            });
         }
-        
-        debounceTimer = setTimeout(() => {
-            buscarMunicipios(termino);
-        }, 300);
     });
 
-    function buscarMunicipios(termino) {
-        const url = `/api/municipios/buscar?q=${encodeURIComponent(termino)}&provincia_id={{ $provincia->id }}`;
-        
-        fetch(url)
-            .then(response => response.json())
-            .then(municipios => {
-                mostrarResultados(municipios);
-                filtrarTablaMunicipios(termino);
-            })
-            .catch(error => {
-                console.error('Error buscando municipios:', error);
-            });
+    let selectedIndex = -1;
+
+    // Buscar municipios
+    function searchMunicipios(query) {
+        if (!query || query.length < 1) return [];
+
+        const normalizedQuery = query.toLowerCase().trim();
+        return municipiosList
+            .filter(m =>
+                m.nombre.toLowerCase().includes(normalizedQuery) ||
+                m.codigo.toLowerCase().includes(normalizedQuery)
+            )
+            .slice(0, 10);
     }
 
-    function mostrarResultados(municipios) {
-        if (municipios.length === 0) {
-            resultadosDiv.innerHTML = '<div class="no-results">No se encontraron municipios</div>';
-        } else {
-            resultadosDiv.innerHTML = municipios.map(municipio => `
-                <div class="autocomplete-item" onclick="window.location.href='${municipio.url}'">
-                    <strong>${municipio.nombre}</strong> (${municipio.codigo_ine})
-                </div>
-            `).join('');
-        }
-        
-        resultadosDiv.classList.add('show');
-    }
-
-    function filtrarTablaMunicipios(termino) {
-        const terminoLower = termino.toLowerCase();
-        
-        todosLosMunicipios.forEach(fila => {
-            const nombreMunicipio = fila.cells[1]?.textContent.toLowerCase() || '';
-            
-            if (nombreMunicipio.includes(terminoLower)) {
-                fila.style.display = '';
+    // Mostrar resultados
+    function showResults(results, query) {
+        if (results.length === 0) {
+            if (query.length >= 1) {
+                searchResults.innerHTML = '<div class="search-no-results">Sin resultados para "' + escapeHtml(query) + '"</div>';
+                searchResults.classList.add('show');
             } else {
-                fila.style.display = 'none';
+                searchResults.classList.remove('show');
+            }
+            return;
+        }
+
+        searchResults.innerHTML = results.map((m, index) => `
+            <div class="search-result-item${index === selectedIndex ? ' selected' : ''}" data-index="${index}" data-url="${m.url}">
+                <span class="municipio-nombre">${highlightMatch(m.nombre, query)}</span>
+                <span class="municipio-codigo">${m.codigo}</span>
+            </div>
+        `).join('');
+
+        searchResults.classList.add('show');
+
+        // Event listeners para los resultados
+        searchResults.querySelectorAll('.search-result-item').forEach(item => {
+            item.addEventListener('click', function() {
+                window.location.href = this.dataset.url;
+            });
+
+            item.addEventListener('mouseenter', function() {
+                selectedIndex = parseInt(this.dataset.index);
+                updateSelection();
+            });
+        });
+    }
+
+    // Resaltar coincidencias
+    function highlightMatch(text, query) {
+        if (!query) return escapeHtml(text);
+        const regex = new RegExp(`(${escapeRegex(query)})`, 'gi');
+        return escapeHtml(text).replace(regex, '<span class="match">$1</span>');
+    }
+
+    function escapeHtml(text) {
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    }
+
+    function escapeRegex(string) {
+        return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    }
+
+    // Actualizar selección visual
+    function updateSelection() {
+        const items = searchResults.querySelectorAll('.search-result-item');
+        items.forEach((item, index) => {
+            item.classList.toggle('selected', index === selectedIndex);
+        });
+
+        // Scroll al elemento seleccionado
+        if (selectedIndex >= 0 && items[selectedIndex]) {
+            items[selectedIndex].scrollIntoView({ block: 'nearest' });
+        }
+    }
+
+    // Filtrar también la tabla
+    function filterTable(query) {
+        const normalizedQuery = query.toLowerCase().trim();
+
+        tableRows.forEach(row => {
+            const nombre = row.cells[1]?.textContent.toLowerCase() || '';
+            const codigo = row.cells[2]?.textContent.toLowerCase() || '';
+
+            if (!normalizedQuery || nombre.includes(normalizedQuery) || codigo.includes(normalizedQuery)) {
+                row.classList.remove('oculto');
+                row.classList.toggle('resaltado', normalizedQuery.length > 0 && (nombre.includes(normalizedQuery) || codigo.includes(normalizedQuery)));
+            } else {
+                row.classList.add('oculto');
+                row.classList.remove('resaltado');
             }
         });
-        
-        // Actualizar contador de municipios visibles
-        const municipiosVisibles = todosLosMunicipios.filter(fila => fila.style.display !== 'none').length;
-        const subtitle = document.querySelector('.card-subtitle');
-        if (subtitle) {
-            subtitle.textContent = `${municipiosVisibles} de {{ $provincia->municipios->count() }} municipios`;
-        }
     }
 
-    function mostrarTodosMunicipios() {
-        todosLosMunicipios.forEach(fila => {
-            fila.style.display = '';
-        });
-        
-        // Restaurar contador original
-        const subtitle = document.querySelector('.card-subtitle');
-        if (subtitle) {
-            subtitle.textContent = '{{ $provincia->municipios->count() }} municipios en total';
-        }
-    }
+    // Event: Input
+    searchInput.addEventListener('input', function() {
+        const query = this.value;
+        selectedIndex = -1;
+        const results = searchMunicipios(query);
+        showResults(results, query);
+        filterTable(query);
+    });
 
-    // Cerrar resultados al hacer clic fuera
-    document.addEventListener('click', function(event) {
-        if (!event.target.closest('.search-container')) {
-            resultadosDiv.classList.remove('show');
+    // Event: Focus
+    searchInput.addEventListener('focus', function() {
+        if (this.value.length >= 1) {
+            const results = searchMunicipios(this.value);
+            showResults(results, this.value);
+        }
+    });
+
+    // Event: Keyboard navigation
+    searchInput.addEventListener('keydown', function(e) {
+        const items = searchResults.querySelectorAll('.search-result-item');
+
+        switch(e.key) {
+            case 'ArrowDown':
+                e.preventDefault();
+                if (items.length > 0) {
+                    selectedIndex = Math.min(selectedIndex + 1, items.length - 1);
+                    updateSelection();
+                }
+                break;
+
+            case 'ArrowUp':
+                e.preventDefault();
+                if (items.length > 0) {
+                    selectedIndex = Math.max(selectedIndex - 1, 0);
+                    updateSelection();
+                }
+                break;
+
+            case 'Enter':
+                e.preventDefault();
+                if (selectedIndex >= 0 && items[selectedIndex]) {
+                    window.location.href = items[selectedIndex].dataset.url;
+                }
+                break;
+
+            case 'Escape':
+                searchResults.classList.remove('show');
+                this.value = '';
+                filterTable('');
+                this.blur();
+                break;
+        }
+    });
+
+    // Event: Click outside
+    document.addEventListener('click', function(e) {
+        if (!searchInput.contains(e.target) && !searchResults.contains(e.target)) {
+            searchResults.classList.remove('show');
         }
     });
 });
