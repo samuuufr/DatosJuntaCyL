@@ -36,13 +36,13 @@
                 </div>
             @endif
 
-            <form action="{{ route('registro.post') }}" method="POST" class="space-y-6">
+            <form action="{{ route('registro.post') }}" method="POST" class="space-y-6" aria-label="Formulario de registro">
                 @csrf
 
                 <!-- Nombre -->
                 <div class="group">
                     <label for="nombre" class="block text-sm font-semibold mb-3" style="color: var(--text-primary);">
-                        Nombre Completo
+                        Nombre Completo <span class="sr-only">(obligatorio)</span>
                     </label>
                     <div class="relative">
                         <div class="absolute inset-y-0 left-0 pl-2 flex items-center pointer-events-none">
@@ -56,10 +56,10 @@
                             name="nombre"
                             value="{{ old('nombre') }}"
                             required
+                            aria-required="true"
+                            autocomplete="name"
                             class="w-full pl-12 pr-4 py-3 rounded-lg transition-all duration-200"
                             style="background-color: var(--bg-tertiary); border: 1px solid var(--border-color); color: var(--text-primary);padding-left: 1.5rem;"
-                            onfocus="this.style.borderColor='var(--primary-color)'; this.style.outline='none';"
-                            onblur="this.style.borderColor='var(--border-color)';"
                         >
                     </div>
                 </div>
@@ -67,10 +67,10 @@
                 <!-- Email -->
                 <div class="group">
                     <label for="email" class="block text-sm font-semibold mb-3" style="color: var(--text-primary);">
-                        Correo Electrónico
+                        Correo Electrónico <span class="sr-only">(obligatorio)</span>
                     </label>
                     <div class="relative">
-                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none" aria-hidden="true">
                             <svg class="h-5 w-5 transition-colors" style="color: var(--text-tertiary);" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 12a4 4 0 10-8 0 4 4 0 008 0zm0 0v1.5a2.5 2.5 0 005 0V12a9 9 0 10-9 9m4.5-1.206a8.959 8.959 0 01-4.5 1.207"></path>
                             </svg>
@@ -81,10 +81,10 @@
                             name="email"
                             value="{{ old('email') }}"
                             required
+                            aria-required="true"
+                            autocomplete="email"
                             class="w-full pl-12 pr-4 py-3 rounded-lg transition-all duration-200"
                             style="background-color: var(--bg-tertiary); border: 1px solid var(--border-color); color: var(--text-primary);padding-left: 1.5rem;"
-                            onfocus="this.style.borderColor='var(--primary-color)'; this.style.outline='none';"
-                            onblur="this.style.borderColor='var(--border-color)';"
                         >
                     </div>
                 </div>
@@ -92,10 +92,10 @@
                 <!-- Contraseña -->
                 <div class="group">
                     <label for="password" class="block text-sm font-semibold mb-3" style="color: var(--text-primary);">
-                        Contraseña
+                        Contraseña <span class="sr-only">(obligatorio)</span>
                     </label>
                     <div class="relative">
-                        <div class="absolute inset-y-0 left-0 pl-2 flex items-center pointer-events-none">
+                        <div class="absolute inset-y-0 left-0 pl-2 flex items-center pointer-events-none" aria-hidden="true">
                             <svg class="h-5 w-5 transition-colors" style="color: var(--text-tertiary);" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
                             </svg>
@@ -105,22 +105,24 @@
                             id="password"
                             name="password"
                             required
+                            aria-required="true"
+                            aria-describedby="password-hint"
+                            autocomplete="new-password"
+                            minlength="6"
                             class="w-full pl-12 pr-4 py-3 rounded-lg transition-all duration-200"
                             style="background-color: var(--bg-tertiary); border: 1px solid var(--border-color); color: var(--text-primary);padding-left: 1.5rem;"
-                            onfocus="this.style.borderColor='var(--primary-color)'; this.style.outline='none';"
-                            onblur="this.style.borderColor='var(--border-color)';"
                         >
                     </div>
-                    <p class="mt-2 text-xs" style="color: var(--text-secondary);">Usa al menos 6 caracteres</p>
+                    <p id="password-hint" class="mt-2 text-xs" style="color: var(--text-secondary);">Usa al menos 6 caracteres</p>
                 </div>
 
                 <!-- Confirmar Contraseña -->
                 <div class="group">
                     <label for="password_confirmation" class="block text-sm font-semibold mb-3" style="color: var(--text-primary);">
-                        Confirmar Contraseña
+                        Confirmar Contraseña <span class="sr-only">(obligatorio)</span>
                     </label>
                     <div class="relative">
-                        <div class="absolute inset-y-0 left-0 pl-2 flex items-center pointer-events-none">
+                        <div class="absolute inset-y-0 left-0 pl-2 flex items-center pointer-events-none" aria-hidden="true">
                             <svg class="h-5 w-5 transition-colors" style="color: var(--text-tertiary);" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                             </svg>
@@ -130,10 +132,10 @@
                             id="password_confirmation"
                             name="password_confirmation"
                             required
+                            aria-required="true"
+                            autocomplete="new-password"
                             class="w-full pl-12 pr-4 py-3 rounded-lg transition-all duration-200"
                             style="background-color: var(--bg-tertiary); border: 1px solid var(--border-color); color: var(--text-primary);padding-left: 1.5rem;"
-                            onfocus="this.style.borderColor='var(--primary-color)'; this.style.outline='none';"
-                            onblur="this.style.borderColor='var(--border-color)';"
                         >
                     </div>
                 </div>
@@ -195,4 +197,24 @@
 
 <!-- Cloudflare Turnstile Script -->
 <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+
+@push('estilos_adicionales')
+<style>
+.sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+}
+input:focus-visible, button:focus-visible, a:focus-visible {
+    outline: 3px solid var(--primary-color);
+    outline-offset: 2px;
+}
+</style>
+@endpush
 @endsection

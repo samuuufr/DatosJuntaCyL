@@ -36,13 +36,13 @@
                 </div>
             @endif
 
-            <form action="{{ route('login.post') }}" method="POST" class="space-y-6">
+            <form action="{{ route('login.post') }}" method="POST" class="space-y-6" aria-label="Formulario de inicio de sesión">
                 @csrf
 
                 <!-- Email -->
                 <div class="group">
                     <label for="email" class="block text-sm font-semibold mb-3" style="color: var(--text-primary);">
-                        Correo Electrónico
+                        Correo Electrónico <span class="sr-only">(obligatorio)</span>
                     </label>
                     <div class="relative">
                         <div class="absolute inset-y-0 left-0 pl-2 flex items-center pointer-events-none">
@@ -56,10 +56,10 @@
                             name="email"
                             value="{{ old('email') }}"
                             required
+                            aria-required="true"
+                            autocomplete="email"
                             class="w-full pl-12 pr-4 py-3 rounded-lg transition-all duration-200"
                             style="background-color: var(--bg-tertiary); border: 1px solid var(--border-color); color: var(--text-primary); padding-left: 1.5rem;"
-                            onfocus="this.style.borderColor='var(--primary-color)'; this.style.outline='none';"
-                            onblur="this.style.borderColor='var(--border-color)';"
                         >
                     </div>
                 </div>
@@ -67,10 +67,10 @@
                 <!-- Contraseña -->
                 <div class="group">
                     <label for="password" class="block text-sm font-semibold mb-3" style="color: var(--text-primary);">
-                        Contraseña
+                        Contraseña <span class="sr-only">(obligatorio)</span>
                     </label>
                     <div class="relative">
-                        <div class="absolute inset-y-0 left-0 pl-2 flex items-center pointer-events-none">
+                        <div class="absolute inset-y-0 left-0 pl-2 flex items-center pointer-events-none" aria-hidden="true">
                             <svg class="h-5 w-5 transition-colors" style="color: var(--text-tertiary);" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
                             </svg>
@@ -80,10 +80,10 @@
                             id="password"
                             name="password"
                             required
+                            aria-required="true"
+                            autocomplete="current-password"
                             class="w-full pl-12 pr-4 py-3 rounded-lg transition-all duration-200"
                             style="background-color: var(--bg-tertiary); border: 1px solid var(--border-color); color: var(--text-primary); padding-left: 1.5rem;"
-                            onfocus="this.style.borderColor='var(--primary-color)'; this.style.outline='none';"
-                            onblur="this.style.borderColor='var(--border-color)';"
                         >
                     </div>
                 </div>
@@ -159,4 +159,24 @@
 
 <!-- Cloudflare Turnstile Script -->
 <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+
+@push('estilos_adicionales')
+<style>
+.sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+}
+input:focus-visible, button:focus-visible, a:focus-visible, [type="checkbox"]:focus-visible {
+    outline: 3px solid var(--primary-color);
+    outline-offset: 2px;
+}
+</style>
+@endpush
 @endsection

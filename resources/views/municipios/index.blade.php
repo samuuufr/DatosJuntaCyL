@@ -16,7 +16,7 @@
 <!-- BUSCADOR -->
 <div class="card" style="margin-bottom: 2rem;">
     <div class="card-header">
-        <h2 class="card-title">🔍 Búsqueda Avanzada</h2>
+        <h2 class="card-title"><span aria-hidden="true">🔍</span> Búsqueda Avanzada</h2>
     </div>
     <div class="card-body">
         <form method="GET" action="{{ route('municipios.index') }}" id="form-busqueda">
@@ -34,11 +34,17 @@
                         placeholder="Ej: Valladolid, Salamanca, Burgos..."
                         style="width: 100%; padding: 0.75rem 1rem; border: 1px solid var(--border-color); border-radius: 0.5rem; font-size: 1rem; background: var(--bg-primary); color: var(--text-primary);"
                         autocomplete="off"
+                        role="combobox"
+                        aria-expanded="false"
+                        aria-controls="lista-sugerencias"
+                        aria-autocomplete="list"
+                        aria-describedby="buscar-ayuda"
                     >
+                    <span id="buscar-ayuda" class="sr-only">Escribe al menos 2 caracteres para ver sugerencias. Usa las flechas arriba/abajo para navegar y Enter para seleccionar.</span>
                     <!-- Sugerencias de autocompletado -->
                     <div id="sugerencias" style="position: relative; display: none;">
-                        <div style="position: absolute; top: 0; left: 0; right: 0; background: var(--bg-primary); border: 1px solid var(--border-color); border-radius: 0.5rem; box-shadow: 0 4px 6px rgba(0,0,0,0.1); max-height: 300px; overflow-y: auto; z-index: 100;">
-                        </div>
+                        <ul id="lista-sugerencias" role="listbox" aria-label="Sugerencias de municipios" style="position: absolute; top: 0; left: 0; right: 0; background: var(--bg-primary); border: 1px solid var(--border-color); border-radius: 0.5rem; box-shadow: 0 4px 6px rgba(0,0,0,0.1); max-height: 300px; overflow-y: auto; z-index: 100; list-style: none; margin: 0; padding: 0;">
+                        </ul>
                     </div>
                 </div>
 
@@ -65,10 +71,10 @@
 
             <div style="display: flex; gap: 0.5rem;">
                 <button type="submit" class="btn btn-primary">
-                    🔍 Buscar
+                    <span aria-hidden="true">🔍</span> Buscar
                 </button>
                 <a href="{{ route('municipios.index') }}" class="btn btn-secondary">
-                    🔄 Limpiar filtros
+                    <span aria-hidden="true">🔄</span> Limpiar filtros
                 </a>
             </div>
         </form>
@@ -80,23 +86,24 @@
     <div class="card">
         <div class="card-header">
             <div>
-                <h2 class="card-title">📋 Resultados de la búsqueda</h2>
+                <h2 class="card-title" id="tabla-titulo"><span aria-hidden="true">📋</span> Resultados de la búsqueda</h2>
                 <p class="card-subtitle">{{ $municipios->total() }} municipios encontrados</p>
             </div>
         </div>
         <div class="card-body">
-            <div class="table-wrapper">
-                <table>
+            <div class="table-wrapper" role="region" aria-labelledby="tabla-titulo" tabindex="0">
+                <table aria-describedby="tabla-descripcion">
+                    <caption class="sr-only" id="tabla-descripcion">Lista de municipios de Castilla y León con información demográfica</caption>
                     <thead>
                         <tr>
-                            <th>#</th>
-                            <th>Municipio</th>
-                            <th>Provincia</th>
-                            <th>Código INE</th>
-                            <th style="text-align: center;">Registros MNP</th>
-                            <th style="text-align: center;">Acción</th>
+                            <th scope="col" aria-label="Número de orden">#</th>
+                            <th scope="col">Municipio</th>
+                            <th scope="col">Provincia</th>
+                            <th scope="col">Código INE</th>
+                            <th scope="col" style="text-align: center;">Registros MNP</th>
+                            <th scope="col" style="text-align: center;">Acción</th>
                             @auth
-                                <th style="width: 80px; text-align: center;">Favorito</th>
+                                <th scope="col" style="width: 80px; text-align: center;">Favorito</th>
                             @endauth
                         </tr>
                     </thead>
@@ -108,8 +115,8 @@
                                     <strong style="color: var(--primary-color);">{{ $municipio->nombre }}</strong>
                                 </td>
                                 <td>
-                                    <a href="{{ route('analisis-demografico.provincia-detalle', $municipio->provincia->id) }}" style="color: var(--text-secondary); text-decoration: none;">
-                                        📍 {{ $municipio->provincia->nombre }}
+                                    <a href="{{ route('analisis-demografico.provincia-detalle', $municipio->provincia->id) }}" style="color: var(--text-secondary); text-decoration: none;" aria-label="Ver análisis de {{ $municipio->provincia->nombre }}">
+                                        <span aria-hidden="true">📍</span> {{ $municipio->provincia->nombre }}
                                     </a>
                                 </td>
                                 <td>
@@ -121,8 +128,8 @@
                                     <span class="badge badge-primary">{{ $municipio->datosMnp->count() }}</span>
                                 </td>
                                 <td style="text-align: center;">
-                                    <a href="{{ route('analisis-demografico.municipio-detalle', $municipio->id) }}" class="btn btn-primary btn-small">
-                                        Ver ficha →
+                                    <a href="{{ route('analisis-demografico.municipio-detalle', $municipio->id) }}" class="btn btn-primary btn-small" aria-label="Ver ficha demográfica de {{ $municipio->nombre }}">
+                                        Ver ficha <span aria-hidden="true">→</span>
                                     </a>
                                 </td>
                                 @auth
@@ -130,8 +137,11 @@
                                         <button
                                             data-estrella-municipio="{{ $municipio->id }}"
                                             class="boton-favorito-estrella"
+                                            aria-label="Añadir {{ $municipio->nombre }} a favoritos"
+                                            aria-pressed="false"
+                                            title="Añadir a favoritos"
                                         >
-                                            ☆
+                                            <span aria-hidden="true">☆</span>
                                         </button>
                                     </td>
                                 @endauth
@@ -144,21 +154,21 @@
             <!-- Paginación -->
             @if($municipios->hasPages())
                 <div style="margin-top: 1.5rem; display: flex; flex-direction: column; align-items: center; gap: 1rem;">
-                    <p style="color: var(--text-secondary); font-size: 0.875rem;">
+                    <p id="paginacion-info" style="color: var(--text-secondary); font-size: 0.875rem;">
                         Mostrando {{ $municipios->firstItem() }} - {{ $municipios->lastItem() }} de {{ $municipios->total() }} resultados
                     </p>
-                    <nav style="display: flex; align-items: center; gap: 0.25rem; flex-wrap: wrap; justify-content: center;">
+                    <nav aria-label="Paginación de resultados" style="display: flex; align-items: center; gap: 0.25rem; flex-wrap: wrap; justify-content: center;">
                         {{-- Botón Anterior --}}
                         @if($municipios->onFirstPage())
-                            <span style="padding: 0.5rem 0.75rem; color: var(--text-muted); background: var(--bg-tertiary); border-radius: 0.375rem; cursor: not-allowed; font-size: 0.875rem;">
-                                ← Anterior
-                            </span>
+                            <button type="button" disabled aria-disabled="true" aria-label="Página anterior (no disponible)"
+                               class="paginacion-btn paginacion-btn-disabled">
+                                <span aria-hidden="true">←</span> Anterior
+                            </button>
                         @else
                             <a href="{{ $municipios->appends(request()->query())->previousPageUrl() }}"
-                               style="padding: 0.5rem 0.75rem; color: var(--text-primary); background: var(--bg-secondary); border-radius: 0.375rem; text-decoration: none; font-size: 0.875rem; transition: background 0.2s;"
-                               onmouseover="this.style.background='var(--primary-color)'; this.style.color='white';"
-                               onmouseout="this.style.background='var(--bg-secondary)'; this.style.color='var(--text-primary)';">
-                                ← Anterior
+                               aria-label="Ir a la página anterior"
+                               class="paginacion-btn paginacion-btn-activo">
+                                <span aria-hidden="true">←</span> Anterior
                             </a>
                         @endif
 
@@ -172,24 +182,25 @@
 
                         @if($start > 1)
                             <a href="{{ $municipios->appends(request()->query())->url(1) }}"
-                               style="padding: 0.5rem 0.75rem; min-width: 2.5rem; text-align: center; color: var(--text-primary); background: var(--bg-secondary); border-radius: 0.375rem; text-decoration: none; font-size: 0.875rem;">
+                               aria-label="Ir a la página 1"
+                               class="paginacion-btn paginacion-btn-numero">
                                 1
                             </a>
                             @if($start > 2)
-                                <span style="padding: 0.5rem 0.25rem; color: var(--text-secondary);">...</span>
+                                <span aria-hidden="true" style="padding: 0.5rem 0.25rem; color: var(--text-secondary);">...</span>
                             @endif
                         @endif
 
                         @for($page = $start; $page <= $end; $page++)
                             @if($page == $currentPage)
-                                <span style="padding: 0.5rem 0.75rem; min-width: 2.5rem; text-align: center; color: white; background: var(--primary-color); border-radius: 0.375rem; font-weight: 600; font-size: 0.875rem;">
+                                <span aria-current="page" aria-label="Página {{ $page }}, página actual"
+                                   class="paginacion-btn paginacion-btn-actual">
                                     {{ $page }}
                                 </span>
                             @else
                                 <a href="{{ $municipios->appends(request()->query())->url($page) }}"
-                                   style="padding: 0.5rem 0.75rem; min-width: 2.5rem; text-align: center; color: var(--text-primary); background: var(--bg-secondary); border-radius: 0.375rem; text-decoration: none; font-size: 0.875rem; transition: background 0.2s;"
-                                   onmouseover="this.style.background='var(--primary-color)'; this.style.color='white';"
-                                   onmouseout="this.style.background='var(--bg-secondary)'; this.style.color='var(--text-primary)';">
+                                   aria-label="Ir a la página {{ $page }}"
+                                   class="paginacion-btn paginacion-btn-numero">
                                     {{ $page }}
                                 </a>
                             @endif
@@ -197,10 +208,11 @@
 
                         @if($end < $lastPage)
                             @if($end < $lastPage - 1)
-                                <span style="padding: 0.5rem 0.25rem; color: var(--text-secondary);">...</span>
+                                <span aria-hidden="true" style="padding: 0.5rem 0.25rem; color: var(--text-secondary);">...</span>
                             @endif
                             <a href="{{ $municipios->appends(request()->query())->url($lastPage) }}"
-                               style="padding: 0.5rem 0.75rem; min-width: 2.5rem; text-align: center; color: var(--text-primary); background: var(--bg-secondary); border-radius: 0.375rem; text-decoration: none; font-size: 0.875rem;">
+                               aria-label="Ir a la página {{ $lastPage }}"
+                               class="paginacion-btn paginacion-btn-numero">
                                 {{ $lastPage }}
                             </a>
                         @endif
@@ -208,15 +220,15 @@
                         {{-- Botón Siguiente --}}
                         @if($municipios->hasMorePages())
                             <a href="{{ $municipios->appends(request()->query())->nextPageUrl() }}"
-                               style="padding: 0.5rem 0.75rem; color: var(--text-primary); background: var(--bg-secondary); border-radius: 0.375rem; text-decoration: none; font-size: 0.875rem; transition: background 0.2s;"
-                               onmouseover="this.style.background='var(--primary-color)'; this.style.color='white';"
-                               onmouseout="this.style.background='var(--bg-secondary)'; this.style.color='var(--text-primary)';">
-                                Siguiente →
+                               aria-label="Ir a la página siguiente"
+                               class="paginacion-btn paginacion-btn-activo">
+                                Siguiente <span aria-hidden="true">→</span>
                             </a>
                         @else
-                            <span style="padding: 0.5rem 0.75rem; color: var(--text-muted); background: var(--bg-tertiary); border-radius: 0.375rem; cursor: not-allowed; font-size: 0.875rem;">
-                                Siguiente →
-                            </span>
+                            <button type="button" disabled aria-disabled="true" aria-label="Página siguiente (no disponible)"
+                               class="paginacion-btn paginacion-btn-disabled">
+                                Siguiente <span aria-hidden="true">→</span>
+                            </button>
                         @endif
                     </nav>
                 </div>
@@ -225,9 +237,9 @@
     </div>
 @elseif(request()->has('buscar') || request()->has('provincia_id'))
     <!-- Sin resultados -->
-    <div class="card">
+    <div class="card" role="status" aria-live="polite">
         <div class="card-body" style="text-align: center; padding: 4rem 2rem;">
-            <div style="font-size: 4rem; margin-bottom: 1rem;">🔍</div>
+            <div style="font-size: 4rem; margin-bottom: 1rem;" aria-hidden="true">🔍</div>
             <h3 style="font-size: 1.5rem; margin-bottom: 0.5rem; color: var(--text-primary);">
                 No se encontraron municipios
             </h3>
@@ -235,7 +247,7 @@
                 Intenta con otros términos de búsqueda o ajusta los filtros
             </p>
             <a href="{{ route('municipios.index') }}" class="btn btn-primary">
-                🔄 Limpiar búsqueda
+                <span aria-hidden="true">🔄</span> Limpiar búsqueda
             </a>
         </div>
     </div>
@@ -243,17 +255,17 @@
     <!-- Estado inicial -->
     <div class="card">
         <div class="card-body" style="text-align: center; padding: 4rem 2rem;">
-            <div style="font-size: 4rem; margin-bottom: 1rem;">🏘️</div>
+            <div style="font-size: 4rem; margin-bottom: 1rem;" aria-hidden="true">🏘️</div>
             <h3 style="font-size: 1.5rem; margin-bottom: 0.5rem; color: var(--text-primary);">
                 Comienza tu búsqueda
             </h3>
             <p style="color: var(--text-secondary); margin-bottom: 1.5rem;">
                 Introduce el nombre de un municipio o selecciona una provincia para ver resultados
             </p>
-            <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
+            <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;" role="group" aria-label="Provincias sugeridas">
                 @foreach($provincias->take(3) as $provincia)
-                    <a href="{{ route('municipios.index', ['provincia_id' => $provincia->id]) }}" class="btn btn-secondary">
-                        📍 {{ $provincia->nombre }}
+                    <a href="{{ route('municipios.index', ['provincia_id' => $provincia->id]) }}" class="btn btn-secondary" aria-label="Filtrar municipios de {{ $provincia->nombre }}">
+                        <span aria-hidden="true">📍</span> {{ $provincia->nombre }}
                     </a>
                 @endforeach
             </div>
@@ -262,20 +274,66 @@
 @endif
 
 <script>
-// Autocompletado de búsqueda con Fetch API
+// Autocompletado de búsqueda con Fetch API - Accesible con teclado
 let timeoutId = null;
+let indiceSeleccionado = -1;
+let municipiosActuales = [];
 
-document.getElementById('buscar').addEventListener('input', function(e) {
+const inputBuscar = document.getElementById('buscar');
+const sugerenciasDiv = document.getElementById('sugerencias');
+const listaSugerencias = document.getElementById('lista-sugerencias');
+
+// Función para actualizar el estado visual de las sugerencias
+function actualizarSeleccion() {
+    const opciones = listaSugerencias.querySelectorAll('[role="option"]');
+    opciones.forEach((opcion, index) => {
+        if (index === indiceSeleccionado) {
+            opcion.setAttribute('aria-selected', 'true');
+            opcion.style.background = 'var(--bg-secondary)';
+            opcion.scrollIntoView({ block: 'nearest' });
+            inputBuscar.setAttribute('aria-activedescendant', opcion.id);
+        } else {
+            opcion.setAttribute('aria-selected', 'false');
+            opcion.style.background = 'var(--bg-primary)';
+        }
+    });
+}
+
+// Función para cerrar sugerencias
+function cerrarSugerencias() {
+    sugerenciasDiv.style.display = 'none';
+    inputBuscar.setAttribute('aria-expanded', 'false');
+    inputBuscar.removeAttribute('aria-activedescendant');
+    indiceSeleccionado = -1;
+}
+
+// Función para abrir sugerencias
+function abrirSugerencias() {
+    if (listaSugerencias.children.length > 0) {
+        sugerenciasDiv.style.display = 'block';
+        inputBuscar.setAttribute('aria-expanded', 'true');
+    }
+}
+
+// Función para seleccionar una opción
+function seleccionarOpcion(index) {
+    if (index >= 0 && index < municipiosActuales.length) {
+        window.location.href = municipiosActuales[index].url;
+    }
+}
+
+inputBuscar.addEventListener('input', function(e) {
     const termino = e.target.value;
-    const sugerenciasDiv = document.getElementById('sugerencias');
-    const sugerenciasContent = sugerenciasDiv.querySelector('div');
 
     // Limpiar timeout anterior
     clearTimeout(timeoutId);
+    indiceSeleccionado = -1;
 
     // Si el término es muy corto, ocultar sugerencias
     if (termino.length < 2) {
-        sugerenciasDiv.style.display = 'none';
+        cerrarSugerencias();
+        listaSugerencias.innerHTML = '';
+        municipiosActuales = [];
         return;
     }
 
@@ -285,29 +343,46 @@ document.getElementById('buscar').addEventListener('input', function(e) {
         fetch(`/api/municipios/buscar?q=${encodeURIComponent(termino)}`)
             .then(response => response.json())
             .then(municipios => {
+                municipiosActuales = municipios;
+
                 if (municipios.length === 0) {
-                    sugerenciasDiv.style.display = 'none';
+                    cerrarSugerencias();
+                    listaSugerencias.innerHTML = '';
                     return;
                 }
 
-                // Construir HTML de sugerencias
+                // Construir HTML de sugerencias accesibles
                 let html = '';
-                municipios.forEach(municipio => {
+                municipios.forEach((municipio, index) => {
                     html += `
-                        <a href="${municipio.url}"
-                           style="display: block; padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); text-decoration: none; color: var(--text-primary); transition: background 0.2s;"
-                           onmouseover="this.style.background='var(--bg-secondary)'"
-                           onmouseout="this.style.background='var(--bg-primary)'">
+                        <li id="sugerencia-${index}"
+                            role="option"
+                            aria-selected="false"
+                            tabindex="-1"
+                            data-url="${municipio.url}"
+                            data-index="${index}"
+                            style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); cursor: pointer; transition: background 0.2s;">
                             <div style="font-weight: 500;">${municipio.nombre}</div>
                             <div style="font-size: 0.875rem; color: var(--text-secondary);">
-                                📍 ${municipio.provincia} • INE: ${municipio.codigo_ine}
+                                <span aria-hidden="true">📍</span> ${municipio.provincia} • INE: ${municipio.codigo_ine}
                             </div>
-                        </a>
+                        </li>
                     `;
                 });
 
-                sugerenciasContent.innerHTML = html;
-                sugerenciasDiv.style.display = 'block';
+                listaSugerencias.innerHTML = html;
+                abrirSugerencias();
+
+                // Añadir eventos a las opciones
+                listaSugerencias.querySelectorAll('[role="option"]').forEach(opcion => {
+                    opcion.addEventListener('click', function() {
+                        window.location.href = this.dataset.url;
+                    });
+                    opcion.addEventListener('mouseenter', function() {
+                        indiceSeleccionado = parseInt(this.dataset.index);
+                        actualizarSeleccion();
+                    });
+                });
             })
             .catch(error => {
                 console.error('Error en búsqueda:', error);
@@ -315,13 +390,53 @@ document.getElementById('buscar').addEventListener('input', function(e) {
     }, 300);
 });
 
+// Navegación con teclado
+inputBuscar.addEventListener('keydown', function(e) {
+    const opciones = listaSugerencias.querySelectorAll('[role="option"]');
+    const numOpciones = opciones.length;
+
+    if (numOpciones === 0) return;
+
+    switch(e.key) {
+        case 'ArrowDown':
+            e.preventDefault();
+            if (sugerenciasDiv.style.display === 'none') {
+                abrirSugerencias();
+            }
+            indiceSeleccionado = (indiceSeleccionado + 1) % numOpciones;
+            actualizarSeleccion();
+            break;
+
+        case 'ArrowUp':
+            e.preventDefault();
+            if (sugerenciasDiv.style.display === 'none') {
+                abrirSugerencias();
+            }
+            indiceSeleccionado = indiceSeleccionado <= 0 ? numOpciones - 1 : indiceSeleccionado - 1;
+            actualizarSeleccion();
+            break;
+
+        case 'Enter':
+            if (indiceSeleccionado >= 0) {
+                e.preventDefault();
+                seleccionarOpcion(indiceSeleccionado);
+            }
+            break;
+
+        case 'Escape':
+            cerrarSugerencias();
+            break;
+
+        case 'Tab':
+            cerrarSugerencias();
+            break;
+    }
+});
+
 // Ocultar sugerencias al hacer clic fuera
 document.addEventListener('click', function(e) {
-    const buscar = document.getElementById('buscar');
-    const sugerencias = document.getElementById('sugerencias');
-
-    if (e.target !== buscar && !sugerencias.contains(e.target)) {
-        sugerencias.style.display = 'none';
+    if (e.target !== inputBuscar && !sugerenciasDiv.contains(e.target)) {
+        cerrarSugerencias();
     }
 });
 
@@ -376,12 +491,19 @@ async function cargarFavoritosEstrella() {
 
 // Actualizar estado visual del botón
 function actualizarBotonEstrella(boton, esFavorito) {
+    const municipioNombre = boton.closest('tr').querySelector('td:nth-child(2) strong').textContent;
     if (esFavorito) {
         boton.classList.add('favorito-activo');
-        boton.textContent = '⭐';
+        boton.innerHTML = '<span aria-hidden="true">⭐</span>';
+        boton.setAttribute('aria-pressed', 'true');
+        boton.setAttribute('aria-label', `Quitar ${municipioNombre} de favoritos`);
+        boton.setAttribute('title', 'Quitar de favoritos');
     } else {
         boton.classList.remove('favorito-activo');
-        boton.textContent = '☆';
+        boton.innerHTML = '<span aria-hidden="true">☆</span>';
+        boton.setAttribute('aria-pressed', 'false');
+        boton.setAttribute('aria-label', `Añadir ${municipioNombre} a favoritos`);
+        boton.setAttribute('title', 'Añadir a favoritos');
     }
 }
 
@@ -441,6 +563,29 @@ cargarFavoritosEstrella();
 
 @push('estilos_adicionales')
 <style>
+/* Clase para ocultar visualmente pero mantener accesible para lectores de pantalla */
+.sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+}
+
+/* Estilos de focus visible para accesibilidad */
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+[tabindex]:focus-visible {
+    outline: 3px solid var(--primary-color);
+    outline-offset: 2px;
+}
+
 /* Botón de favorito estrella */
 .boton-favorito-estrella {
     width: 42px;
@@ -464,6 +609,11 @@ cargarFavoritosEstrella();
     transform: scale(1.1);
 }
 
+.boton-favorito-estrella:focus-visible {
+    outline: 3px solid #f59e0b;
+    outline-offset: 2px;
+}
+
 .boton-favorito-estrella:disabled {
     opacity: 0.5;
     cursor: not-allowed;
@@ -478,6 +628,72 @@ cargarFavoritosEstrella();
 
 .boton-favorito-estrella.favorito-activo:hover {
     background-color: #f59e0b;
+}
+
+/* Estilos de paginación accesible */
+.paginacion-btn {
+    padding: 0.5rem 0.75rem;
+    border-radius: 0.375rem;
+    font-size: 0.875rem;
+    text-decoration: none;
+    transition: background 0.2s, color 0.2s;
+    border: none;
+    cursor: pointer;
+    font-family: inherit;
+}
+
+.paginacion-btn-activo {
+    color: var(--text-primary);
+    background: var(--bg-secondary);
+}
+
+.paginacion-btn-activo:hover,
+.paginacion-btn-activo:focus-visible {
+    background: var(--primary-color);
+    color: white;
+}
+
+.paginacion-btn-disabled {
+    color: var(--text-muted);
+    background: var(--bg-tertiary);
+    cursor: not-allowed;
+}
+
+.paginacion-btn-numero {
+    min-width: 2.5rem;
+    text-align: center;
+    color: var(--text-primary);
+    background: var(--bg-secondary);
+}
+
+.paginacion-btn-numero:hover,
+.paginacion-btn-numero:focus-visible {
+    background: var(--primary-color);
+    color: white;
+}
+
+.paginacion-btn-actual {
+    min-width: 2.5rem;
+    text-align: center;
+    color: white;
+    background: var(--primary-color);
+    font-weight: 600;
+}
+
+/* Estilos para las opciones del autocompletado */
+#lista-sugerencias [role="option"] {
+    outline: none;
+}
+
+#lista-sugerencias [role="option"]:focus-visible,
+#lista-sugerencias [role="option"][aria-selected="true"] {
+    background: var(--bg-secondary);
+}
+
+/* Hacer visible el scroll del table-wrapper cuando tiene foco */
+.table-wrapper:focus-visible {
+    outline: 3px solid var(--primary-color);
+    outline-offset: -3px;
 }
 </style>
 @endpush

@@ -9,19 +9,21 @@
         <a
             href="{{ route('perfil.mostrar') }}"
             class="btn btn-secondary"
+            aria-label="Volver a mi perfil"
         >
-            Volver al Perfil
+            <span aria-hidden="true">←</span> Volver al Perfil
         </a>
     </div>
 
     @if ($favoritos->isEmpty())
-        <div class="card text-center">
+        <div class="card text-center" role="status">
             <p class="text-lg mb-2" style="color: var(--text-primary);">Aún no tienes municipios favoritos</p>
             <p class="text-sm" style="color: var(--text-secondary);">Explora los municipios y añade tus favoritos haciendo clic en el botón de favorito</p>
             <div class="mt-4">
                 <a
                     href="{{ route('municipios.index') }}"
                     class="btn btn-primary"
+                    aria-label="Explorar municipios disponibles"
                 >
                     Explorar Municipios
                 </a>
@@ -29,27 +31,28 @@
         </div>
     @else
         <div class="card" style="padding: 0;margin-top: 2rem;">
-            <div class="table-wrapper" style="border: none;">
+            <div class="table-wrapper" style="border: none;" role="region" aria-label="Lista de municipios favoritos" tabindex="0">
                 <table>
+                    <caption class="sr-only">Municipios guardados como favoritos</caption>
                     <thead>
                         <tr>
-                            <th>Municipio</th>
-                            <th>Provincia</th>
-                            <th>Población</th>
-                            <th>Acciones</th>
+                            <th scope="col">Municipio</th>
+                            <th scope="col">Provincia</th>
+                            <th scope="col">Población</th>
+                            <th scope="col">Acciones</th>
                         </tr>
                     </thead>
                     <tbody>
                         @foreach ($favoritos as $municipio)
                             <tr>
-                                <td>
+                                <th scope="row">
                                     <div class="font-medium" style="color: var(--text-primary);">
                                         {{ $municipio->nombre }}
                                     </div>
                                     <div class="text-sm" style="color: var(--text-secondary);">
                                         Código INE: {{ $municipio->codigo_ine }}
                                     </div>
-                                </td>
+                                </th>
                                 <td>
                                     <span style="color: var(--text-primary);">
                                         {{ $municipio->provincia->nombre }}
@@ -70,6 +73,7 @@
                                             href="{{ route('analisis-demografico.municipio-detalle', $municipio->id) }}"
                                             class="text-blue-600 hover:text-blue-800"
                                             style="color: var(--primary-color);"
+                                            aria-label="Ver detalles de {{ $municipio->nombre }}"
                                         >
                                             Ver Detalles
                                         </a>
@@ -77,6 +81,7 @@
                                             onclick="eliminarFavorito({{ $municipio->id }}, '{{ $municipio->nombre }}')"
                                             class="hover:opacity-80"
                                             style="color: #ef4444; background: none; border: none; cursor: pointer; font-weight: 500;"
+                                            aria-label="Eliminar {{ $municipio->nombre }} de favoritos"
                                         >
                                             Eliminar
                                         </button>
@@ -130,4 +135,26 @@ async function eliminarFavorito(municipioId, nombreMunicipio) {
     }
 }
 </script>
+
+<style>
+.sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+}
+a:focus-visible, button:focus-visible, [tabindex]:focus-visible {
+    outline: 3px solid var(--primary-color);
+    outline-offset: 2px;
+}
+.table-wrapper:focus-visible {
+    outline: 3px solid var(--primary-color);
+    outline-offset: -3px;
+}
+</style>
 @endsection

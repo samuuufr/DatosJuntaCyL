@@ -386,83 +386,89 @@
 <!-- BARRA DE NAVEGACIÓN -->
 @include('componentes.barra-navegacion')
 
+<!-- Saltar al contenido principal (accesibilidad) -->
+<a href="#contenido-principal" class="sr-only focus:not-sr-only" style="position: absolute; top: 0; left: 0; background: var(--primary-color); color: white; padding: 0.5rem 1rem; z-index: 9999;">
+    Saltar al contenido principal
+</a>
+
 <!-- SECCIÓN HERO -->
-<section class="seccion-hero">
+<main id="contenido-principal">
+<section class="seccion-hero" aria-labelledby="titulo-hero">
     <div class="contenido-hero">
-        <h1>Portal de Datos Demográficos</h1>
+        <h1 id="titulo-hero">Portal de Datos Demográficos</h1>
         <p>Análisis integral del Movimiento Natural de la Población de Castilla y León</p>
-        <a href="{{ route('analisis-demografico.panel') }}" class="boton-principal">
-            Explorar Datos →
+        <a href="{{ route('analisis-demografico.panel') }}" class="boton-principal" aria-label="Explorar datos demográficos">
+            Explorar Datos <span aria-hidden="true">→</span>
         </a>
     </div>
 </section>
 
 <!-- SECCIÓN ACCESO RÁPIDO -->
-<section class="seccion-acceso">
-    <h2>Acceso Rápido</h2>
-    <div class="grid-acceso">
-        <a href="{{ route('analisis-demografico.panel') }}" class="tarjeta-acceso">
-            <div class="tarjeta-acceso-icono">📈</div>
+<section class="seccion-acceso" aria-labelledby="titulo-acceso">
+    <h2 id="titulo-acceso">Acceso Rápido</h2>
+    <div class="grid-acceso" role="list">
+        <a href="{{ route('analisis-demografico.panel') }}" class="tarjeta-acceso" role="listitem" aria-label="Panel Principal: Visualiza un resumen completo de todas las provincias, municipios y estadísticas clave del MNP">
+            <div class="tarjeta-acceso-icono" aria-hidden="true">📈</div>
             <div class="tarjeta-acceso-titulo">Panel Principal</div>
             <div class="tarjeta-acceso-descripcion">
                 Visualiza un resumen completo de todas las provincias, municipios y estadísticas clave del MNP.
             </div>
-            <div class="tarjeta-acceso-boton">Ver Panel</div>
+            <div class="tarjeta-acceso-boton" aria-hidden="true">Ver Panel</div>
         </a>
 
-        <a href="{{ route('provincias.index') }}" class="tarjeta-acceso">
-            <div class="tarjeta-acceso-icono">🗺️</div>
+        <a href="{{ route('provincias.index') }}" class="tarjeta-acceso" role="listitem" aria-label="Provincias: Explora las 9 provincias de Castilla y León con datos demográficos detallados">
+            <div class="tarjeta-acceso-icono" aria-hidden="true">🗺️</div>
             <div class="tarjeta-acceso-titulo">Provincias</div>
             <div class="tarjeta-acceso-descripcion">
                 Explora las 9 provincias de Castilla y León con datos demográficos detallados.
             </div>
-            <div class="tarjeta-acceso-boton">Ver Provincias</div>
+            <div class="tarjeta-acceso-boton" aria-hidden="true">Ver Provincias</div>
         </a>
 
-        <a href="{{ route('municipios.index') }}" class="tarjeta-acceso">
-            <div class="tarjeta-acceso-icono">🏘️</div>
+        <a href="{{ route('municipios.index') }}" class="tarjeta-acceso" role="listitem" aria-label="Municipios: Busca y analiza datos de municipios específicos con información detallada">
+            <div class="tarjeta-acceso-icono" aria-hidden="true">🏘️</div>
             <div class="tarjeta-acceso-titulo">Municipios</div>
             <div class="tarjeta-acceso-descripcion">
                 Busca y analiza datos de municipios específicos con información detallada.
             </div>
-            <div class="tarjeta-acceso-boton">Ver Municipios</div>
+            <div class="tarjeta-acceso-boton" aria-hidden="true">Ver Municipios</div>
         </a>
 
-        <a href="{{ route('analisis-demografico.comparar') }}" class="tarjeta-acceso">
-            <div class="tarjeta-acceso-icono">⚖️</div>
+        <a href="{{ route('analisis-demografico.comparar') }}" class="tarjeta-acceso" role="listitem" aria-label="Comparar Provincias: Compara dos provincias lado a lado para identificar tendencias y diferencias">
+            <div class="tarjeta-acceso-icono" aria-hidden="true">⚖️</div>
             <div class="tarjeta-acceso-titulo">Comparar Provincias</div>
             <div class="tarjeta-acceso-descripcion">
                 Compara dos provincias lado a lado para identificar tendencias y diferencias.
             </div>
-            <div class="tarjeta-acceso-boton">Comparar</div>
+            <div class="tarjeta-acceso-boton" aria-hidden="true">Comparar</div>
         </a>
 
-        <a href="{{ route('analisis-demografico.mapa-calor') }}" class="tarjeta-acceso">
-            <div class="tarjeta-acceso-icono">🔥</div>
+        <a href="{{ route('analisis-demografico.mapa-calor') }}" class="tarjeta-acceso" role="listitem" aria-label="Mapa de Calor: Visualiza la distribución geográfica de datos demográficos en un mapa interactivo">
+            <div class="tarjeta-acceso-icono" aria-hidden="true">🔥</div>
             <div class="tarjeta-acceso-titulo">Mapa de Calor</div>
             <div class="tarjeta-acceso-descripcion">
                 Visualiza la distribución geográfica de datos demográficos en un mapa interactivo.
             </div>
-            <div class="tarjeta-acceso-boton">Ver Mapa</div>
+            <div class="tarjeta-acceso-boton" aria-hidden="true">Ver Mapa</div>
         </a>
 
         @auth
-        <a href="{{ route('perfil.mostrar') }}" class="tarjeta-acceso">
-            <div class="tarjeta-acceso-icono">👤</div>
+        <a href="{{ route('perfil.mostrar') }}" class="tarjeta-acceso" role="listitem" aria-label="Mi Perfil: Gestiona tu información personal y preferencias de la cuenta">
+            <div class="tarjeta-acceso-icono" aria-hidden="true">👤</div>
             <div class="tarjeta-acceso-titulo">Mi Perfil</div>
             <div class="tarjeta-acceso-descripcion">
                 Gestiona tu información personal y preferencias de la cuenta.
             </div>
-            <div class="tarjeta-acceso-boton">Ver Perfil</div>
+            <div class="tarjeta-acceso-boton" aria-hidden="true">Ver Perfil</div>
         </a>
 
-        <a href="{{ route('perfil.favoritos') }}" class="tarjeta-acceso">
-            <div class="tarjeta-acceso-icono">⭐</div>
+        <a href="{{ route('perfil.favoritos') }}" class="tarjeta-acceso" role="listitem" aria-label="Mis Favoritos: Accede rápidamente a tus municipios favoritos y sigue sus estadísticas">
+            <div class="tarjeta-acceso-icono" aria-hidden="true">⭐</div>
             <div class="tarjeta-acceso-titulo">Mis Favoritos</div>
             <div class="tarjeta-acceso-descripcion">
                 Accede rápidamente a tus municipios favoritos y sigue sus estadísticas.
             </div>
-            <div class="tarjeta-acceso-boton">Ver Favoritos</div>
+            <div class="tarjeta-acceso-boton" aria-hidden="true">Ver Favoritos</div>
         </a>
         @endauth
     </div>
@@ -502,8 +508,43 @@
     </div>
 </section>
 
+</main>
+
 <!-- PIE DE PÁGINA -->
 @include('componentes.pie-pagina')
 
+<style>
+/* Clase sr-only para accesibilidad */
+.sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+}
+.sr-only.focus\:not-sr-only:focus {
+    position: static;
+    width: auto;
+    height: auto;
+    padding: 0.5rem 1rem;
+    margin: 0;
+    overflow: visible;
+    clip: auto;
+    white-space: normal;
+}
+/* Estilos de focus visible */
+a:focus-visible, button:focus-visible {
+    outline: 3px solid var(--primary-color);
+    outline-offset: 2px;
+}
+.tarjeta-acceso:focus-visible {
+    outline: 3px solid var(--primary-color);
+    outline-offset: 4px;
+}
+</style>
 </body>
 </html>

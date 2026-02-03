@@ -11,11 +11,16 @@
 </head>
 <body>
 
+<!-- Saltar al contenido principal (accesibilidad) -->
+<a href="#contenido-principal" class="skip-link">
+    Saltar al contenido principal
+</a>
+
 <!-- BARRA DE NAVEGACIÓN -->
 @include('componentes.barra-navegacion')
 
 <!-- CONTENIDO PRINCIPAL -->
-<main class="contenedor-principal">
+<main class="contenedor-principal" id="contenido-principal">
     @if(session('success'))
         <div class="max-w-7xl mx-auto mt-4 px-4">
             <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative" role="alert">
@@ -40,7 +45,30 @@
     @include('componentes.pie-pagina')
 </main>
 
+@stack('estilos_adicionales')
 @yield('js_adicional')
+
+<style>
+/* Skip link para accesibilidad */
+.skip-link {
+    position: absolute;
+    top: -100px;
+    left: 0;
+    background: var(--primary-color);
+    color: white;
+    padding: 0.75rem 1.5rem;
+    z-index: 10000;
+    text-decoration: none;
+    font-weight: 600;
+    border-radius: 0 0 0.5rem 0;
+    transition: top 0.3s;
+}
+.skip-link:focus {
+    top: 0;
+    outline: 3px solid white;
+    outline-offset: 2px;
+}
+</style>
 
 <!-- Script de respaldo para el gestor de temas -->
 <script>

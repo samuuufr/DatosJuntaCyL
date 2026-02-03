@@ -118,13 +118,38 @@
         border: none !important;
     }
 
-    /* Eliminar efectos visuales al hacer clic en provincias */
-    .leaflet-interactive:focus {
-        outline: none !important;
+    /* Focus visible para controles del mapa */
+    .leaflet-interactive:focus-visible {
+        outline: 3px solid var(--primary-color) !important;
+        outline-offset: 2px;
     }
 
-    .leaflet-container a.leaflet-popup-close-button:focus {
-        outline: none !important;
+    .leaflet-container a.leaflet-popup-close-button:focus-visible {
+        outline: 2px solid var(--primary-color) !important;
+    }
+
+    /* Clase sr-only para accesibilidad */
+    .sr-only {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        padding: 0;
+        margin: -1px;
+        overflow: hidden;
+        clip: rect(0, 0, 0, 0);
+        white-space: nowrap;
+        border: 0;
+    }
+
+    /* Estilos de focus visible para controles */
+    select:focus-visible, input:focus-visible, button:focus-visible {
+        outline: 3px solid var(--primary-color);
+        outline-offset: 2px;
+    }
+
+    #mapa-container:focus-visible {
+        outline: 3px solid var(--primary-color);
+        outline-offset: -3px;
     }
 
     /* Prevenir resaltado de selección */
@@ -232,91 +257,103 @@
 <!-- CONTROLES SUPERIORES -->
 <div class="card" style="margin-bottom: 1.5rem;">
     <div class="card-body">
-        <div class="grid @auth grid-5 @else grid-4 @endauth">
-            <!-- Selector de Año -->
-            <div>
-                <label for="select-ano" style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: var(--text-primary);">
-                    Año
-                </label>
-                <select id="select-ano" style="width: 100%; padding: 0.5rem; border-radius: 0.375rem; border: 1px solid var(--border-color); background: var(--bg-tertiary); color: var(--text-primary);">
-                    <option value="2023">2023</option>
-                    <option value="2022">2022</option>
-                    <option value="2021">2021</option>
-                    <option value="2020">2020</option>
-                </select>
-            </div>
-
-            <!-- Selector de Tipo de Evento -->
-            <div>
-                <label for="select-evento" style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: var(--text-primary);">
-                    Tipo de Evento
-                </label>
-                <select id="select-evento" style="width: 100%; padding: 0.5rem; border-radius: 0.375rem; border: 1px solid var(--border-color); background: var(--bg-tertiary); color: var(--text-primary);">
-                    <option value="nacimiento">Nacimientos</option>
-                    <option value="defuncion">Defunciones</option>
-                    <option value="matrimonio">Matrimonios</option>
-                </select>
-            </div>
-
-            <!-- Buscador de Municipios -->
-            <div style="position: relative;">
-                <label for="search-municipio" style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: var(--text-primary);">
-                    Buscar Municipio
-                </label>
-                <input
-                    type="text"
-                    id="search-municipio"
-                    placeholder="Buscar por nombre..."
-                    autocomplete="off"
-                    style="width: 100%; padding: 0.5rem; border-radius: 0.375rem; border: 1px solid var(--border-color); background: var(--bg-tertiary); color: var(--text-primary);">
-                <div id="search-results" class="search-results"></div>
-            </div>
-
-            <!-- Selector de Favoritos (solo si está autenticado) -->
-            @auth
-            <div>
-                <label for="select-favorito" style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: var(--text-primary);">
-                    Mis Favoritos
-                </label>
-                <select id="select-favorito" style="width: 100%; padding: 0.5rem; border-radius: 0.375rem; border: 1px solid var(--border-color); background: var(--bg-tertiary); color: var(--text-primary);">
-                    <option value="">-- Seleccionar favorito --</option>
-                </select>
-            </div>
-            @endauth
-
-            <!-- Estadísticas Rápidas -->
-            <div style="display: flex; flex-direction: column; justify-content: center; background: var(--bg-tertiary); padding: 1rem; border-radius: 0.375rem;">
-                <div style="font-size: 0.75rem; color: var(--text-secondary); margin-bottom: 0.25rem;">
-                    Total Regional
+        <fieldset style="border: none; margin: 0; padding: 0;">
+            <legend class="sr-only">Controles del mapa de calor</legend>
+            <div class="grid @auth grid-5 @else grid-4 @endauth">
+                <!-- Selector de Año -->
+                <div>
+                    <label for="select-ano" style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: var(--text-primary);">
+                        Año
+                    </label>
+                    <select id="select-ano" aria-describedby="desc-ano" style="width: 100%; padding: 0.5rem; border-radius: 0.375rem; border: 1px solid var(--border-color); background: var(--bg-tertiary); color: var(--text-primary);">
+                        <option value="2023">2023</option>
+                        <option value="2022">2022</option>
+                        <option value="2021">2021</option>
+                        <option value="2020">2020</option>
+                    </select>
+                    <span id="desc-ano" class="sr-only">Selecciona el año para mostrar datos</span>
                 </div>
-                <div id="stat-total" style="font-size: 1.5rem; font-weight: 700; color: var(--primary-color);">
-                    Cargando...
+
+                <!-- Selector de Tipo de Evento -->
+                <div>
+                    <label for="select-evento" style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: var(--text-primary);">
+                        Tipo de Evento
+                    </label>
+                    <select id="select-evento" aria-describedby="desc-evento" style="width: 100%; padding: 0.5rem; border-radius: 0.375rem; border: 1px solid var(--border-color); background: var(--bg-tertiary); color: var(--text-primary);">
+                        <option value="nacimiento">Nacimientos</option>
+                        <option value="defuncion">Defunciones</option>
+                        <option value="matrimonio">Matrimonios</option>
+                    </select>
+                    <span id="desc-evento" class="sr-only">Selecciona el tipo de evento demográfico a visualizar</span>
+                </div>
+
+                <!-- Buscador de Municipios -->
+                <div style="position: relative;">
+                    <label for="search-municipio" style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: var(--text-primary);">
+                        Buscar Municipio
+                    </label>
+                    <input
+                        type="text"
+                        id="search-municipio"
+                        placeholder="Buscar por nombre..."
+                        autocomplete="off"
+                        role="combobox"
+                        aria-expanded="false"
+                        aria-controls="search-results"
+                        aria-autocomplete="list"
+                        aria-describedby="desc-buscar"
+                        style="width: 100%; padding: 0.5rem; border-radius: 0.375rem; border: 1px solid var(--border-color); background: var(--bg-tertiary); color: var(--text-primary);">
+                    <span id="desc-buscar" class="sr-only">Escribe para buscar un municipio en el mapa</span>
+                    <div id="search-results" class="search-results" role="listbox" aria-label="Resultados de búsqueda"></div>
+                </div>
+
+                <!-- Selector de Favoritos (solo si está autenticado) -->
+                @auth
+                <div>
+                    <label for="select-favorito" style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: var(--text-primary);">
+                        Mis Favoritos
+                    </label>
+                    <select id="select-favorito" aria-describedby="desc-favorito" style="width: 100%; padding: 0.5rem; border-radius: 0.375rem; border: 1px solid var(--border-color); background: var(--bg-tertiary); color: var(--text-primary);">
+                        <option value="">-- Seleccionar favorito --</option>
+                    </select>
+                    <span id="desc-favorito" class="sr-only">Selecciona un municipio favorito para localizarlo en el mapa</span>
+                </div>
+                @endauth
+
+                <!-- Estadísticas Rápidas -->
+                <div style="display: flex; flex-direction: column; justify-content: center; background: var(--bg-tertiary); padding: 1rem; border-radius: 0.375rem;" role="status" aria-live="polite">
+                    <div style="font-size: 0.75rem; color: var(--text-secondary); margin-bottom: 0.25rem;">
+                        Total Regional
+                    </div>
+                    <div id="stat-total" style="font-size: 1.5rem; font-weight: 700; color: var(--primary-color);">
+                        Cargando...
+                    </div>
                 </div>
             </div>
-        </div>
+        </fieldset>
     </div>
 </div>
 
 <!-- MAPA Y LEYENDA -->
 <div class="card">
     <div class="card-body" style="padding: 0; position: relative;">
-        <div id="mapa-container">
-            <div class="loading">
-                <div class="spinner"></div>
+        <div id="mapa-container" role="application" aria-label="Mapa de calor demográfico de Castilla y León" tabindex="0">
+            <div class="loading" role="status" aria-live="polite">
+                <div class="spinner" aria-hidden="true"></div>
                 <span>Cargando mapa...</span>
             </div>
         </div>
 
         <!-- Leyenda -->
         <div style="position: absolute; bottom: 2rem; left: 2rem; z-index: 1000;">
-            <div class="leyenda">
+            <aside class="leyenda" aria-label="Leyenda del mapa de calor">
                 <h3 style="font-size: 0.875rem; font-weight: 600; margin-bottom: 0.75rem; color: var(--text-primary);">
                     Leyenda
                 </h3>
-                <div id="legend-content">
+                <div id="legend-content" role="list">
                     <!-- Se llena dinámicamente con JS -->
                 </div>
-            </div>
+            </aside>
         </div>
     </div>
 </div>

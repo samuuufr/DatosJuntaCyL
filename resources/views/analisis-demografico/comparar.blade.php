@@ -9,17 +9,17 @@
 <div class="card" style="margin-bottom: 2rem;">
     <div class="card-header">
         <div>
-            <h2 class="card-title"> Comparativa de Provincias</h2>
+            <h2 class="card-title"><span aria-hidden="true">⚖️</span> Comparativa de Provincias</h2>
             <p class="card-subtitle">Selecciona dos provincias para compararlas</p>
         </div>
     </div>
     <div class="card-body">
-        <form method="GET" action="{{ route('analisis-demografico.comparar') }}" style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem; align-items: flex-end;">
+        <form method="GET" action="{{ route('analisis-demografico.comparar') }}" style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem; align-items: flex-end;" aria-label="Formulario de comparación de provincias">
             <div>
-                <label style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: var(--text-primary);">
+                <label for="provincia_a" style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: var(--text-primary);">
                     Provincia A
                 </label>
-                <select name="provincia_a" required style="width: 100%; padding: 0.75rem; border: 1px solid var(--border-color); border-radius: 0.375rem; background-color: var(--bg-primary); color: var(--text-primary);">
+                <select name="provincia_a" id="provincia_a" required aria-required="true" style="width: 100%; padding: 0.75rem; border: 1px solid var(--border-color); border-radius: 0.375rem; background-color: var(--bg-primary); color: var(--text-primary);">
                     <option value="">-- Seleccionar --</option>
                     @foreach($provincias as $prov)
                         <option value="{{ $prov->id }}" @if(request('provincia_a') == $prov->id) selected @endif>
@@ -29,10 +29,10 @@
                 </select>
             </div>
             <div>
-                <label style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: var(--text-primary);">
+                <label for="provincia_b" style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: var(--text-primary);">
                     Provincia B
                 </label>
-                <select name="provincia_b" required style="width: 100%; padding: 0.75rem; border: 1px solid var(--border-color); border-radius: 0.375rem; background-color: var(--bg-primary); color: var(--text-primary);">
+                <select name="provincia_b" id="provincia_b" required aria-required="true" style="width: 100%; padding: 0.75rem; border: 1px solid var(--border-color); border-radius: 0.375rem; background-color: var(--bg-primary); color: var(--text-primary);">
                     <option value="">-- Seleccionar --</option>
                     @foreach($provincias as $prov)
                         <option value="{{ $prov->id }}" @if(request('provincia_b') == $prov->id) selected @endif>
@@ -41,7 +41,7 @@
                     @endforeach
                 </select>
             </div>
-            <button type="submit" class="btn btn-primary">Comparar →</button>
+            <button type="submit" class="btn btn-primary" aria-label="Comparar provincias seleccionadas">Comparar <span aria-hidden="true">→</span></button>
         </form>
     </div>
 </div>
@@ -141,19 +141,20 @@
     <div class="card">
         <div class="card-header">
             <div>
-                <h2 class="card-title"> Comparativa Detallada</h2>
+                <h2 class="card-title" id="titulo-comparativa"><span aria-hidden="true">📊</span> Comparativa Detallada</h2>
                 <p class="card-subtitle">Análisis lado a lado</p>
             </div>
         </div>
         <div class="card-body">
-            <div class="table-wrapper">
+            <div class="table-wrapper" role="region" aria-labelledby="titulo-comparativa" tabindex="0">
                 <table>
+                    <caption class="sr-only">Comparativa detallada entre {{ $comparativa['provincia_a']['nombre'] }} y {{ $comparativa['provincia_b']['nombre'] }}</caption>
                     <thead>
                         <tr>
-                            <th>Métrica</th>
-                            <th style="text-align: center;">{{ $comparativa['provincia_a']['nombre'] }}</th>
-                            <th style="text-align: center;">{{ $comparativa['provincia_b']['nombre'] }}</th>
-                            <th style="text-align: center;">Diferencia</th>
+                            <th scope="col">Métrica</th>
+                            <th scope="col" style="text-align: center;">{{ $comparativa['provincia_a']['nombre'] }}</th>
+                            <th scope="col" style="text-align: center;">{{ $comparativa['provincia_b']['nombre'] }}</th>
+                            <th scope="col" style="text-align: center;">Diferencia</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -219,12 +220,36 @@
         </div>
     </div>
 @else
-    <div class="card" style="text-align: center; padding: 3rem;">
+    <div class="card" style="text-align: center; padding: 3rem;" role="status">
         <p style="color: var(--text-secondary); font-size: 1rem;">
-             Selecciona dos provincias arriba para ver la comparativa
+            <span aria-hidden="true">👆</span> Selecciona dos provincias arriba para ver la comparativa
         </p>
     </div>
 @endif
+
+@push('estilos_adicionales')
+<style>
+.sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+}
+a:focus-visible, button:focus-visible, select:focus-visible, [tabindex]:focus-visible {
+    outline: 3px solid var(--primary-color);
+    outline-offset: 2px;
+}
+.table-wrapper:focus-visible {
+    outline: 3px solid var(--primary-color);
+    outline-offset: -3px;
+}
+</style>
+@endpush
 
 @endsection
 

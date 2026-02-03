@@ -61,13 +61,13 @@
                 Información Personal
             </h2>
 
-            <form action="{{ route('perfil.actualizar') }}" method="POST">
+            <form action="{{ route('perfil.actualizar') }}" method="POST" aria-label="Actualizar información personal">
                 @csrf
                 @method('PUT')
 
                 <div class="mb-4">
                     <label for="nombre" class="perfil-label">
-                        Nombre
+                        Nombre <span class="sr-only">(obligatorio)</span>
                     </label>
                     <input
                         type="text"
@@ -75,13 +75,15 @@
                         name="nombre"
                         value="{{ old('nombre', $usuario->nombre) }}"
                         required
+                        aria-required="true"
+                        autocomplete="name"
                         class="perfil-input"
                     >
                 </div>
 
                 <div class="mb-4">
                     <label for="email" class="perfil-label">
-                        Email
+                        Email <span class="sr-only">(obligatorio)</span>
                     </label>
                     <input
                         type="email"
@@ -89,6 +91,8 @@
                         name="email"
                         value="{{ old('email', $usuario->email) }}"
                         required
+                        aria-required="true"
+                        autocomplete="email"
                         class="perfil-input"
                     >
                 </div>
@@ -133,19 +137,21 @@
                 Cambiar Contraseña
             </h2>
 
-            <form action="{{ route('perfil.actualizar-password') }}" method="POST">
+            <form action="{{ route('perfil.actualizar-password') }}" method="POST" aria-label="Cambiar contraseña">
                 @csrf
                 @method('PUT')
 
                 <div class="mb-4">
                     <label for="password_actual" class="perfil-label">
-                        Contraseña Actual
+                        Contraseña Actual <span class="sr-only">(obligatorio)</span>
                     </label>
                     <input
                         type="password"
                         id="password_actual"
                         name="password_actual"
                         required
+                        aria-required="true"
+                        autocomplete="current-password"
                         class="perfil-input"
                         placeholder="••••••••"
                     >
@@ -153,27 +159,34 @@
 
                 <div class="mb-4">
                     <label for="password" class="perfil-label">
-                        Nueva Contraseña
+                        Nueva Contraseña <span class="sr-only">(obligatorio)</span>
                     </label>
                     <input
                         type="password"
                         id="password"
                         name="password"
                         required
+                        aria-required="true"
+                        aria-describedby="password-new-hint"
+                        autocomplete="new-password"
+                        minlength="6"
                         class="perfil-input"
                         placeholder="Mínimo 6 caracteres"
                     >
+                    <span id="password-new-hint" class="sr-only">Mínimo 6 caracteres</span>
                 </div>
 
                 <div class="mb-4">
                     <label for="password_confirmation" class="perfil-label">
-                        Confirmar Nueva Contraseña
+                        Confirmar Nueva Contraseña <span class="sr-only">(obligatorio)</span>
                     </label>
                     <input
                         type="password"
                         id="password_confirmation"
                         name="password_confirmation"
                         required
+                        aria-required="true"
+                        autocomplete="new-password"
                         class="perfil-input"
                         placeholder="Repite la contraseña"
                     >
@@ -196,11 +209,30 @@
             href="{{ route('perfil.favoritos') }}"
             class="inline-block font-semibold py-3 px-6 rounded-lg transition-colors duration-200"
             style="background-color: #36902a; color: white; padding-left: 1rem; padding-right: 1rem; margin-top: 1rem;"
-            onmouseover="this.style.backgroundColor='#059669'"
-            onmouseout="this.style.backgroundColor='#4ab73b'"
+            aria-label="Ver mis municipios favoritos"
         >
-              Municipios Favoritos
+            <span aria-hidden="true">⭐</span> Municipios Favoritos
         </a>
     </div>
 </div>
+
+@push('estilos_adicionales')
+<style>
+.sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+}
+input:focus-visible, button:focus-visible, a:focus-visible {
+    outline: 3px solid var(--primary-color);
+    outline-offset: 2px;
+}
+</style>
+@endpush
 @endsection

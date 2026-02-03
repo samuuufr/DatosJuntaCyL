@@ -6,29 +6,29 @@
 @section('contenido')
 
 <!-- BREADCRUMB -->
-<div style="margin-bottom: 2rem; display: flex; align-items: center; gap: 0.5rem; font-size: 0.875rem; color: var(--text-secondary);">
-    <a href="{{ route('analisis-demografico.panel') }}" style="color: var(--primary-color); text-decoration: none;">Panel</a>
-    <span>/</span>
-    <a href="{{ route('analisis-demografico.provincia-detalle', $municipio->provincia->id) }}" style="color: var(--primary-color); text-decoration: none;">
-        {{ $municipio->provincia->nombre }}
-    </a>
-    <span>/</span>
-    <span>{{ $municipio->nombre }}</span>
-</div>
+<nav aria-label="Ruta de navegación" style="margin-bottom: 2rem;">
+    <ol style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.875rem; color: var(--text-secondary); list-style: none; margin: 0; padding: 0;">
+        <li><a href="{{ route('analisis-demografico.panel') }}" style="color: var(--primary-color); text-decoration: none;">Panel</a></li>
+        <li aria-hidden="true">/</li>
+        <li><a href="{{ route('analisis-demografico.provincia-detalle', $municipio->provincia->id) }}" style="color: var(--primary-color); text-decoration: none;">{{ $municipio->provincia->nombre }}</a></li>
+        <li aria-hidden="true">/</li>
+        <li aria-current="page">{{ $municipio->nombre }}</li>
+    </ol>
+</nav>
 
 <!-- ENCABEZADO -->
 <div class="card" style="margin-bottom: 2rem; background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%); color: white; border: none;">
     <div class="card-body">
         <div style="display: flex; justify-content: space-between; align-items: start; gap: 1rem;">
             <div style="flex: 1;">
-                <h1 style="font-size: 2.5rem; margin-bottom: 0.5rem;">🏘️ {{ $municipio->nombre }}</h1>
+                <h1 style="font-size: 2.5rem; margin-bottom: 0.5rem;"><span aria-hidden="true">🏘️</span> {{ $municipio->nombre }}</h1>
                 <p style="font-size: 1rem; opacity: 0.9;">
-                    📍 {{ $municipio->provincia->nombre }}
-                    <span style="margin: 0 0.5rem;">•</span>
-                    INE: {{ $municipio->codigo_ine }}
+                    <span aria-hidden="true">📍</span> {{ $municipio->provincia->nombre }}
+                    <span style="margin: 0 0.5rem;" aria-hidden="true">•</span>
+                    <span class="sr-only">Código </span>INE: {{ $municipio->codigo_ine }}
                     @if($municipio->poblacion)
-                        <span style="margin: 0 0.5rem;">•</span>
-                        👥 Población: {{ number_format($municipio->poblacion, 0, ',', '.') }} habitantes
+                        <span style="margin: 0 0.5rem;" aria-hidden="true">•</span>
+                        <span aria-hidden="true">👥</span> Población: {{ number_format($municipio->poblacion, 0, ',', '.') }} habitantes
                     @endif
                 </p>
             </div>
@@ -39,8 +39,10 @@
                     data-favorito-municipio="{{ $municipio->id }}"
                     class="boton-favorito"
                     style="background-color: rgba(255, 255, 255, 0.2); border-color: rgba(255, 255, 255, 0.3); color: white; flex-shrink: 0;"
+                    aria-label="Añadir {{ $municipio->nombre }} a favoritos"
+                    aria-pressed="false"
                 >
-                    ☆ Añadir a favoritos
+                    <span aria-hidden="true">☆</span> Añadir a favoritos
                 </button>
             @else
                 <!-- Mensaje para usuarios no autenticados -->
@@ -48,8 +50,9 @@
                     href="{{ route('login') }}"
                     class="boton-favorito"
                     style="background-color: rgba(255, 255, 255, 0.2); border-color: rgba(255, 255, 255, 0.3); color: white; flex-shrink: 0;"
+                    aria-label="Iniciar sesión para añadir a favoritos"
                 >
-                    ☆ Iniciar sesión para añadir a favoritos
+                    <span aria-hidden="true">☆</span> Iniciar sesión para añadir a favoritos
                 </a>
             @endauth
         </div>
@@ -59,7 +62,7 @@
 <!-- ESTADÍSTICAS PRINCIPALES -->
 <div class="card" style="margin-bottom: 2rem;">
     <div class="card-header">
-        <h2 class="card-title">📊 Estadísticas Principales</h2>
+        <h2 class="card-title"><span aria-hidden="true">📊</span> Estadísticas Principales</h2>
     </div>
     <div class="card-body">
         <div class="grid {{ $municipio->poblacion ? 'grid-4' : 'grid-3' }}">
@@ -102,20 +105,22 @@
     <!-- Gráfico de evolución temporal -->
     <div class="card">
         <div class="card-header">
-            <h2 class="card-title">📈 Evolución Temporal</h2>
+            <h2 class="card-title" id="titulo-grafico-evolucion"><span aria-hidden="true">📈</span> Evolución Temporal</h2>
         </div>
         <div class="card-body">
-            <canvas id="grafico-evolucion" style="max-height: 300px;"></canvas>
+            <canvas id="grafico-evolucion" style="max-height: 300px;" role="img" aria-labelledby="titulo-grafico-evolucion" aria-describedby="desc-grafico-evolucion"></canvas>
+            <p id="desc-grafico-evolucion" class="sr-only">Gráfico de líneas mostrando la evolución de nacimientos, defunciones y matrimonios a lo largo del tiempo</p>
         </div>
     </div>
 
     <!-- Gráfico de distribución -->
     <div class="card">
         <div class="card-header">
-            <h2 class="card-title">📊 Distribución Total de Eventos</h2>
+            <h2 class="card-title" id="titulo-grafico-distribucion"><span aria-hidden="true">📊</span> Distribución Total de Eventos</h2>
         </div>
         <div class="card-body">
-            <canvas id="grafico-distribucion" style="max-height: 300px;"></canvas>
+            <canvas id="grafico-distribucion" style="max-height: 300px;" role="img" aria-labelledby="titulo-grafico-distribucion" aria-describedby="desc-grafico-distribucion"></canvas>
+            <p id="desc-grafico-distribucion" class="sr-only">Gráfico circular mostrando la proporción de nacimientos, defunciones y matrimonios</p>
         </div>
     </div>
 </div>
@@ -124,20 +129,21 @@
 <div class="card" style="margin-bottom: 2rem;">
     <div class="card-header">
         <div>
-            <h2 class="card-title">📈 Evolución por Años</h2>
+            <h2 class="card-title" id="titulo-evolucion"><span aria-hidden="true">📈</span> Evolución por Años</h2>
             <p class="card-subtitle">Registro histórico de eventos MNP</p>
         </div>
     </div>
     <div class="card-body">
-        <div class="table-wrapper">
+        <div class="table-wrapper" role="region" aria-labelledby="titulo-evolucion" tabindex="0">
             <table>
+                <caption class="sr-only">Evolución anual de nacimientos, matrimonios y defunciones</caption>
                 <thead>
                     <tr>
-                        <th>Año</th>
-                        <th style="text-align: center; color: #10b981;">👶 Nacimientos</th>
-                        <th style="text-align: center; color: #f59e0b;">💍 Matrimonios</th>
-                        <th style="text-align: center; color: #ef4444;">⚰️ Defunciones</th>
-                        <th style="text-align: center;">Total MNP</th>
+                        <th scope="col">Año</th>
+                        <th scope="col" style="text-align: center; color: #10b981;"><span aria-hidden="true">👶</span> Nacimientos</th>
+                        <th scope="col" style="text-align: center; color: #f59e0b;"><span aria-hidden="true">💍</span> Matrimonios</th>
+                        <th scope="col" style="text-align: center; color: #ef4444;"><span aria-hidden="true">⚰️</span> Defunciones</th>
+                        <th scope="col" style="text-align: center;">Total MNP</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -177,18 +183,19 @@
 <div class="card">
     <div class="card-header">
         <div>
-            <h2 class="card-title">📋 Todos los Registros MNP</h2>
+            <h2 class="card-title" id="titulo-registros"><span aria-hidden="true">📋</span> Todos los Registros MNP</h2>
             <p class="card-subtitle">{{ $municipio->datosMnp->count() }} registros en total</p>
         </div>
     </div>
     <div class="card-body">
-        <div class="table-wrapper">
+        <div class="table-wrapper" role="region" aria-labelledby="titulo-registros" tabindex="0">
             <table>
+                <caption class="sr-only">Listado completo de registros del Movimiento Natural de Población</caption>
                 <thead>
                     <tr>
-                        <th>Año</th>
-                        <th>Tipo Evento</th>
-                        <th>Valor</th>
+                        <th scope="col">Año</th>
+                        <th scope="col">Tipo Evento</th>
+                        <th scope="col">Valor</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -231,6 +238,33 @@
     </div>
 </div>
 
+@push('estilos_adicionales')
+<style>
+.sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+}
+a:focus-visible, button:focus-visible, [tabindex]:focus-visible {
+    outline: 3px solid var(--primary-color);
+    outline-offset: 2px;
+}
+.table-wrapper:focus-visible {
+    outline: 3px solid var(--primary-color);
+    outline-offset: -3px;
+}
+.boton-favorito:focus-visible {
+    outline: 3px solid white;
+    outline-offset: 2px;
+}
+</style>
+@endpush
 @endsection
 
 @section('js_adicional')
