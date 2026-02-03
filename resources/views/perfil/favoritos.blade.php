@@ -21,7 +21,7 @@
             <p class="text-sm" style="color: var(--text-secondary);">Explora los municipios y añade tus favoritos haciendo clic en el botón de favorito</p>
             <div class="mt-4">
                 <a
-                    href="{{ route('municipios.index') }}"
+                    href="{{ route('analisis-demografico.mapa-calor') }}"
                     class="btn btn-primary"
                     aria-label="Explorar municipios disponibles"
                 >

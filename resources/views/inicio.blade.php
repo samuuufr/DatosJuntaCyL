@@ -395,8 +395,11 @@
     <div class="contenido-hero">
         <h1 id="titulo-hero">Portal de Datos Demográficos</h1>
         <p>Análisis integral del Movimiento Natural de la Población de Castilla y León</p>
+        <a href="{{ route('analisis-demografico.mapa-calor') }}" class="boton-principal" aria-label="Explorar datos demográficos">
+            Ver Mapa <span aria-hidden="true">→</span>
+        </a>
         <a href="{{ route('analisis-demografico.panel') }}" class="boton-principal" aria-label="Explorar datos demográficos">
-            Explorar Datos <span aria-hidden="true">→</span>
+            Ver Datos <span aria-hidden="true">→</span>
         </a>
     </div>
 </section>
