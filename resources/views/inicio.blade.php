@@ -283,7 +283,6 @@
         }
 
         .navbar-boton-tema:hover {
-            transform: rotate(20deg);
             background-color: var(--primary-color);
             color: #ffffff;
             border-color: var(--primary-color);
@@ -373,7 +372,6 @@
         }
 
         .navbar-boton-tema:hover {
-            transform: rotate(20deg) translateY(-2px);
             background-color: var(--primary-color);
             color: #ffffff;
             border-color: var(--primary-color);

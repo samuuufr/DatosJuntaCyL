@@ -278,10 +278,15 @@ body[data-tema="oscuro"] .navbar-logo img {
   box-shadow: var(--shadow-lg);
   padding: 0.5rem 0;
   z-index: 1000;
+  transition: max-height 0.3s ease-out, opacity 0.2s ease-out;
+  overflow: hidden;
+  max-height: 500px; /* Set a large enough max-height */
 }
 
 .navbar-dropdown.hidden {
-  display: none;
+  max-height: 0;
+  opacity: 0;
+  pointer-events: none;
 }
 
 .navbar-dropdown-item {
