@@ -23,7 +23,7 @@
                            class="navbar-enlace @if(Route::currentRouteName() === 'analisis-demografico.panel') active @endif"
                            role="menuitem"
                            @if(Route::currentRouteName() === 'analisis-demografico.panel') aria-current="page" @endif>
-                            <span aria-hidden="true">📊</span> Panel
+                             Panel
                         </a>
                     </li>
                     <li role="none">
@@ -31,7 +31,7 @@
                            class="navbar-enlace @if(Route::currentRouteName() === 'analisis-demografico.comparar') active @endif"
                            role="menuitem"
                            @if(Route::currentRouteName() === 'analisis-demografico.comparar') aria-current="page" @endif>
-                            <span aria-hidden="true">⚖️</span> Comparar
+                             Comparar
                         </a>
                     </li>
                     <li role="none">
@@ -39,7 +39,7 @@
                            class="navbar-enlace @if(Route::currentRouteName() === 'provincias.index') active @endif"
                            role="menuitem"
                            @if(Route::currentRouteName() === 'provincias.index') aria-current="page" @endif>
-                            <span aria-hidden="true">🗺️</span> Provincias
+                             Provincias
                         </a>
                     </li>
                     <li role="none">
@@ -47,7 +47,7 @@
                            class="navbar-enlace @if(Route::currentRouteName() === 'municipios.index') active @endif"
                            role="menuitem"
                            @if(Route::currentRouteName() === 'municipios.index') aria-current="page" @endif>
-                            <span aria-hidden="true">🏘️</span> Municipios
+                             Municipios
                         </a>
                     </li>
                     <li role="none">
@@ -55,7 +55,7 @@
                            class="navbar-enlace @if(Route::currentRouteName() === 'analisis-demografico.mapa-calor') active @endif"
                            role="menuitem"
                            @if(Route::currentRouteName() === 'analisis-demografico.mapa-calor') aria-current="page" @endif>
-                            <span aria-hidden="true">🔥</span> Mapa de Calor
+                             Mapa de Calor
                         </a>
                     </li>
                 </ul>
