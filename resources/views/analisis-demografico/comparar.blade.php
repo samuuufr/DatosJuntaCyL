@@ -248,6 +248,67 @@ a:focus-visible, button:focus-visible, select:focus-visible, [tabindex]:focus-vi
     outline: 3px solid var(--primary-color);
     outline-offset: -3px;
 }
+
+/* ========================================
+   RESPONSIVE - COMPARAR
+   ======================================== */
+@media (max-width: 768px) {
+    /* Formulario de selección en columna */
+    form[style*="grid-template-columns: 1fr 1fr 1fr"] {
+        grid-template-columns: 1fr !important;
+    }
+
+    /* Gráfico más pequeño */
+    div[style*="height: 400px"] {
+        height: 300px !important;
+    }
+
+    /* Tabla responsive */
+    .table-wrapper {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    table {
+        min-width: 400px;
+    }
+}
+
+@media (max-width: 576px) {
+    /* Stat boxes más compactos */
+    .stat-box {
+        padding: 0.75rem;
+    }
+
+    .stat-box-value {
+        font-size: 1.25rem;
+    }
+
+    .stat-box-label {
+        font-size: 0.7rem;
+    }
+
+    /* Cards de provincias en grid 2x2 */
+    div[style*="grid-template-columns: 1fr 1fr"] {
+        grid-template-columns: 1fr !important;
+        gap: 0.75rem !important;
+    }
+
+    /* Gráfico aún más pequeño */
+    div[style*="height: 400px"],
+    div[style*="height: 300px"] {
+        height: 250px !important;
+    }
+
+    /* Tabla compacta */
+    table {
+        font-size: 0.8rem;
+    }
+
+    th, td {
+        padding: 0.5rem 0.4rem;
+    }
+}
 </style>
 @endpush
 

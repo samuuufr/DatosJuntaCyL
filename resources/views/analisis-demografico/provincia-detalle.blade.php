@@ -15,10 +15,10 @@
 </nav>
 
 <!-- ENCABEZADO -->
-<div class="card" style="margin-bottom: 2rem; background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%); color: white; border: none;">
+<div class="card encabezado-provincia" style="margin-bottom: 2rem; background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%); color: white; border: none;">
     <div class="card-body">
-        <h1 style="font-size: 2.5rem; margin-bottom: 0.5rem;"><span aria-hidden="true">📍</span> {{ $provincia->nombre }}</h1>
-        <p style="font-size: 1rem; opacity: 0.9;">Datos demográficos completos</p>
+        <h1 class="titulo-provincia"><span aria-hidden="true">📍</span> {{ $provincia->nombre }}</h1>
+        <p class="subtitulo-provincia">Datos demográficos completos</p>
     </div>
 </div>
 
@@ -182,6 +182,31 @@
 
 @push('estilos_adicionales')
 <style>
+/* Encabezado */
+.titulo-provincia {
+    font-size: 2.5rem;
+    margin-bottom: 0.5rem;
+}
+
+.subtitulo-provincia {
+    font-size: 1rem;
+    opacity: 0.9;
+    margin: 0;
+}
+
+/* Clase sr-only */
+.sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+}
+
 /* Buscador de municipios */
 #buscar-municipio:focus {
     outline: none;
@@ -233,9 +258,110 @@
     background-color: #f59e0b;
 }
 
+/* ========================================
+   RESPONSIVE - PROVINCIA DETALLE
+   ======================================== */
 @media (max-width: 768px) {
+    .titulo-provincia {
+        font-size: 1.75rem;
+    }
+
+    .subtitulo-provincia {
+        font-size: 0.9rem;
+    }
+
     #buscar-municipio {
         width: 100% !important;
+    }
+
+    /* Gráficos en columna */
+    .grid-2[style*="gap: 1.5rem"] {
+        grid-template-columns: 1fr !important;
+    }
+
+    /* Header de gráfico top municipios */
+    .card-header[style*="flex-wrap: wrap"] {
+        flex-direction: column !important;
+        align-items: flex-start !important;
+    }
+
+    .card-header[style*="flex-wrap: wrap"] > div[style*="flex-wrap: wrap"] {
+        width: 100%;
+        flex-direction: column;
+        gap: 0.75rem !important;
+    }
+
+    .card-header[style*="flex-wrap: wrap"] select {
+        width: 100%;
+    }
+
+    /* Tabla de municipios responsive */
+    .table-wrapper {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    #tabla-municipios {
+        min-width: 500px;
+    }
+
+    /* Ocultar columna # y código INE en tablet */
+    #tabla-municipios th:first-child,
+    #tabla-municipios td:first-child,
+    #tabla-municipios th:nth-child(3),
+    #tabla-municipios td:nth-child(3) {
+        display: none;
+    }
+
+    .boton-favorito-estrella {
+        width: 36px;
+        height: 36px;
+        font-size: 1.2rem;
+    }
+}
+
+@media (max-width: 576px) {
+    .encabezado-provincia .card-body {
+        padding: 1rem;
+    }
+
+    .titulo-provincia {
+        font-size: 1.4rem;
+    }
+
+    .subtitulo-provincia {
+        font-size: 0.85rem;
+    }
+
+    /* Breadcrumb compacto */
+    nav[aria-label="Ruta de navegación"] ol {
+        font-size: 0.8rem !important;
+    }
+
+    /* Header de tabla municipios */
+    .card-header[style*="flex-direction: column"] > div:first-child {
+        width: 100%;
+    }
+
+    .card-header[style*="flex-direction: column"] > div[style*="min-width: 280px"] {
+        min-width: 100% !important;
+        width: 100%;
+    }
+
+    /* Tabla más compacta */
+    #tabla-municipios {
+        min-width: 400px;
+        font-size: 0.8rem;
+    }
+
+    #tabla-municipios th,
+    #tabla-municipios td {
+        padding: 0.5rem 0.4rem;
+    }
+
+    .btn-small {
+        padding: 0.35rem 0.5rem;
+        font-size: 0.7rem;
     }
 }
 </style>

@@ -248,6 +248,62 @@
         .grid-5 {
             grid-template-columns: 1fr;
         }
+
+        /* Mover leyenda a posición menos intrusiva */
+        div[style*="position: absolute; bottom: 2rem; left: 2rem"] {
+            bottom: 1rem !important;
+            left: 1rem !important;
+        }
+
+        .leyenda {
+            max-width: 150px;
+        }
+    }
+
+    @media (max-width: 576px) {
+        #mapa-container {
+            height: 45vh;
+            min-height: 350px;
+        }
+
+        .leyenda {
+            font-size: 0.65rem;
+            padding: 0.5rem;
+            max-width: 120px;
+        }
+
+        .leyenda h3 {
+            font-size: 0.75rem !important;
+            margin-bottom: 0.5rem !important;
+        }
+
+        .leyenda-item {
+            margin-bottom: 0.35rem;
+        }
+
+        .leyenda-color {
+            width: 16px;
+            height: 12px;
+        }
+
+        /* Controles más compactos */
+        select, input[type="text"] {
+            padding: 0.4rem !important;
+            font-size: 0.85rem;
+        }
+
+        label {
+            font-size: 0.8rem !important;
+        }
+
+        /* Estadísticas rápidas */
+        div[style*="Total Regional"] {
+            padding: 0.75rem !important;
+        }
+
+        #stat-total {
+            font-size: 1.25rem !important;
+        }
     }
 </style>
 @endsection

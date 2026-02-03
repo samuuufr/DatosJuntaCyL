@@ -233,6 +233,63 @@ input:focus-visible, button:focus-visible, a:focus-visible {
     outline: 3px solid var(--primary-color);
     outline-offset: 2px;
 }
+
+/* ========================================
+   RESPONSIVE - PERFIL
+   ======================================== */
+@media (max-width: 768px) {
+    .max-w-4xl {
+        padding: 0 1rem;
+    }
+
+    .text-3xl {
+        font-size: 1.75rem !important;
+    }
+
+    .grid-cols-1.md\:grid-cols-2 {
+        grid-template-columns: 1fr !important;
+    }
+
+    .card {
+        padding: 1rem;
+    }
+
+    .text-xl {
+        font-size: 1.1rem !important;
+    }
+}
+
+@media (max-width: 576px) {
+    .max-w-4xl {
+        padding: 0 0.5rem;
+    }
+
+    .text-3xl {
+        font-size: 1.5rem !important;
+    }
+
+    .mb-8 {
+        margin-bottom: 1.5rem !important;
+    }
+
+    .mt-8 {
+        margin-top: 1.5rem !important;
+    }
+
+    .card {
+        padding: 0.75rem;
+    }
+
+    .perfil-input {
+        padding: 0.6rem 0.75rem;
+        font-size: 0.9rem;
+    }
+
+    .btn {
+        padding: 0.6rem 1rem;
+        font-size: 0.85rem;
+    }
+}
 </style>
 @endpush
 @endsection

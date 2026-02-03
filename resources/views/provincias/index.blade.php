@@ -6,10 +6,10 @@
 @section('contenido')
 
 <!-- ENCABEZADO -->
-<div class="card" style="margin-bottom: 2rem; background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%); color: white; border: none;">
+<div class="card encabezado-provincias" style="margin-bottom: 2rem; background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%); color: white; border: none;">
     <div class="card-body">
-        <h1 style="font-size: 2.5rem; margin-bottom: 0.5rem;"><span aria-hidden="true">📍</span> Provincias de Castilla y León</h1>
-        <p style="font-size: 1rem; opacity: 0.9;">Selecciona una provincia para ver su análisis demográfico detallado</p>
+        <h1 class="titulo-provincias"><span aria-hidden="true">📍</span> Provincias de Castilla y León</h1>
+        <p class="subtitulo-provincias">Selecciona una provincia para ver su análisis demográfico detallado</p>
     </div>
 </div>
 
@@ -265,6 +265,112 @@ a:focus-visible, button:focus-visible, [tabindex]:focus-visible {
 .table-wrapper:focus-visible {
     outline: 3px solid var(--primary-color);
     outline-offset: -3px;
+}
+
+/* ========================================
+   RESPONSIVE - PROVINCIAS
+   ======================================== */
+.titulo-provincias {
+    font-size: 2.5rem;
+    margin-bottom: 0.5rem;
+}
+
+.subtitulo-provincias {
+    font-size: 1rem;
+    opacity: 0.9;
+    margin: 0;
+}
+
+@media (max-width: 768px) {
+    .titulo-provincias {
+        font-size: 1.75rem;
+    }
+
+    .subtitulo-provincias {
+        font-size: 0.9rem;
+    }
+
+    /* Botones de vista */
+    .card-header[style*="justify-content: space-between"] {
+        flex-direction: column !important;
+        align-items: flex-start !important;
+        gap: 1rem;
+    }
+
+    .card-header [role="group"] {
+        width: 100%;
+        display: flex;
+    }
+
+    .card-header [role="group"] .btn {
+        flex: 1;
+        justify-content: center;
+    }
+
+    /* Tabla responsive */
+    .table-wrapper {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .table-wrapper table {
+        min-width: 600px;
+    }
+
+    /* Ocultar columnas en tablet */
+    #vista-lista th:nth-child(4),
+    #vista-lista td:nth-child(4),
+    #vista-lista th:nth-child(5),
+    #vista-lista td:nth-child(5) {
+        display: none;
+    }
+}
+
+@media (max-width: 576px) {
+    .encabezado-provincias .card-body {
+        padding: 1rem;
+    }
+
+    .titulo-provincias {
+        font-size: 1.4rem;
+    }
+
+    .subtitulo-provincias {
+        font-size: 0.85rem;
+    }
+
+    /* Cards de provincia más compactas */
+    .provincia-card .card {
+        padding: 0;
+    }
+
+    .provincia-card .card-header {
+        padding: 0.75rem !important;
+    }
+
+    .provincia-card .card-header h3 {
+        font-size: 1rem !important;
+    }
+
+    .provincia-card .card-body {
+        padding: 0.75rem !important;
+    }
+
+    .provincia-card .card-body dl > div {
+        padding: 0.35rem !important;
+        font-size: 0.8rem !important;
+    }
+
+    .provincia-card .btn {
+        padding: 0.5rem 0.75rem;
+        font-size: 0.8rem;
+    }
+
+    /* Vista lista más compacta */
+    #vista-lista th:nth-child(6),
+    #vista-lista td:nth-child(6) {
+        display: none;
+    }
 }
 </style>
 @endpush

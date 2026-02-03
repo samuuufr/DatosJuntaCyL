@@ -156,5 +156,65 @@ a:focus-visible, button:focus-visible, [tabindex]:focus-visible {
     outline: 3px solid var(--primary-color);
     outline-offset: -3px;
 }
+
+/* ========================================
+   RESPONSIVE - FAVORITOS
+   ======================================== */
+@media (max-width: 768px) {
+    .max-w-6xl {
+        padding: 0 1rem;
+    }
+
+    .flex.justify-between {
+        flex-direction: column;
+        gap: 1rem;
+        align-items: flex-start !important;
+    }
+
+    .text-3xl {
+        font-size: 1.75rem !important;
+    }
+
+    .table-wrapper {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    table {
+        min-width: 500px;
+    }
+}
+
+@media (max-width: 576px) {
+    .max-w-6xl {
+        padding: 0 0.5rem;
+    }
+
+    .text-3xl {
+        font-size: 1.5rem !important;
+    }
+
+    .mt-8 {
+        margin-top: 1.5rem !important;
+    }
+
+    .mb-8 {
+        margin-bottom: 1.5rem !important;
+    }
+
+    table {
+        font-size: 0.85rem;
+    }
+
+    th, td {
+        padding: 0.6rem 0.5rem;
+    }
+
+    /* Ocultar columna población en móvil */
+    table th:nth-child(3),
+    table td:nth-child(3) {
+        display: none;
+    }
+}
 </style>
 @endsection

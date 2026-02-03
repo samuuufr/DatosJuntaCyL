@@ -184,6 +184,41 @@ a:focus-visible, button:focus-visible, [tabindex]:focus-visible {
     outline: 3px solid var(--primary-color);
     outline-offset: -3px;
 }
+
+/* ========================================
+   RESPONSIVE - PANEL
+   ======================================== */
+@media (max-width: 768px) {
+    .table-wrapper {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .table-wrapper table {
+        min-width: 500px;
+    }
+
+    /* Ocultar columna # en tablet */
+    .table-wrapper th:first-child,
+    .table-wrapper td:first-child {
+        display: none;
+    }
+}
+
+@media (max-width: 576px) {
+    /* Grid de provincias */
+    .grid-3[role="list"] article {
+        padding: 1rem !important;
+    }
+
+    .grid-3[role="list"] article h3 {
+        font-size: 1rem !important;
+    }
+
+    .grid-3[role="list"] article dl {
+        font-size: 0.8rem !important;
+    }
+}
 </style>
 @endpush
 

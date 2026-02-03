@@ -177,6 +177,44 @@ input:focus-visible, button:focus-visible, a:focus-visible, [type="checkbox"]:fo
     outline: 3px solid var(--primary-color);
     outline-offset: 2px;
 }
+
+/* ========================================
+   RESPONSIVE - LOGIN
+   ======================================== */
+@media (max-width: 576px) {
+    .min-h-screen {
+        padding-top: 1rem !important;
+        padding-bottom: 1rem !important;
+    }
+
+    .w-full.max-w-md {
+        padding: 0 0.5rem;
+    }
+
+    .text-4xl {
+        font-size: 1.75rem !important;
+    }
+
+    .rounded-2xl.p-8 {
+        padding: 1.25rem !important;
+    }
+
+    .w-16.h-16 {
+        width: 3rem !important;
+        height: 3rem !important;
+    }
+
+    .w-16.h-16 svg {
+        width: 1.75rem !important;
+        height: 1.75rem !important;
+    }
+
+    /* Turnstile widget */
+    .cf-turnstile {
+        transform: scale(0.9);
+        transform-origin: center;
+    }
+}
 </style>
 @endpush
 @endsection

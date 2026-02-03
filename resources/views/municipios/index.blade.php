@@ -6,10 +6,10 @@
 @section('contenido')
 
 <!-- ENCABEZADO -->
-<div class="card" style="margin-bottom: 2rem; background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%); color: white; border: none;">
+<div class="card encabezado-municipios" style="margin-bottom: 2rem; background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%); color: white; border: none;">
     <div class="card-body">
-        <h1 style="font-size: 2.5rem; margin-bottom: 0.5rem;"> Buscador de Municipios</h1>
-        <p style="font-size: 1rem; opacity: 0.9;">Busca municipios por nombre o filtra por provincia</p>
+        <h1 class="titulo-municipios">Buscador de Municipios</h1>
+        <p class="subtitulo-municipios">Busca municipios por nombre o filtra por provincia</p>
     </div>
 </div>
 
@@ -20,7 +20,7 @@
     </div>
     <div class="card-body">
         <form method="GET" action="{{ route('municipios.index') }}" id="form-busqueda">
-            <div class="grid grid-2" style="gap: 1rem; margin-bottom: 1rem;">
+            <div class="grid-busqueda">
                 <!-- Búsqueda por nombre -->
                 <div>
                     <label for="buscar" style="display: block; margin-bottom: 0.5rem; font-weight: 500; color: var(--text-primary);">
@@ -69,7 +69,7 @@
                 </div>
             </div>
 
-            <div style="display: flex; gap: 0.5rem;">
+            <div class="botones-busqueda">
                 <button type="submit" class="btn btn-primary">
                     <span aria-hidden="true">🔍</span> Buscar
                 </button>
@@ -91,8 +91,8 @@
             </div>
         </div>
         <div class="card-body">
-            <div class="table-wrapper" role="region" aria-labelledby="tabla-titulo" tabindex="0">
-                <table aria-describedby="tabla-descripcion">
+            <div class="table-wrapper tabla-municipios-wrapper" role="region" aria-labelledby="tabla-titulo" tabindex="0">
+                <table class="tabla-municipios" aria-describedby="tabla-descripcion">
                     <caption class="sr-only" id="tabla-descripcion">Lista de municipios de Castilla y León con información demográfica</caption>
                     <thead>
                         <tr>
@@ -238,12 +238,12 @@
 @elseif(request()->has('buscar') || request()->has('provincia_id'))
     <!-- Sin resultados -->
     <div class="card" role="status" aria-live="polite">
-        <div class="card-body" style="text-align: center; padding: 4rem 2rem;">
-            <div style="font-size: 4rem; margin-bottom: 1rem;" aria-hidden="true">🔍</div>
-            <h3 style="font-size: 1.5rem; margin-bottom: 0.5rem; color: var(--text-primary);">
+        <div class="card-body estado-vacio">
+            <div class="estado-vacio-icono" aria-hidden="true">🔍</div>
+            <h3 class="estado-vacio-titulo">
                 No se encontraron municipios
             </h3>
-            <p style="color: var(--text-secondary); margin-bottom: 1.5rem;">
+            <p class="estado-vacio-texto">
                 Intenta con otros términos de búsqueda o ajusta los filtros
             </p>
             <a href="{{ route('municipios.index') }}" class="btn btn-primary">
@@ -254,15 +254,15 @@
 @else
     <!-- Estado inicial -->
     <div class="card">
-        <div class="card-body" style="text-align: center; padding: 4rem 2rem;">
-            <div style="font-size: 4rem; margin-bottom: 1rem;" aria-hidden="true">🏘️</div>
-            <h3 style="font-size: 1.5rem; margin-bottom: 0.5rem; color: var(--text-primary);">
+        <div class="card-body estado-vacio">
+            <div class="estado-vacio-icono" aria-hidden="true">🏘️</div>
+            <h3 class="estado-vacio-titulo">
                 Comienza tu búsqueda
             </h3>
-            <p style="color: var(--text-secondary); margin-bottom: 1.5rem;">
+            <p class="estado-vacio-texto">
                 Introduce el nombre de un municipio o selecciona una provincia para ver resultados
             </p>
-            <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;" role="group" aria-label="Provincias sugeridas">
+            <div class="provincias-sugeridas" role="group" aria-label="Provincias sugeridas">
                 @foreach($provincias->take(3) as $provincia)
                     <a href="{{ route('municipios.index', ['provincia_id' => $provincia->id]) }}" class="btn btn-secondary" aria-label="Filtrar municipios de {{ $provincia->nombre }}">
                         <span aria-hidden="true">📍</span> {{ $provincia->nombre }}
@@ -563,6 +563,10 @@ cargarFavoritosEstrella();
 
 @push('estilos_adicionales')
 <style>
+/* ========================================
+   ESTILOS BASE
+   ======================================== */
+
 /* Clase para ocultar visualmente pero mantener accesible para lectores de pantalla */
 .sr-only {
     position: absolute;
@@ -574,6 +578,251 @@ cargarFavoritosEstrella();
     clip: rect(0, 0, 0, 0);
     white-space: nowrap;
     border: 0;
+}
+
+/* Encabezado */
+.titulo-municipios {
+    font-size: 2.5rem;
+    margin-bottom: 0.5rem;
+}
+
+.subtitulo-municipios {
+    font-size: 1rem;
+    opacity: 0.9;
+    margin: 0;
+}
+
+/* Grid de búsqueda */
+.grid-busqueda {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+/* Botones de búsqueda */
+.botones-busqueda {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+/* Tabla de municipios */
+.tabla-municipios-wrapper {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+.tabla-municipios {
+    min-width: 650px;
+}
+
+/* ========================================
+   RESPONSIVE - TABLET (max-width: 768px)
+   ======================================== */
+@media (max-width: 768px) {
+    .titulo-municipios {
+        font-size: 1.75rem;
+    }
+
+    .subtitulo-municipios {
+        font-size: 0.9rem;
+    }
+
+    .grid-busqueda {
+        grid-template-columns: 1fr;
+    }
+
+    .tabla-municipios {
+        font-size: 0.875rem;
+    }
+
+    .tabla-municipios th,
+    .tabla-municipios td {
+        padding: 0.5rem 0.4rem;
+    }
+
+    /* Ocultar columnas menos importantes en tablet */
+    .tabla-municipios th:nth-child(4),
+    .tabla-municipios td:nth-child(4) {
+        display: none;
+    }
+
+    .paginacion-btn {
+        padding: 0.4rem 0.5rem;
+        font-size: 0.8rem;
+    }
+
+    .paginacion-btn-numero {
+        min-width: 2rem;
+    }
+}
+
+/* ========================================
+   RESPONSIVE - MÓVIL (max-width: 576px)
+   ======================================== */
+@media (max-width: 576px) {
+    .encabezado-municipios .card-body {
+        padding: 1rem;
+    }
+
+    .titulo-municipios {
+        font-size: 1.4rem;
+    }
+
+    .subtitulo-municipios {
+        font-size: 0.85rem;
+    }
+
+    .botones-busqueda {
+        flex-direction: column;
+    }
+
+    .botones-busqueda .btn {
+        width: 100%;
+        justify-content: center;
+    }
+
+    /* Tabla más compacta en móvil */
+    .tabla-municipios {
+        font-size: 0.8rem;
+        min-width: 500px;
+    }
+
+    .tabla-municipios th,
+    .tabla-municipios td {
+        padding: 0.4rem 0.3rem;
+    }
+
+    /* Ocultar más columnas en móvil */
+    .tabla-municipios th:nth-child(1),
+    .tabla-municipios td:nth-child(1),
+    .tabla-municipios th:nth-child(5),
+    .tabla-municipios td:nth-child(5) {
+        display: none;
+    }
+
+    .btn-small {
+        padding: 0.3rem 0.5rem;
+        font-size: 0.75rem;
+    }
+
+    /* Paginación compacta */
+    .paginacion-btn {
+        padding: 0.35rem 0.4rem;
+        font-size: 0.75rem;
+    }
+
+    .paginacion-btn-numero {
+        min-width: 1.8rem;
+    }
+
+    /* Ocultar texto "Anterior/Siguiente" en móvil muy pequeño */
+    @media (max-width: 400px) {
+        .paginacion-btn-activo,
+        .paginacion-btn-disabled {
+            padding: 0.35rem 0.5rem;
+        }
+    }
+
+    /* Botón favorito más pequeño */
+    .boton-favorito-estrella {
+        width: 36px;
+        height: 36px;
+        font-size: 1.2rem;
+    }
+}
+
+/* ========================================
+   ESTADOS VACÍOS
+   ======================================== */
+.estado-vacio {
+    text-align: center;
+    padding: 4rem 2rem;
+}
+
+.estado-vacio-icono {
+    font-size: 4rem;
+    margin-bottom: 1rem;
+}
+
+.estado-vacio-titulo {
+    font-size: 1.5rem;
+    margin-bottom: 0.5rem;
+    color: var(--text-primary);
+}
+
+.estado-vacio-texto {
+    color: var(--text-secondary);
+    margin-bottom: 1.5rem;
+}
+
+.provincias-sugeridas {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+@media (max-width: 576px) {
+    .estado-vacio {
+        padding: 2rem 1rem;
+    }
+
+    .estado-vacio-icono {
+        font-size: 3rem;
+    }
+
+    .estado-vacio-titulo {
+        font-size: 1.2rem;
+    }
+
+    .estado-vacio-texto {
+        font-size: 0.9rem;
+    }
+
+    .provincias-sugeridas {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    .provincias-sugeridas .btn {
+        width: 100%;
+    }
+}
+
+/* ========================================
+   INDICADOR DE SCROLL EN TABLA
+   ======================================== */
+.tabla-municipios-wrapper {
+    position: relative;
+}
+
+@media (max-width: 768px) {
+    .tabla-municipios-wrapper::after {
+        content: '← Desliza →';
+        display: block;
+        text-align: center;
+        font-size: 0.75rem;
+        color: var(--text-secondary);
+        padding: 0.5rem;
+        background: var(--bg-secondary);
+        border-radius: 0 0 0.5rem 0.5rem;
+    }
+
+    .tabla-municipios-wrapper::-webkit-scrollbar {
+        height: 6px;
+    }
+
+    .tabla-municipios-wrapper::-webkit-scrollbar-track {
+        background: var(--bg-secondary);
+        border-radius: 3px;
+    }
+
+    .tabla-municipios-wrapper::-webkit-scrollbar-thumb {
+        background: var(--primary-color);
+        border-radius: 3px;
+    }
 }
 
 /* Estilos de focus visible para accesibilidad */

@@ -845,7 +845,238 @@ body[data-tema="oscuro"] .pie-pagina-logo:hover {
 }
 
 /* ====================================
-   RESPONSIVE
+   MENÚ HAMBURGUESA
+   ==================================== */
+
+.navbar-hamburguesa {
+  display: none;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  width: 44px;
+  height: 44px;
+  padding: 0.5rem;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  z-index: 1001;
+  gap: 5px;
+}
+
+.hamburguesa-linea {
+  display: block;
+  width: 24px;
+  height: 3px;
+  background-color: var(--text-primary);
+  border-radius: 2px;
+  transition: all 0.3s ease;
+}
+
+.navbar-hamburguesa[aria-expanded="true"] .hamburguesa-linea:nth-child(1) {
+  transform: rotate(45deg) translate(6px, 6px);
+}
+
+.navbar-hamburguesa[aria-expanded="true"] .hamburguesa-linea:nth-child(2) {
+  opacity: 0;
+}
+
+.navbar-hamburguesa[aria-expanded="true"] .hamburguesa-linea:nth-child(3) {
+  transform: rotate(-45deg) translate(6px, -6px);
+}
+
+.navbar-overlay {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 999;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.navbar-overlay.activo {
+  display: block;
+  opacity: 1;
+}
+
+.navbar-menu-contenedor {
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+  flex: 1;
+}
+
+/* Bloquear scroll cuando menú móvil está abierto */
+body.menu-movil-abierto {
+  overflow: hidden;
+}
+
+/* ====================================
+   RESPONSIVE - GLOBAL
+   ==================================== */
+
+/* Contenedor de página responsive */
+@media (max-width: 1200px) {
+  .contenedor-pagina {
+    padding: 1.5rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .contenedor-pagina {
+    padding: 1rem;
+  }
+}
+
+@media (max-width: 576px) {
+  .contenedor-pagina {
+    padding: 0.75rem;
+  }
+}
+
+/* ====================================
+   RESPONSIVE - NAVEGACIÓN
+   ==================================== */
+
+@media (max-width: 992px) {
+  .navbar-contenedor {
+    padding: 0.75rem 1rem;
+  }
+
+  .navbar-enlace {
+    padding: 0.6rem 0.8rem;
+    font-size: 0.85rem;
+  }
+
+  .navbar-usuario-nombre {
+    display: none;
+  }
+
+  .navbar-auth-botones {
+    gap: 0.5rem;
+  }
+
+  .navbar-boton-primario,
+  .navbar-boton-secundario {
+    padding: 0.4rem 0.8rem;
+    font-size: 0.8rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .navbar-hamburguesa {
+    display: flex;
+  }
+
+  .navbar-menu-contenedor {
+    position: fixed;
+    top: 0;
+    right: -100%;
+    width: 80%;
+    max-width: 320px;
+    height: 100vh;
+    background-color: var(--bg-secondary);
+    flex-direction: column;
+    align-items: stretch;
+    justify-content: flex-start;
+    padding: 5rem 1.5rem 2rem;
+    gap: 1.5rem;
+    z-index: 1000;
+    transition: right 0.3s ease;
+    box-shadow: -4px 0 20px rgba(0, 0, 0, 0.2);
+    overflow-y: auto;
+  }
+
+  .navbar-menu-contenedor.menu-abierto {
+    right: 0;
+  }
+
+  .navbar-centro {
+    width: 100%;
+  }
+
+  .navbar-menu {
+    flex-direction: column;
+    gap: 0.5rem;
+    width: 100%;
+  }
+
+  .navbar-enlace {
+    padding: 1rem;
+    border-radius: 0.5rem;
+    border-bottom: none;
+    justify-content: flex-start;
+  }
+
+  .navbar-enlace:hover,
+  .navbar-enlace.active {
+    background-color: var(--bg-tertiary);
+  }
+
+  .navbar-enlace.active {
+    border-left: 3px solid var(--primary-color);
+    border-bottom: none;
+  }
+
+  .navbar-derecha {
+    width: 100%;
+    flex-direction: column;
+    gap: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--border-color);
+  }
+
+  .navbar-auth-botones {
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .navbar-boton-primario,
+  .navbar-boton-secundario {
+    width: 100%;
+    justify-content: center;
+    padding: 0.75rem 1rem;
+  }
+
+  .navbar-usuario-menu {
+    width: 100%;
+  }
+
+  .navbar-usuario-boton {
+    width: 100%;
+    justify-content: flex-start;
+  }
+
+  .navbar-usuario-nombre {
+    display: inline;
+  }
+
+  .navbar-dropdown {
+    position: static;
+    box-shadow: none;
+    border: none;
+    background-color: var(--bg-tertiary);
+    border-radius: 0.5rem;
+    margin-top: 0.5rem;
+  }
+
+  .navbar-boton-tema {
+    width: 100%;
+    justify-content: center;
+    padding: 0.75rem;
+    border-radius: 0.5rem;
+  }
+
+  .navbar-logo img {
+    height: 45px;
+  }
+}
+
+/* ====================================
+   RESPONSIVE - DASHBOARD Y CONTENIDOS
    ==================================== */
 
 @media (max-width: 768px) {
@@ -892,6 +1123,52 @@ body[data-tema="oscuro"] .pie-pagina-logo:hover {
     justify-content: flex-end;
   }
 
+  /* Cards */
+  .card {
+    padding: 1rem;
+  }
+
+  .card-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.75rem;
+  }
+
+  .card-title {
+    font-size: 1.1rem;
+  }
+
+  /* Stat boxes */
+  .stat-box {
+    padding: 0.75rem;
+  }
+
+  .stat-box-value {
+    font-size: 1.5rem;
+  }
+
+  .stat-box-label {
+    font-size: 0.75rem;
+  }
+
+  /* Tablas */
+  th, td {
+    padding: 0.75rem 0.5rem;
+    font-size: 0.8rem;
+  }
+
+  /* Botones */
+  .btn {
+    padding: 0.6rem 1rem;
+    font-size: 0.8rem;
+  }
+
+  .btn-small {
+    padding: 0.4rem 0.75rem;
+    font-size: 0.75rem;
+  }
+
+  /* Footer */
   .pie-pagina-info {
     flex-direction: column;
     align-items: flex-start;
@@ -900,5 +1177,59 @@ body[data-tema="oscuro"] .pie-pagina-logo:hover {
 
   .pie-pagina-educacion {
     text-align: left;
+  }
+
+  .pie-pagina-contenedor {
+    padding: 0 1rem;
+  }
+
+  .pie-pagina-logo {
+    height: 70px;
+  }
+}
+
+@media (max-width: 576px) {
+  /* Cards más compactas */
+  .card {
+    padding: 0.75rem;
+    border-radius: 0.375rem;
+  }
+
+  .card-header {
+    margin-bottom: 1rem;
+    padding-bottom: 0.75rem;
+  }
+
+  .card-title {
+    font-size: 1rem;
+  }
+
+  /* Stat boxes */
+  .stat-box-value {
+    font-size: 1.25rem;
+  }
+
+  /* Encabezado de página */
+  .encabezado-pagina h1 {
+    font-size: 1.5rem;
+  }
+
+  .encabezado-pagina p {
+    font-size: 0.85rem;
+  }
+
+  /* Badges */
+  .badge {
+    padding: 0.2rem 0.5rem;
+    font-size: 0.65rem;
+  }
+
+  /* Notificaciones */
+  .notificacion-favorito {
+    right: 10px;
+    left: 10px;
+    max-width: none;
+    font-size: 0.85rem;
+    padding: 0.75rem 1rem;
   }
 }

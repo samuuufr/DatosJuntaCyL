@@ -17,18 +17,18 @@
 </nav>
 
 <!-- ENCABEZADO -->
-<div class="card" style="margin-bottom: 2rem; background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%); color: white; border: none;">
+<div class="card encabezado-municipio" style="margin-bottom: 2rem; background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%); color: white; border: none;">
     <div class="card-body">
-        <div style="display: flex; justify-content: space-between; align-items: start; gap: 1rem;">
-            <div style="flex: 1;">
-                <h1 style="font-size: 2.5rem; margin-bottom: 0.5rem;"><span aria-hidden="true">🏘️</span> {{ $municipio->nombre }}</h1>
-                <p style="font-size: 1rem; opacity: 0.9;">
+        <div class="encabezado-municipio-contenido">
+            <div class="encabezado-municipio-info">
+                <h1 class="titulo-municipio"><span aria-hidden="true">🏘️</span> {{ $municipio->nombre }}</h1>
+                <p class="subtitulo-municipio">
                     <span aria-hidden="true">📍</span> {{ $municipio->provincia->nombre }}
-                    <span style="margin: 0 0.5rem;" aria-hidden="true">•</span>
+                    <span class="separador-movil" aria-hidden="true">•</span>
                     <span class="sr-only">Código </span>INE: {{ $municipio->codigo_ine }}
                     @if($municipio->poblacion)
-                        <span style="margin: 0 0.5rem;" aria-hidden="true">•</span>
-                        <span aria-hidden="true">👥</span> Población: {{ number_format($municipio->poblacion, 0, ',', '.') }} habitantes
+                        <span class="separador-movil" aria-hidden="true">•</span>
+                        <span aria-hidden="true">👥</span> <span class="texto-poblacion">Población:</span> {{ number_format($municipio->poblacion, 0, ',', '.') }} <span class="texto-habitantes">habitantes</span>
                     @endif
                 </p>
             </div>
@@ -37,22 +37,22 @@
                 <!-- Botón de favorito -->
                 <button
                     data-favorito-municipio="{{ $municipio->id }}"
-                    class="boton-favorito"
-                    style="background-color: rgba(255, 255, 255, 0.2); border-color: rgba(255, 255, 255, 0.3); color: white; flex-shrink: 0;"
+                    class="boton-favorito boton-favorito-municipio"
+                    style="background-color: rgba(255, 255, 255, 0.2); border-color: rgba(255, 255, 255, 0.3); color: white;"
                     aria-label="Añadir {{ $municipio->nombre }} a favoritos"
                     aria-pressed="false"
                 >
-                    <span aria-hidden="true">☆</span> Añadir a favoritos
+                    <span aria-hidden="true">☆</span> <span class="texto-favorito">Añadir a favoritos</span>
                 </button>
             @else
                 <!-- Mensaje para usuarios no autenticados -->
                 <a
                     href="{{ route('login') }}"
-                    class="boton-favorito"
-                    style="background-color: rgba(255, 255, 255, 0.2); border-color: rgba(255, 255, 255, 0.3); color: white; flex-shrink: 0;"
+                    class="boton-favorito boton-favorito-municipio"
+                    style="background-color: rgba(255, 255, 255, 0.2); border-color: rgba(255, 255, 255, 0.3); color: white;"
                     aria-label="Iniciar sesión para añadir a favoritos"
                 >
-                    <span aria-hidden="true">☆</span> Iniciar sesión para añadir a favoritos
+                    <span aria-hidden="true">☆</span> <span class="texto-favorito">Iniciar sesión</span>
                 </a>
             @endauth
         </div>
@@ -262,6 +262,149 @@ a:focus-visible, button:focus-visible, [tabindex]:focus-visible {
 .boton-favorito:focus-visible {
     outline: 3px solid white;
     outline-offset: 2px;
+}
+
+/* ========================================
+   ESTILOS BASE - MUNICIPIO DETALLE
+   ======================================== */
+.titulo-municipio {
+    font-size: 2.5rem;
+    margin-bottom: 0.5rem;
+}
+
+.subtitulo-municipio {
+    font-size: 1rem;
+    opacity: 0.9;
+    margin: 0;
+}
+
+.separador-movil {
+    margin: 0 0.5rem;
+}
+
+.encabezado-municipio-contenido {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 1rem;
+}
+
+.encabezado-municipio-info {
+    flex: 1;
+}
+
+.boton-favorito-municipio {
+    flex-shrink: 0;
+}
+
+/* ========================================
+   RESPONSIVE - MUNICIPIO DETALLE
+   ======================================== */
+@media (max-width: 768px) {
+    .titulo-municipio {
+        font-size: 1.75rem;
+    }
+
+    .subtitulo-municipio {
+        font-size: 0.9rem;
+    }
+
+    .encabezado-municipio-contenido {
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    .boton-favorito-municipio {
+        width: 100%;
+        justify-content: center;
+    }
+
+    /* Gráficos en columna */
+    .grid-2[style*="gap: 1.5rem"] {
+        grid-template-columns: 1fr !important;
+    }
+
+    /* Tablas responsive */
+    .table-wrapper {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .table-wrapper table {
+        min-width: 400px;
+    }
+}
+
+@media (max-width: 576px) {
+    .encabezado-municipio .card-body {
+        padding: 1rem;
+    }
+
+    .titulo-municipio {
+        font-size: 1.4rem;
+    }
+
+    .subtitulo-municipio {
+        font-size: 0.8rem;
+        line-height: 1.6;
+    }
+
+    /* Separadores en líneas diferentes */
+    .separador-movil {
+        display: none;
+    }
+
+    .subtitulo-municipio {
+        display: flex;
+        flex-direction: column;
+        gap: 0.25rem;
+    }
+
+    .texto-poblacion,
+    .texto-habitantes {
+        display: none;
+    }
+
+    .texto-favorito {
+        display: none;
+    }
+
+    .boton-favorito-municipio {
+        padding: 0.75rem;
+        font-size: 1.25rem;
+    }
+
+    /* Breadcrumb compacto */
+    nav[aria-label="Ruta de navegación"] ol {
+        font-size: 0.75rem !important;
+        flex-wrap: wrap;
+    }
+
+    /* Grid de estadísticas */
+    .grid-4, .grid-3 {
+        grid-template-columns: repeat(2, 1fr) !important;
+    }
+
+    .stat-box {
+        padding: 0.75rem;
+    }
+
+    .stat-box-value {
+        font-size: 1.25rem;
+    }
+
+    .stat-box-label {
+        font-size: 0.7rem;
+    }
+
+    /* Tablas más compactas */
+    .table-wrapper table {
+        font-size: 0.8rem;
+    }
+
+    th, td {
+        padding: 0.5rem 0.4rem;
+    }
 }
 </style>
 @endpush
