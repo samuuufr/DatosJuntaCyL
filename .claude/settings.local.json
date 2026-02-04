@@ -23,7 +23,8 @@
       "WebFetch(domain:datosabiertos.jcyl.es)",
       "Bash(find:*)",
       "Bash(npm run dev:*)",
-      "Bash(findstr:*)"
+      "Bash(findstr:*)",
+      "WebFetch(domain:datosjuntacyl-production.up.railway.app)"
     ]
   }
 }
