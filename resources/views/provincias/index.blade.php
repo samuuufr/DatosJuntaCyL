@@ -75,7 +75,7 @@
                                 </div>
                                 <div style="margin-top: 0.5rem; padding-top: 0.75rem; border-top: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center;">
                                     <dt style="font-size: 0.875rem; color: var(--text-secondary);">Crecimiento vegetativo</dt>
-                                    <dd style="font-size: 1.1rem; font-weight: bold; margin: 0; color: {{ $provincia->estadisticas['crecimiento_vegetativo'] >= 0 ? '#10b981' : '#ef4444' }};">
+                                    <dd style="font-size: 1.1rem; font-weight: bold; margin: 0; color: #AA0E0E">
                                         {{ $provincia->estadisticas['crecimiento_vegetativo'] >= 0 ? '+' : '' }}{{ number_format($provincia->estadisticas['crecimiento_vegetativo'], 0, ',', '.') }}
                                     </dd>
                                 </div>
