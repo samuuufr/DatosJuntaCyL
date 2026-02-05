@@ -398,7 +398,7 @@
         <a href="{{ route('analisis-demografico.mapa-calor') }}" class="boton-principal" aria-label="Explorar datos demográficos">
             Ver Mapa <span aria-hidden="true">→</span>
         </a>
-        <a href="{{ route('analisis-demografico.panel') }}" class="boton-principal" aria-label="Explorar datos demográficos">
+        <a style="margin-top:1rem" href="{{ route('analisis-demografico.panel') }}" class="boton-principal" aria-label="Explorar datos demográficos">
             Ver Datos <span aria-hidden="true">→</span>
         </a>
     </div>
